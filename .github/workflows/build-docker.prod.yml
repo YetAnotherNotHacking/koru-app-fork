@@ -112,7 +112,7 @@ jobs:
           git add .
           # Check if there are changes to commit
           if ! git diff --staged --quiet; then
-            git commit -m "Update image tags to koru-api:${{ needs.build-api.outputs.image }} koru-web:${{ needs.build-web.outputs.image }}"
+            git commit -m "Update image tags to ${{ needs.build-api.outputs.image }} ${{ needs.build-web.outputs.image }}"
             git push
           else
             echo "No image changes to commit."

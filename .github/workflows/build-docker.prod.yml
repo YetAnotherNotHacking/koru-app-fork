@@ -90,8 +90,8 @@ jobs:
 
       - name: Log image tags
         run: |
-          echo "API image tags: ${{ needs.build-api.outputs.image_tags }}"
-          echo "Web image tags: ${{ needs.build-web.outputs.image_tags }}"
+          echo "API image tags: ${{ needs.build-api.outputs.image_tags[0] }}"
+          echo "Web image tags: ${{ needs.build-web.outputs.image_tags[0] }}"
 
       # - name: Update API image tag
       #   run: |

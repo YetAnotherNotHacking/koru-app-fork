@@ -21,7 +21,7 @@ jobs:
       - name: Extract metadata for Docker
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/{{ github.actor }}/koru-api
+          images: ghcr.io/${{ github.actor }}/koru-api
 
       - name: Build API
         uses: docker/build-push-action@v3
@@ -47,7 +47,7 @@ jobs:
       - name: Extract metadata for Docker
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/{{ github.actor }}/koru-web
+          images: ghcr.io/${{ github.actor }}/koru-web
 
       - name: Build Web
         uses: docker/build-push-action@v3

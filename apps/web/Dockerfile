@@ -13,10 +13,16 @@ WORKDIR /app
 
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 
+# This is a workaround, because web and api-client expect tsconfig.base.json to be at ../../, but the deployed web is one level higher
 COPY tsconfig.base.json /
+COPY tsconfig.base.json /app
 
 COPY apps ./apps
 COPY packages ./packages
+
+RUN pnpm install
+
+RUN pnpm --filter api-client run build
 
 RUN pnpm deploy --filter=web web
 

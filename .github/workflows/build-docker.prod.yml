@@ -9,7 +9,7 @@ jobs:
   build-api:
     runs-on: ubuntu-latest
     outputs:
-      image_tag: ${{ steps.meta.outputs.tags[0] }}
+      image_tags: ${{ steps.meta.outputs.tags }}
     steps:
       - uses: actions/checkout@v4
 
@@ -45,7 +45,7 @@ jobs:
   build-web:
     runs-on: ubuntu-latest
     outputs:
-      image_tag: ${{ steps.meta.outputs.tags[0] }}
+      image_tags: ${{ steps.meta.outputs.tags }}
     steps:
       - uses: actions/checkout@v4
 
@@ -88,24 +88,29 @@ jobs:
           repository: jamdon2/koru-infra
           token: ${{ secrets.INFRA_REPO_TOKEN }}
 
-      - name: Update API image tag
+      - name: Log image tags
         run: |
-          sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq && sudo chmod +x /usr/bin/yq
-          yq e '.spec.template.spec.containers[0].image = "ghcr.io/${{ github.repository_owner }}/koru-api:${{ needs.build-api.outputs.image_tag }}"' -i api-deployment.yaml
+          echo "API image tags: ${{ needs.build-api.outputs.image_tags }}"
+          echo "Web image tags: ${{ needs.build-web.outputs.image_tags }}"
 
-      - name: Update Web image tag
-        run: |
-          yq e '.spec.template.spec.containers[0].image = "ghcr.io/${{ github.repository_owner }}/koru-web:${{ needs.build-web.outputs.image_tag }}"' -i web-deployment.yaml
+      # - name: Update API image tag
+      #   run: |
+      #     sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq && sudo chmod +x /usr/bin/yq
+      #     yq e '.spec.template.spec.containers[0].image = "ghcr.io/${{ github.repository_owner }}/koru-api:${{ needs.build-api.outputs.image_tag }}"' -i api-deployment.yaml
 
-      - name: Commit and push changes
-        run: |
-          git config --global user.name 'GitHub Actions Bot'
-          git config --global user.email 'actions-bot@github.com'
-          git add .
-          # Check if there are changes to commit
-          if ! git diff --staged --quiet; then
-            git commit -m "Update image tags to koru-api:${{ needs.build-api.outputs.image_tag }} koru-web:${{ needs.build-web.outputs.image_tag }}"
-            git push
-          else
-            echo "No image changes to commit."
-          fi
+      # - name: Update Web image tag
+      #   run: |
+      #     yq e '.spec.template.spec.containers[0].image = "ghcr.io/${{ github.repository_owner }}/koru-web:${{ needs.build-web.outputs.image_tag }}"' -i web-deployment.yaml
+
+      # - name: Commit and push changes
+      #   run: |
+      #     git config --global user.name 'GitHub Actions Bot'
+      #     git config --global user.email 'actions-bot@github.com'
+      #     git add .
+      #     # Check if there are changes to commit
+      #     if ! git diff --staged --quiet; then
+      #       git commit -m "Update image tags to koru-api:${{ needs.build-api.outputs.image_tag }} koru-web:${{ needs.build-web.outputs.image_tag }}"
+      #       git push
+      #     else
+      #       echo "No image changes to commit."
+      #     fi

@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "pnpm codegen && tsc -p tsconfig.build.json",
+    "build": "tsc -p tsconfig.build.json",
     "codegen": "pnpm clean && orval",
     "clean": "node scripts/clean.js",
-    "generate": "pnpm build"
+    "generate": "pnpm codegen && pnpm build"
   },
   "exports": {
     "./axios": {

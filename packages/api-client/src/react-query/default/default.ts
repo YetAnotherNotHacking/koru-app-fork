@@ -25,10 +25,6 @@ import type { HTTPValidationError, MessageResponse, User } from "../../model";
 import { customInstance } from "../../lib/axiosInstance";
 import type { ErrorType } from "../../lib/axiosInstance";
 
-type AwaitedInput<T> = PromiseLike<T> | T;
-
-type Awaited<O> = O extends AwaitedInput<infer T> ? T : never;
-
 /**
  * @summary Root
  */

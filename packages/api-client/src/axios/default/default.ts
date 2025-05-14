@@ -21,6 +21,12 @@ export const helloWorld = () => {
   return customInstance<MessageResponse>({ url: `/hello`, method: "GET" });
 };
 /**
+ * @summary Ping
+ */
+export const ping = () => {
+  return customInstance<MessageResponse>({ url: `/ping`, method: "GET" });
+};
+/**
  * @summary Create User
  */
 export const createUser = (user: User) => {

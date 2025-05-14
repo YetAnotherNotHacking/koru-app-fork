@@ -21,6 +21,13 @@ export const helloWorldResponse = zod.object({
 });
 
 /**
+ * @summary Ping
+ */
+export const pingResponse = zod.object({
+  message: zod.string(),
+});
+
+/**
  * @summary Create User
  */
 export const createUserBody = zod.object({

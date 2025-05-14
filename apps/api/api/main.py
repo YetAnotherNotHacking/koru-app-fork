@@ -52,6 +52,11 @@ async def hello_world() -> MessageResponse:
     return MessageResponse(message="API says: Hello World, from Python!")
 
 
+@app.get("/ping")
+async def ping() -> MessageResponse:
+    return MessageResponse(message="API says: Pong!")
+
+
 @app.post("/users")
 async def create_user(user: User) -> MessageResponse:
     return MessageResponse(message="User created successfully!")

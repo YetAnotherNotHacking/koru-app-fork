@@ -3,7 +3,9 @@
   "private": true,
   "scripts": {
     "prepare": "husky",
-    "generate:api-client": "pnpm --filter api run generate-openapi && pnpm --filter api-client run build"
+    "generate:api-client": "pnpm --filter api run generate-openapi && pnpm --filter api-client run build",
+    "db:migrate": "pnpm --filter api run db:migrate",
+    "db:upgrade": "pnpm --filter api run db:upgrade"
   },
   "packageManager": "pnpm@10.10.0",
   "devDependencies": {

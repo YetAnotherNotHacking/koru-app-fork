@@ -1,0 +1,59 @@
+name: Build Production Docker Images
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-api:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata for Docker
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/{{ github.actor }}/koru-api
+
+      - name: Build API
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: apps/api/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  build-web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata for Docker
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/{{ github.actor }}/koru-web
+
+      - name: Build Web
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: apps/web/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}

@@ -14,6 +14,7 @@ def custom_generate_unique_id(route: APIRoute) -> str:
 
 app = FastAPI(
     generate_unique_id_function=custom_generate_unique_id,
+    root_path="/api",
 )
 
 # --- CORS Configuration ---

@@ -96,29 +96,24 @@ jobs:
           repository: jamdon2/koru-infra
           token: ${{ secrets.INFRA_REPO_TOKEN }}
 
-      - name: Log image tags
+      - name: Update API image tag
         run: |
-          echo "API image tag: ${{ needs.build-api.outputs.image_tag }}"
-          echo "Web image tag: ${{ needs.build-web.outputs.image_tag }}"
+          sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq && sudo chmod +x /usr/bin/yq
+          yq e '.spec.template.spec.containers[0].image = "ghcr.io/${{ github.repository_owner }}/koru-api:${{ needs.build-api.outputs.image_tag }}"' -i api-deployment.yaml
 
-      # - name: Update API image tag
-      #   run: |
-      #     sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq && sudo chmod +x /usr/bin/yq
-      #     yq e '.spec.template.spec.containers[0].image = "ghcr.io/${{ github.repository_owner }}/koru-api:${{ needs.build-api.outputs.image_tag }}"' -i api-deployment.yaml
+      - name: Update Web image tag
+        run: |
+          yq e '.spec.template.spec.containers[0].image = "ghcr.io/${{ github.repository_owner }}/koru-web:${{ needs.build-web.outputs.image_tag }}"' -i web-deployment.yaml
 
-      # - name: Update Web image tag
-      #   run: |
-      #     yq e '.spec.template.spec.containers[0].image = "ghcr.io/${{ github.repository_owner }}/koru-web:${{ needs.build-web.outputs.image_tag }}"' -i web-deployment.yaml
-
-      # - name: Commit and push changes
-      #   run: |
-      #     git config --global user.name 'GitHub Actions Bot'
-      #     git config --global user.email 'actions-bot@github.com'
-      #     git add .
-      #     # Check if there are changes to commit
-      #     if ! git diff --staged --quiet; then
-      #       git commit -m "Update image tags to koru-api:${{ needs.build-api.outputs.image_tag }} koru-web:${{ needs.build-web.outputs.image_tag }}"
-      #       git push
-      #     else
-      #       echo "No image changes to commit."
-      #     fi
+      - name: Commit and push changes
+        run: |
+          git config --global user.name 'GitHub Actions Bot'
+          git config --global user.email 'actions-bot@github.com'
+          git add .
+          # Check if there are changes to commit
+          if ! git diff --staged --quiet; then
+            git commit -m "Update image tags to koru-api:${{ needs.build-api.outputs.image_tag }} koru-web:${{ needs.build-web.outputs.image_tag }}"
+            git push
+          else
+            echo "No image changes to commit."
+          fi

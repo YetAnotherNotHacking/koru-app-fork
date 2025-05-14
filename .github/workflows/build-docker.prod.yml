@@ -15,14 +15,14 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
-          username: ${{ github.actor }}
+          username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Extract metadata for Docker
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.actor }}/koru-api
+          images: ghcr.io/${{ github.repository_owner }}/koru-api
           tags: |
             type=ref,event=branch
             type=ref,event=pr
@@ -49,14 +49,14 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
-          username: ${{ github.actor }}
+          username: ${{ github.github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Extract metadata for Docker
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.actor }}/koru-web
+          images: ghcr.io/${{ github.github.repository_owner }}/koru-web
           tags: |
             type=ref,event=branch
             type=ref,event=pr

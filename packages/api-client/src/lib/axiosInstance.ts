@@ -1,16 +1,16 @@
 import Axios, { AxiosError, AxiosRequestConfig } from "axios";
 
 function getApiBaseUrl(): string {
+  if (typeof process !== "undefined" && process.env.API_URL) {
+    return process.env.API_URL;
+  }
+
   if (typeof process !== "undefined" && process.env.NEXT_PUBLIC_API_URL) {
     return process.env.NEXT_PUBLIC_API_URL;
   }
 
   if (typeof process !== "undefined" && process.env.EXPO_PUBLIC_API_URL) {
     return process.env.EXPO_PUBLIC_API_URL;
-  }
-
-  if (typeof process !== "undefined" && process.env.API_URL) {
-    return process.env.API_URL;
   }
 
   return "http://localhost:8000";

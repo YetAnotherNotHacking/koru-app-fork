@@ -7,9 +7,9 @@ import {
   urlSearchParamsBodySerializer,
 } from "@hey-api/client-fetch";
 import type {
-  GetTokenData,
-  GetTokenResponse,
-  GetTokenError,
+  PasswordLoginData,
+  PasswordLoginResponse,
+  PasswordLoginError,
   RefreshTokenData,
   RefreshTokenResponse,
   RefreshTokenError,
@@ -43,14 +43,14 @@ export type Options<
 };
 
 /**
- * Get Token
+ * Password Login
  */
-export const getToken = <ThrowOnError extends boolean = false>(
-  options: Options<GetTokenData, ThrowOnError>
+export const passwordLogin = <ThrowOnError extends boolean = false>(
+  options: Options<PasswordLoginData, ThrowOnError>
 ) => {
   return (options.client ?? _heyApiClient).post<
-    GetTokenResponse,
-    GetTokenError,
+    PasswordLoginResponse,
+    PasswordLoginError,
     ThrowOnError
   >({
     ...urlSearchParamsBodySerializer,

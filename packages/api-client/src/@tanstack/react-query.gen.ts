@@ -2,7 +2,7 @@
 
 import {
   type Options,
-  getToken,
+  passwordLogin,
   refreshToken,
   root,
   helloWorld,
@@ -11,9 +11,9 @@ import {
 } from "../sdk.gen";
 import { queryOptions, type UseMutationOptions } from "@tanstack/react-query";
 import type {
-  GetTokenData,
-  GetTokenError,
-  GetTokenResponse,
+  PasswordLoginData,
+  PasswordLoginError,
+  PasswordLoginResponse,
   RefreshTokenData,
   RefreshTokenError,
   RefreshTokenResponse,
@@ -60,13 +60,13 @@ const createQueryKey = <TOptions extends Options>(
   return [params];
 };
 
-export const getTokenQueryKey = (options: Options<GetTokenData>) =>
-  createQueryKey("getToken", options);
+export const passwordLoginQueryKey = (options: Options<PasswordLoginData>) =>
+  createQueryKey("passwordLogin", options);
 
-export const getTokenOptions = (options: Options<GetTokenData>) => {
+export const passwordLoginOptions = (options: Options<PasswordLoginData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await getToken({
+      const { data } = await passwordLogin({
         ...options,
         ...queryKey[0],
         signal,
@@ -74,24 +74,24 @@ export const getTokenOptions = (options: Options<GetTokenData>) => {
       });
       return data;
     },
-    queryKey: getTokenQueryKey(options),
+    queryKey: passwordLoginQueryKey(options),
   });
 };
 
-export const getTokenMutation = (
-  options?: Partial<Options<GetTokenData>>
+export const passwordLoginMutation = (
+  options?: Partial<Options<PasswordLoginData>>
 ): UseMutationOptions<
-  GetTokenResponse,
-  GetTokenError,
-  Options<GetTokenData>
+  PasswordLoginResponse,
+  PasswordLoginError,
+  Options<PasswordLoginData>
 > => {
   const mutationOptions: UseMutationOptions<
-    GetTokenResponse,
-    GetTokenError,
-    Options<GetTokenData>
+    PasswordLoginResponse,
+    PasswordLoginError,
+    Options<PasswordLoginData>
   > = {
     mutationFn: async (localOptions) => {
-      const { data } = await getToken({
+      const { data } = await passwordLogin({
         ...options,
         ...localOptions,
         throwOnError: true,

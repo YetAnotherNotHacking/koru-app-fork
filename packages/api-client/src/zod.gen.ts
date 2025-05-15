@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 
-export const zBodyGetToken = z.object({
+export const zBodyPasswordLogin = z.object({
   grant_type: z.union([z.string().regex(/^password$/), z.null()]).optional(),
   username: z.string(),
   password: z.string(),
@@ -38,7 +38,7 @@ export const zUser = z.object({
   email: z.string(),
 });
 
-export const zGetTokenResponse = zToken;
+export const zPasswordLoginResponse = zToken;
 
 export const zRefreshTokenResponse = zToken;
 

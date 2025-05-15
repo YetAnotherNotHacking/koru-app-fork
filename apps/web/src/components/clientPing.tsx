@@ -1,5 +1,5 @@
 "use client";
-import { ping } from "api-client/axios";
+import { ping } from "api-client";
 import { useState } from "react";
 
 function ClientPing() {
@@ -10,7 +10,12 @@ function ClientPing() {
       <button
         className="bg-blue-500 text-white p-2 rounded"
         onClick={async () => {
-          setMessage((await ping()).message);
+          const { data, error } = await ping();
+          if (data) {
+            setMessage(data.message);
+          } else if (error) {
+            setMessage(String(error));
+          }
         }}
       >
         Client side ping

@@ -1,9 +1,10 @@
-import { useCreateUser } from "api-client/react-query";
+import { createUserMutation } from "api-client/react-query";
 import { Button, Text, TextInput, View } from "react-native";
 import React, { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
 
 export default function AboutScreen() {
-  const createUser = useCreateUser();
+  const createUser = useMutation(createUserMutation());
   const [apiResponse, setApiResponse] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(true);
   const [email, setEmail] = useState("");
@@ -11,7 +12,7 @@ export default function AboutScreen() {
 
   const handleCreateUser = () => {
     createUser.mutate(
-      { data: { email: email, name: name } },
+      { body: { email: email, name: name } },
       {
         onSuccess: (data) => {
           setApiResponse(data.message);

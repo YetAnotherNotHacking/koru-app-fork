@@ -1,8 +1,9 @@
 import { Text, View } from "react-native";
-import { useHelloWorld } from "api-client/react-query";
+import { helloWorldOptions } from "api-client/react-query";
+import { useQuery } from "@tanstack/react-query";
 
 export default function Index() {
-  const helloWorld = useHelloWorld();
+  const helloWorld = useQuery(helloWorldOptions());
 
   return (
     <View className="flex-1 justify-center items-center">

@@ -2,12 +2,11 @@ import { rm, readdir } from "fs/promises";
 import { join } from "path";
 import { fileURLToPath } from "url";
 
-const __filename = fileURLToPath(import.meta.url);
 const __dirname = join(fileURLToPath(import.meta.url), "..");
 
 const targetDir = join(__dirname, "..", "src");
 
-const WHITELIST = ["lib"];
+const WHITELIST = ["hey-api.ts"];
 
 async function cleanSrc() {
   try {
@@ -20,7 +19,7 @@ async function cleanSrc() {
       }
     }
     console.log(
-      `Successfully cleaned ${targetDir}, excluding ${WHITELIST.join(", ")}`,
+      `Successfully cleaned ${targetDir}, excluding ${WHITELIST.join(", ")}`
     );
   } catch (error) {
     console.error(`Error cleaning ${targetDir}:`, error);

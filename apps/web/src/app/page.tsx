@@ -1,15 +1,13 @@
 import Image from "next/image";
 
-import { ping } from "api-client/axios";
+import { ping } from "api-client";
 import ClientPing from "@/components/clientPing";
 
 // We need to prevent static generation, since the API is not available at build time
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const response = await ping().catch((err) => ({
-    message: JSON.stringify(err),
-  }));
+  const { data, error } = await ping();
 
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
@@ -33,7 +31,8 @@ export default async function Home() {
           <li className="tracking-[-.01em]">
             Save and see your changes instantly.
           </li>
-          Message: {response.message}
+          {data && <li>Message: {data.message}</li>}
+          {error ? <li>Error: {String(error)}</li> : null}
         </ol>
 
         <ClientPing />

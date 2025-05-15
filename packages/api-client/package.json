@@ -23,6 +23,11 @@
       "types": "./dist/@tanstack/react-query.gen.d.ts",
       "require": "./dist/@tanstack/react-query.gen.js",
       "import": "./dist/@tanstack/react-query.gen.js"
+    },
+    "./client": {
+      "types": "./dist/client.gen.d.ts",
+      "require": "./dist/client.gen.js",
+      "import": "./dist/client.gen.js"
     }
   },
   "files": [

@@ -1,10 +1,10 @@
+import apiClient from "@/clients/api";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { client } from "api-client/client";
 
 interface AuthStore {
   token: string | null;
-  setToken: (token: string) => void;
+  updateToken: (token: string) => void;
   clearToken: () => void;
 }
 
@@ -12,7 +12,7 @@ const useAuthStore = create<AuthStore>()(
   persist(
     (set) => ({
       token: null,
-      setToken: (token: string) => set({ token }),
+      updateToken: (token: string) => set({ token }),
       clearToken: () => set({ token: null }),
     }),
     {
@@ -22,14 +22,14 @@ const useAuthStore = create<AuthStore>()(
 );
 
 // Initialize client with potentially persisted token
-client.setConfig({
+apiClient.setConfig({
   auth: useAuthStore.getState().token ?? undefined,
 });
 
 // Subscribe to token changes to keep client config updated
 useAuthStore.subscribe((state, prevState) => {
   if (state.token !== prevState.token) {
-    client.setConfig({
+    apiClient.setConfig({
       auth: state.token ?? undefined,
     });
   }

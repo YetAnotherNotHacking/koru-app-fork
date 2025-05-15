@@ -7,7 +7,7 @@ import { jwtDecode } from "jwt-decode";
 import { useState } from "react";
 
 export default function LoggedIn() {
-  const { setToken, clearToken, token } = useAuthStore();
+  const { updateToken, clearToken, token } = useAuthStore();
   const { mutateAsync: login, isPending } = useMutation(
     passwordLoginMutation()
   );
@@ -18,7 +18,7 @@ export default function LoggedIn() {
 
   async function handleLogin(username: string, password: string) {
     const response = await login({ body: { username, password } });
-    setToken(response.access_token);
+    updateToken(response.access_token);
   }
 
   return (
@@ -26,12 +26,14 @@ export default function LoggedIn() {
       {!token ? (
         <>
           <input
+            className="border-2 border-gray-300 rounded-md p-2"
             type="text"
             placeholder="Username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
           />
           <input
+            className="border-2 border-gray-300 rounded-md p-2"
             type="password"
             placeholder="Password"
             value={password}

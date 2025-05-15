@@ -1,13 +1,13 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Cookie, Depends, HTTPException, Response
+from fastapi import APIRouter, Cookie, Depends, HTTPException, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
 
 from api.core.config import settings
 from api.core.security import (
     create_access_token,
     create_refresh_token,
-    verify_token,
+    decode_jwt,
 )
 from api.schemas.auth import Token
 from api.schemas.base import ErrorResponse
@@ -36,11 +36,13 @@ async def password_login(
     )
 
 
-@router.post("/refresh", responses={401: {"model": ErrorResponse}})
+@router.post(
+    "/refresh", responses={status.HTTP_401_UNAUTHORIZED: {"model": ErrorResponse}}
+)
 async def refresh_token(
     refresh_token: Annotated[str, Cookie()],
 ) -> Token:
-    payload = verify_token(refresh_token)
+    payload = decode_jwt(refresh_token)
 
     if payload is None or payload.type != "refresh":
         raise HTTPException(status_code=401, detail="Invalid refresh token")

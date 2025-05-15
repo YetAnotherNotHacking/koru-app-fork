@@ -1,11 +1,14 @@
 from typing import Annotated
 
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.routing import APIRoute
-from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel
 
+from api.core.security import TokenPayload
+from api.schemas.base import ErrorResponse
+
+from .dependencies import decode_token
 from .routers import auth
 
 
@@ -23,8 +26,6 @@ app = FastAPI(
 )
 
 app.include_router(auth.router)
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login/password")
 
 # --- CORS Configuration ---
 origins = [
@@ -61,16 +62,34 @@ async def hello_world() -> MessageResponse:
     return MessageResponse(message="API says: Hello World, from Python!")
 
 
-@app.get("/ping")
-async def ping() -> MessageResponse:
+@app.get(
+    "/ping",
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {
+            "description": "Authentication failed.",
+            "model": ErrorResponse,
+        }
+    },
+)
+async def ping(
+    _: Annotated[TokenPayload, Depends(decode_token)],
+) -> MessageResponse:
     return MessageResponse(message="API says: Pong!")
 
 
-@app.post("/users")
+@app.post(
+    "/users",
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {
+            "description": "Authentication failed.",
+            "model": ErrorResponse,
+        }
+    },
+)
 async def create_user(
     user: User,
-    token: Annotated[str, Depends(oauth2_scheme)],
+    token_payload: Annotated[TokenPayload, Depends(decode_token)],
 ) -> MessageResponse:
-    print(f"Token: {token}")
-    print(f"User: {user}")
+    print(f"Authenticated user (sub from payload): {token_payload.sub}")
+    print(f"User to create: {user}")
     return MessageResponse(message="User created successfully!")

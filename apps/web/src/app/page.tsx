@@ -2,7 +2,7 @@ import Image from "next/image";
 
 import { ping } from "api-client";
 import ClientPing from "@/components/clientPing";
-import LoggedIn from "@/components/logged-in";
+import Login from "@/components/login";
 
 // We need to prevent static generation, since the API is not available at build time
 export const dynamic = "force-dynamic";
@@ -38,7 +38,7 @@ export default async function Home() {
 
         <ClientPing />
 
-        <LoggedIn />
+        <Login />
 
         <div className="flex gap-4 items-center flex-col sm:flex-row">
           <a

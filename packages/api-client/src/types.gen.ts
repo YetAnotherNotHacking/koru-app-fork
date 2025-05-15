@@ -131,6 +131,15 @@ export type PingData = {
   url: "/ping";
 };
 
+export type PingErrors = {
+  /**
+   * Authentication failed.
+   */
+  401: ErrorResponse;
+};
+
+export type PingError = PingErrors[keyof PingErrors];
+
 export type PingResponses = {
   /**
    * Successful Response
@@ -148,6 +157,10 @@ export type CreateUserData = {
 };
 
 export type CreateUserErrors = {
+  /**
+   * Authentication failed.
+   */
+  401: ErrorResponse;
   /**
    * Validation Error
    */

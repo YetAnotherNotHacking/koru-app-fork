@@ -19,6 +19,7 @@ import type {
   HelloWorldResponse,
   PingData,
   PingResponse,
+  PingError,
   CreateUserData,
   CreateUserResponse,
   CreateUserError,
@@ -119,9 +120,15 @@ export const ping = <ThrowOnError extends boolean = false>(
 ) => {
   return (options?.client ?? _heyApiClient).get<
     PingResponse,
-    unknown,
+    PingError,
     ThrowOnError
   >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
     url: "/ping",
     ...options,
   });

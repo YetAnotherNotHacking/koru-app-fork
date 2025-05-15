@@ -48,7 +48,7 @@ def create_refresh_token(subject: str) -> str:
     )
 
 
-def verify_token(token: str) -> TokenPayload | None:
+def decode_jwt(token: str) -> TokenPayload | None:
     try:
         payload_dict = jwt.decode(
             token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM]

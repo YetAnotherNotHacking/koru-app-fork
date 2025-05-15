@@ -21,8 +21,6 @@ const useAuthStore = create<AuthStore>()(
   )
 );
 
-console.log(useAuthStore.getState().token);
-
 // Initialize client with potentially persisted token
 client.setConfig({
   auth: useAuthStore.getState().token ?? undefined,

@@ -2,7 +2,7 @@
   "name": "koru-app",
   "private": true,
   "scripts": {
-    "prepare": "husky",
+    "prepare": "husky && pnpm --filter=api-client run build",
     "generate:api-client": "pnpm --filter api run generate-openapi && pnpm --filter api-client run generate",
     "db:migrate": "pnpm --filter api run db:migrate",
     "db:upgrade": "pnpm --filter api run db:upgrade"

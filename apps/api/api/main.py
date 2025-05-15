@@ -1,7 +1,12 @@
-from fastapi import FastAPI
+from typing import Annotated
+
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.routing import APIRoute
+from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel
+
+from .routers import auth
 
 
 def custom_generate_unique_id(route: APIRoute) -> str:
@@ -16,6 +21,10 @@ app = FastAPI(
     generate_unique_id_function=custom_generate_unique_id,
     root_path="/api",
 )
+
+app.include_router(auth.router)
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login/password")
 
 # --- CORS Configuration ---
 origins = [
@@ -58,5 +67,10 @@ async def ping() -> MessageResponse:
 
 
 @app.post("/users")
-async def create_user(user: User) -> MessageResponse:
+async def create_user(
+    user: User,
+    token: Annotated[str, Depends(oauth2_scheme)],
+) -> MessageResponse:
+    print(f"Token: {token}")
+    print(f"User: {user}")
     return MessageResponse(message="User created successfully!")

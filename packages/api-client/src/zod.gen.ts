@@ -2,6 +2,19 @@
 
 import { z } from "zod";
 
+export const zBodyGetToken = z.object({
+  grant_type: z.union([z.string().regex(/^password$/), z.null()]).optional(),
+  username: z.string(),
+  password: z.string(),
+  scope: z.string().optional().default(""),
+  client_id: z.union([z.string(), z.null()]).optional(),
+  client_secret: z.union([z.string(), z.null()]).optional(),
+});
+
+export const zErrorResponse = z.object({
+  detail: z.string(),
+});
+
 export const zValidationError = z.object({
   loc: z.array(z.unknown()),
   msg: z.string(),
@@ -16,10 +29,18 @@ export const zMessageResponse = z.object({
   message: z.string(),
 });
 
+export const zToken = z.object({
+  access_token: z.string(),
+});
+
 export const zUser = z.object({
   name: z.string(),
   email: z.string(),
 });
+
+export const zGetTokenResponse = zToken;
+
+export const zRefreshTokenResponse = zToken;
 
 export const zRootResponse = zMessageResponse;
 

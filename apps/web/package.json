@@ -10,6 +10,7 @@
     "format": "prettier --write ."
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.76.0",
     "api-client": "workspace:*",
     "next": "15.3.2",
     "react": "^19.0.0",

@@ -3,12 +3,14 @@ import Image from "next/image";
 import { ping } from "api-client";
 import ClientPing from "@/components/clientPing";
 import Login from "@/components/login";
+import { getRequestConfig } from "@/lib/auth";
 
 // We need to prevent static generation, since the API is not available at build time
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const { data, error } = await ping();
+  const config = await getRequestConfig();
+  const { data, error } = await ping({ ...config });
 
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">

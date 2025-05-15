@@ -35,7 +35,7 @@ export default async function Home() {
             Save and see your changes instantly.
           </li>
           {data && <li>Message: {data.message}</li>}
-          {error ? <li>Error: {String(error)}</li> : null}
+          {error ? <li>Error: {JSON.stringify(error)}</li> : null}
         </ol>
 
         <ClientPing />

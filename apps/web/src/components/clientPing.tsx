@@ -15,7 +15,7 @@ function ClientPing() {
           if (data) {
             setMessage(data.message);
           } else if (error) {
-            setMessage(String(error));
+            setMessage(JSON.stringify(error));
           }
         }}
       >

@@ -53,14 +53,26 @@ async def password_login(
 )
 async def refresh_token(
     refresh_token: Annotated[str, Cookie()],
+    response: Response,
 ) -> Token:
     payload = decode_jwt(refresh_token)
 
     if payload is None or payload.type != "refresh":
         raise HTTPException(status_code=401, detail="Invalid refresh token")
 
+    access_token = create_access_token(payload.sub)
+
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        secure=True,
+        samesite="lax",
+        max_age=settings.ACCESS_TOKEN_EXPIRATION,
+    )
+
     return Token(
-        access_token=create_access_token(payload.sub),
+        access_token=access_token,
     )
 
 

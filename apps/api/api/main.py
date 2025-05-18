@@ -6,7 +6,7 @@ from fastapi.routing import APIRoute
 from pydantic import BaseModel
 
 from api.core.security import TokenPayload
-from api.schemas.base import ErrorResponse
+from api.schemas.base import ErrorResponse, MessageResponse
 
 from .dependencies import decode_token
 from .routers import auth
@@ -45,10 +45,6 @@ app.add_middleware(
 class User(BaseModel):
     name: str
     email: str
-
-
-class MessageResponse(BaseModel):
-    message: str
 
 
 @app.get("/")

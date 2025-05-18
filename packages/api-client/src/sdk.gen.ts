@@ -13,6 +13,8 @@ import type {
   RefreshTokenData,
   RefreshTokenResponse,
   RefreshTokenError,
+  LogoutData,
+  LogoutResponse,
   RootData,
   RootResponse,
   HelloWorldData,
@@ -76,6 +78,22 @@ export const refreshToken = <ThrowOnError extends boolean = false>(
     ThrowOnError
   >({
     url: "/auth/refresh",
+    ...options,
+  });
+};
+
+/**
+ * Logout
+ */
+export const logout = <ThrowOnError extends boolean = false>(
+  options?: Options<LogoutData, ThrowOnError>
+) => {
+  return (options?.client ?? _heyApiClient).post<
+    LogoutResponse,
+    unknown,
+    ThrowOnError
+  >({
+    url: "/auth/logout",
     ...options,
   });
 };

@@ -4,12 +4,17 @@ import {
   type Options,
   passwordLogin,
   refreshToken,
+  logout,
   root,
   helloWorld,
   ping,
   createUser,
 } from "../sdk.gen";
-import { queryOptions, type UseMutationOptions } from "@tanstack/react-query";
+import {
+  queryOptions,
+  type UseMutationOptions,
+  type DefaultError,
+} from "@tanstack/react-query";
 import type {
   PasswordLoginData,
   PasswordLoginError,
@@ -17,6 +22,8 @@ import type {
   RefreshTokenData,
   RefreshTokenError,
   RefreshTokenResponse,
+  LogoutData,
+  LogoutResponse,
   RootData,
   HelloWorldData,
   PingData,
@@ -134,6 +141,44 @@ export const refreshTokenMutation = (
   > = {
     mutationFn: async (localOptions) => {
       const { data } = await refreshToken({
+        ...options,
+        ...localOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+export const logoutQueryKey = (options?: Options<LogoutData>) =>
+  createQueryKey("logout", options);
+
+export const logoutOptions = (options?: Options<LogoutData>) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await logout({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: logoutQueryKey(options),
+  });
+};
+
+export const logoutMutation = (
+  options?: Partial<Options<LogoutData>>
+): UseMutationOptions<LogoutResponse, DefaultError, Options<LogoutData>> => {
+  const mutationOptions: UseMutationOptions<
+    LogoutResponse,
+    DefaultError,
+    Options<LogoutData>
+  > = {
+    mutationFn: async (localOptions) => {
+      const { data } = await logout({
         ...options,
         ...localOptions,
         throwOnError: true,

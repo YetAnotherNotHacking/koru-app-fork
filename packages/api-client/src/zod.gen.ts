@@ -42,6 +42,8 @@ export const zPasswordLoginResponse = zToken;
 
 export const zRefreshTokenResponse = zToken;
 
+export const zLogoutResponse = zMessageResponse;
+
 export const zRootResponse = zMessageResponse;
 
 export const zHelloWorldResponse = zMessageResponse;

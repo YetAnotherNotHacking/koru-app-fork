@@ -92,6 +92,22 @@ export type RefreshTokenResponses = {
 export type RefreshTokenResponse =
   RefreshTokenResponses[keyof RefreshTokenResponses];
 
+export type LogoutData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/auth/logout";
+};
+
+export type LogoutResponses = {
+  /**
+   * Successful Response
+   */
+  200: MessageResponse;
+};
+
+export type LogoutResponse = LogoutResponses[keyof LogoutResponses];
+
 export type RootData = {
   body?: never;
   path?: never;

@@ -7,7 +7,7 @@ import { jwtDecode } from "jwt-decode";
 import { useState } from "react";
 
 export default function LoggedIn() {
-  const { updateToken, clearToken, token } = useAuthStore();
+  const { updateToken, logOut, token } = useAuthStore();
   const { mutateAsync: login, isPending } = useMutation(
     passwordLoginMutation()
   );
@@ -51,7 +51,7 @@ export default function LoggedIn() {
           <p>Logged in as {decodedToken?.sub}</p>
           <button
             className="bg-red-500 text-white p-2 rounded"
-            onClick={() => clearToken()}
+            onClick={() => logOut()}
           >
             Log out
           </button>

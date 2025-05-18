@@ -1,29 +1,22 @@
 import apiClient from "@/clients/api";
+import { logout } from "api-client";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import Cookies from "js-cookie";
 
 interface AuthStore {
   token: string | null;
   updateToken: (token: string) => void;
-  clearToken: () => void;
+  logOut: () => void;
 }
 
 const useAuthStore = create<AuthStore>()(
   persist(
     (set) => ({
       token: null,
-      updateToken: (token: string) => {
-        set({ token });
-        Cookies.set("access_token", token, {
-          secure: true,
-          sameSite: "strict",
-          expires: 7,
-        });
-      },
-      clearToken: () => {
+      updateToken: (token: string) => set({ token }),
+      logOut: async () => {
+        await logout();
         set({ token: null });
-        Cookies.remove("access_token");
       },
     }),
     {

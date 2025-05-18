@@ -19,7 +19,7 @@ if (typeof window !== "undefined") {
         if (data && !error) {
           useAuthStore.getState().updateToken(data.access_token);
         } else {
-          useAuthStore.getState().clearToken();
+          useAuthStore.getState().logOut();
         }
       } finally {
         isRefreshing = false;

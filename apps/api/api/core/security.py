@@ -1,6 +1,7 @@
 from datetime import UTC, datetime, timedelta
 
 import jwt  # PyJWT
+from nanoid import generate
 from passlib.context import CryptContext
 from pydantic import BaseModel, ValidationError
 
@@ -14,7 +15,7 @@ class TokenPayload(BaseModel):
     type: str = "access"  # "access" or "refresh"
     exp: datetime
     iat: datetime
-    # jti: Optional[str] = None # JWT ID, useful for advanced refresh token strategies
+    jti: str  # JWT ID, used for token revocation/blacklisting
 
 
 def create_jwt_token(
@@ -24,7 +25,11 @@ def create_jwt_token(
 ) -> str:
     expire = datetime.now(UTC) + expires_delta
     to_encode = TokenPayload(
-        sub=subject, type=token_type, exp=expire, iat=datetime.now(UTC)
+        sub=subject,
+        type=token_type,
+        exp=expire,
+        iat=datetime.now(UTC),
+        jti=generate(),
     )
     encoded_jwt = jwt.encode(
         to_encode.model_dump(),

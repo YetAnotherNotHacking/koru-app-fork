@@ -10,11 +10,7 @@ import {
   ping,
   createUser,
 } from "../sdk.gen";
-import {
-  queryOptions,
-  type UseMutationOptions,
-  type DefaultError,
-} from "@tanstack/react-query";
+import { queryOptions, type UseMutationOptions } from "@tanstack/react-query";
 import type {
   PasswordLoginData,
   PasswordLoginError,
@@ -23,6 +19,7 @@ import type {
   RefreshTokenError,
   RefreshTokenResponse,
   LogoutData,
+  LogoutError,
   LogoutResponse,
   RootData,
   HelloWorldData,
@@ -171,10 +168,10 @@ export const logoutOptions = (options?: Options<LogoutData>) => {
 
 export const logoutMutation = (
   options?: Partial<Options<LogoutData>>
-): UseMutationOptions<LogoutResponse, DefaultError, Options<LogoutData>> => {
+): UseMutationOptions<LogoutResponse, LogoutError, Options<LogoutData>> => {
   const mutationOptions: UseMutationOptions<
     LogoutResponse,
-    DefaultError,
+    LogoutError,
     Options<LogoutData>
   > = {
     mutationFn: async (localOptions) => {

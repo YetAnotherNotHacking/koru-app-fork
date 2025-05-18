@@ -4,6 +4,7 @@ from fastapi import APIRouter, Cookie, Depends, HTTPException, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
 
 from api.core.config import settings
+from api.core.redis import blacklist_token, is_token_blacklisted
 from api.core.security import (
     create_access_token,
     create_refresh_token,
@@ -60,6 +61,9 @@ async def refresh_token(
     if payload is None or payload.type != "refresh":
         raise HTTPException(status_code=401, detail="Invalid refresh token")
 
+    if is_token_blacklisted(payload.jti):
+        raise HTTPException(status_code=401, detail="Refresh token has been revoked")
+
     access_token = create_access_token(payload.sub)
 
     response.set_cookie(
@@ -77,8 +81,23 @@ async def refresh_token(
 
 
 @router.post("/logout")
-async def logout(response: Response) -> MessageResponse:
-    # TODO: invalidate the refresh token
+async def logout(
+    response: Response,
+    access_token: Annotated[str | None, Cookie()] = None,
+    refresh_token: Annotated[str | None, Cookie()] = None,
+) -> MessageResponse:
+    if access_token:
+        access_payload = decode_jwt(access_token)
+        if access_payload:
+            blacklist_token(access_payload.jti, settings.ACCESS_TOKEN_EXPIRATION)
+
+    if refresh_token:
+        refresh_payload = decode_jwt(refresh_token)
+        if refresh_payload:
+            blacklist_token(refresh_payload.jti, settings.REFRESH_TOKEN_EXPIRATION)
+
+    # Clear the cookies
     response.delete_cookie("refresh_token")
     response.delete_cookie("access_token")
+
     return MessageResponse(message="Logged out successfully")

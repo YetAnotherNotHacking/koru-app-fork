@@ -15,6 +15,7 @@ import type {
   RefreshTokenError,
   LogoutData,
   LogoutResponse,
+  LogoutError,
   RootData,
   RootResponse,
   HelloWorldData,
@@ -90,7 +91,7 @@ export const logout = <ThrowOnError extends boolean = false>(
 ) => {
   return (options?.client ?? _heyApiClient).post<
     LogoutResponse,
-    unknown,
+    LogoutError,
     ThrowOnError
   >({
     url: "/auth/logout",

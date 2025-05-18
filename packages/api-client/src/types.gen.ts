@@ -99,6 +99,15 @@ export type LogoutData = {
   url: "/auth/logout";
 };
 
+export type LogoutErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type LogoutError = LogoutErrors[keyof LogoutErrors];
+
 export type LogoutResponses = {
   /**
    * Successful Response

@@ -3,6 +3,7 @@ from typing import Annotated
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 
+from api.core.redis import is_token_blacklisted
 from api.core.security import TokenPayload, decode_jwt
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login/password")
@@ -24,6 +25,13 @@ async def decode_token(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid token type, expected access token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    if is_token_blacklisted(payload.jti):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token has been revoked",
             headers={"WWW-Authenticate": "Bearer"},
         )
 

@@ -1,3 +1,5 @@
+import { refreshToken } from "api-client";
+import { jwtDecode } from "jwt-decode";
 import { cookies } from "next/headers";
 
 /**
@@ -6,7 +8,27 @@ import { cookies } from "next/headers";
  */
 export async function getRequestConfig() {
   const cookieStore = await cookies();
-  const token = cookieStore.get("access_token");
+  const tokenCookie = cookieStore.get("access_token");
 
-  return token ? { auth: token.value } : {};
+  if (!tokenCookie) return {};
+
+  let token = tokenCookie.value;
+
+  const decodedToken = jwtDecode(tokenCookie.value);
+
+  if (!decodedToken.exp || decodedToken.exp < Date.now() / 1000) {
+    const refreshTokenCookie = cookieStore.get("refresh_token");
+
+    if (!refreshTokenCookie) return {};
+
+    const { data, error } = await refreshToken({
+      headers: { Cookie: `refresh_token=${refreshTokenCookie.value}` },
+    });
+
+    if (data && !error) {
+      token = data.access_token;
+    }
+  }
+
+  return { auth: token };
 }

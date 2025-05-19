@@ -10,6 +10,9 @@ import type {
   PasswordLoginData,
   PasswordLoginResponse,
   PasswordLoginError,
+  RegisterData,
+  RegisterResponse,
+  RegisterError,
   RefreshTokenData,
   RefreshTokenResponse,
   RefreshTokenError,
@@ -62,6 +65,26 @@ export const passwordLogin = <ThrowOnError extends boolean = false>(
     ...options,
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
+      ...options?.headers,
+    },
+  });
+};
+
+/**
+ * Register
+ */
+export const register = <ThrowOnError extends boolean = false>(
+  options: Options<RegisterData, ThrowOnError>
+) => {
+  return (options.client ?? _heyApiClient).post<
+    RegisterResponse,
+    RegisterError,
+    ThrowOnError
+  >({
+    url: "/auth/register",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
       ...options?.headers,
     },
   });

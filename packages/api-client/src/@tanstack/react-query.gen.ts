@@ -3,6 +3,7 @@
 import {
   type Options,
   passwordLogin,
+  register,
   refreshToken,
   logout,
   root,
@@ -15,6 +16,9 @@ import type {
   PasswordLoginData,
   PasswordLoginError,
   PasswordLoginResponse,
+  RegisterData,
+  RegisterError,
+  RegisterResponse,
   RefreshTokenData,
   RefreshTokenError,
   RefreshTokenResponse,
@@ -96,6 +100,48 @@ export const passwordLoginMutation = (
   > = {
     mutationFn: async (localOptions) => {
       const { data } = await passwordLogin({
+        ...options,
+        ...localOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+export const registerQueryKey = (options: Options<RegisterData>) =>
+  createQueryKey("register", options);
+
+export const registerOptions = (options: Options<RegisterData>) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await register({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: registerQueryKey(options),
+  });
+};
+
+export const registerMutation = (
+  options?: Partial<Options<RegisterData>>
+): UseMutationOptions<
+  RegisterResponse,
+  RegisterError,
+  Options<RegisterData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    RegisterResponse,
+    RegisterError,
+    Options<RegisterData>
+  > = {
+    mutationFn: async (localOptions) => {
+      const { data } = await register({
         ...options,
         ...localOptions,
         throwOnError: true,

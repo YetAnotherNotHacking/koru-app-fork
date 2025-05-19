@@ -10,10 +10,11 @@ from api.core.security import (
     create_access_token,
     create_refresh_token,
     decode_jwt,
+    get_password_hash,
     verify_password,
 )
 from api.db.database import get_db
-from api.models.user import User
+from api.models.user import User, UserCreate
 from api.schemas.auth import Token
 from api.schemas.base import ErrorResponse, MessageResponse
 
@@ -39,6 +40,54 @@ async def password_login(
 
     access_token = create_access_token(user.id)
     refresh_token = create_refresh_token(user.id)
+
+    response.set_cookie(
+        key="refresh_token",
+        value=refresh_token,
+        httponly=True,
+        secure=True,
+        samesite="strict",
+        max_age=settings.REFRESH_TOKEN_EXPIRATION,
+    )
+
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        secure=True,
+        samesite="lax",
+        max_age=settings.REFRESH_TOKEN_EXPIRATION,
+    )
+
+    return Token(
+        access_token=access_token,
+    )
+
+
+@router.post(
+    "/register",
+    responses={status.HTTP_400_BAD_REQUEST: {"model": ErrorResponse}},
+)
+async def register(
+    user: UserCreate,
+    response: Response,
+    db: Annotated[Session, Depends(get_db)],
+) -> Token:
+    user_exists = db.exec(select(User).where(User.email == user.email)).one_or_none()
+
+    if user_exists:
+        raise HTTPException(status_code=400, detail="Email already in use")
+
+    db_user = User.model_validate(
+        user, update={"password_hash": get_password_hash(user.password)}
+    )
+
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+
+    access_token = create_access_token(db_user.id)
+    refresh_token = create_refresh_token(db_user.id)
 
     response.set_cookie(
         key="refresh_token",

@@ -38,7 +38,16 @@ export const zUser = z.object({
   email: z.string(),
 });
 
+export const zUserCreate = z.object({
+  first_name: z.string(),
+  last_name: z.string(),
+  email: z.string(),
+  password: z.string(),
+});
+
 export const zPasswordLoginResponse = zToken;
+
+export const zRegisterResponse = zToken;
 
 export const zRefreshTokenResponse = zToken;
 

@@ -30,6 +30,13 @@ export type User = {
   email: string;
 };
 
+export type UserCreate = {
+  first_name: string;
+  last_name: string;
+  email: string;
+  password: string;
+};
+
 export type ValidationError = {
   loc: Array<string | number>;
   msg: string;
@@ -65,6 +72,35 @@ export type PasswordLoginResponses = {
 
 export type PasswordLoginResponse =
   PasswordLoginResponses[keyof PasswordLoginResponses];
+
+export type RegisterData = {
+  body: UserCreate;
+  path?: never;
+  query?: never;
+  url: "/auth/register";
+};
+
+export type RegisterErrors = {
+  /**
+   * Bad Request
+   */
+  400: ErrorResponse;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type RegisterError = RegisterErrors[keyof RegisterErrors];
+
+export type RegisterResponses = {
+  /**
+   * Successful Response
+   */
+  200: Token;
+};
+
+export type RegisterResponse = RegisterResponses[keyof RegisterResponses];
 
 export type RefreshTokenData = {
   body?: never;

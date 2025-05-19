@@ -45,6 +45,10 @@ export type PasswordLoginData = {
 
 export type PasswordLoginErrors = {
   /**
+   * Unauthorized
+   */
+  401: ErrorResponse;
+  /**
    * Validation Error
    */
   422: HttpValidationError;

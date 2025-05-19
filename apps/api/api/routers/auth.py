@@ -2,6 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Cookie, Depends, HTTPException, Response, status
 from fastapi.security import OAuth2PasswordRequestForm
+from sqlmodel import Session, select
 
 from api.core.config import settings
 from api.core.redis import blacklist_token, is_token_blacklisted
@@ -9,22 +10,35 @@ from api.core.security import (
     create_access_token,
     create_refresh_token,
     decode_jwt,
+    verify_password,
 )
+from api.db.database import get_db
+from api.models.user import User
 from api.schemas.auth import Token
 from api.schemas.base import ErrorResponse, MessageResponse
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
-@router.post("/login/password")
+@router.post(
+    "/login/password",
+    responses={status.HTTP_401_UNAUTHORIZED: {"model": ErrorResponse}},
+)
 async def password_login(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     response: Response,
+    db: Annotated[Session, Depends(get_db)],
 ) -> Token:
-    # TODO: do the actual login flow, verify the user and password
+    user = db.exec(select(User).where(User.email == form_data.username)).one_or_none()
 
-    access_token = create_access_token(form_data.username)
-    refresh_token = create_refresh_token(form_data.username)
+    if user is None:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    if not verify_password(form_data.password, user.password_hash):
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    access_token = create_access_token(user.id)
+    refresh_token = create_refresh_token(user.id)
 
     response.set_cookie(
         key="refresh_token",

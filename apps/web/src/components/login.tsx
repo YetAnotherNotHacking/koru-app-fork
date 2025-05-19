@@ -8,17 +8,23 @@ import { useState } from "react";
 
 export default function LoggedIn() {
   const { updateToken, logOut, token } = useAuthStore();
-  const { mutateAsync: login, isPending } = useMutation(
-    passwordLoginMutation()
-  );
+  const {
+    mutateAsync: login,
+    isPending,
+    isError,
+  } = useMutation(passwordLoginMutation());
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
   const decodedToken = token ? jwtDecode(token) : null;
 
   async function handleLogin(username: string, password: string) {
-    const response = await login({ body: { username, password } });
-    updateToken(response.access_token);
+    try {
+      const response = await login({ body: { username, password } });
+      updateToken(response.access_token);
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   return (
@@ -26,14 +32,18 @@ export default function LoggedIn() {
       {!token ? (
         <>
           <input
-            className="border-2 border-gray-300 rounded-md p-2"
+            className={`border-2 rounded-md p-2 ${
+              isError ? "border-red-500" : "border-gray-300"
+            }`}
             type="text"
             placeholder="Username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
           />
           <input
-            className="border-2 border-gray-300 rounded-md p-2"
+            className={`border-2 rounded-md p-2 ${
+              isError ? "border-red-500" : "border-gray-300"
+            }`}
             type="password"
             placeholder="Password"
             value={password}
@@ -45,6 +55,7 @@ export default function LoggedIn() {
           >
             {isPending ? "Logging in..." : "Log in"}
           </button>
+          {isError && <p className="text-red-500">Invalid credentials</p>}
         </>
       ) : (
         <>

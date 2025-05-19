@@ -3,8 +3,6 @@ import { refreshToken } from "api-client";
 import { client } from "api-client/client";
 import { jwtDecode } from "jwt-decode";
 
-let isRefreshing = false;
-
 if (typeof window !== "undefined") {
   client.interceptors.request.use(async (request) => {
     const accessToken = request.headers.get("Authorization")?.split(" ")[1];
@@ -28,22 +26,19 @@ if (typeof window !== "undefined") {
   });
 
   client.interceptors.response.use(async (response) => {
+    const path = new URL(response.url).pathname;
+
     if (
       response.status === 401 &&
       useAuthStore.getState().token &&
-      !isRefreshing
+      path !== "/api/auth/refresh"
     ) {
-      isRefreshing = true;
-      try {
-        const { data, error } = await refreshToken({});
+      const { data, error } = await refreshToken({});
 
-        if (data && !error) {
-          useAuthStore.getState().updateToken(data.access_token);
-        } else {
-          useAuthStore.getState().logOut();
-        }
-      } finally {
-        isRefreshing = false;
+      if (data && !error) {
+        useAuthStore.getState().updateToken(data.access_token);
+      } else {
+        useAuthStore.getState().logOut();
       }
     }
 

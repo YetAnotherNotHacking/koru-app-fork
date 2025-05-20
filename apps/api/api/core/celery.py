@@ -16,3 +16,7 @@ app = Celery(
     backend=redis_url,
     include=["api.tasks"],
 )
+
+app.conf.result_backend_transport_options = {
+    "global_keyprefix": settings.REDIS_PREFIX + "celery:"
+}

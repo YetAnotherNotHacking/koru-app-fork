@@ -7,6 +7,7 @@ from pydantic import BaseModel
 
 from api.core.security import TokenPayload
 from api.schemas.base import ErrorResponse, MessageResponse
+from api.tasks.test import test_task
 
 from .dependencies import decode_token
 from .routers import auth
@@ -55,7 +56,8 @@ async def root() -> MessageResponse:
 
 @app.get("/hello")
 async def hello_world() -> MessageResponse:
-    return MessageResponse(message="API says: Hello World, from Python!")
+    res = test_task.delay()
+    return MessageResponse(message=f"API says: Hello World, from Python! {res.get()}")
 
 
 @app.get(

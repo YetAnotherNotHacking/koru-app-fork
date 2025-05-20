@@ -56,8 +56,7 @@ async def root() -> MessageResponse:
 
 @app.get("/hello")
 async def hello_world() -> MessageResponse:
-    res = test_task.delay()
-    return MessageResponse(message=f"API says: Hello World, from Python! {res.get()}")
+    return MessageResponse(message="API says: Hello World, from Python!")
 
 
 @app.get(
@@ -72,7 +71,8 @@ async def hello_world() -> MessageResponse:
 async def ping(
     _: Annotated[TokenPayload, Depends(decode_token)],
 ) -> MessageResponse:
-    return MessageResponse(message="API says: Pong!")
+    res = test_task.delay()
+    return MessageResponse(message=f"API says: Pong! {res.get()}")
 
 
 @app.post(

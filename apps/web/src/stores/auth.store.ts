@@ -7,6 +7,8 @@ interface AuthStore {
   token: string | null;
   updateToken: (token: string) => void;
   logOut: () => void;
+  _hasHydrated: boolean;
+  _setHasHydrated: (state: boolean) => void;
 }
 
 const useAuthStore = create<AuthStore>()(
@@ -18,9 +20,18 @@ const useAuthStore = create<AuthStore>()(
         await logout();
         set({ token: null });
       },
+      _hasHydrated: false,
+      _setHasHydrated: (state: boolean) => {
+        set({
+          _hasHydrated: state,
+        });
+      },
     }),
     {
       name: "auth-storage",
+      onRehydrateStorage: (state) => {
+        return () => state._setHasHydrated(true);
+      },
     }
   )
 );

@@ -100,6 +100,7 @@ jobs:
         run: |
           sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq && sudo chmod +x /usr/bin/yq
           yq e '.spec.template.spec.containers[0].image = "${{ needs.build-api.outputs.image }}"' -i koru-manifests/api-deployment.yaml
+          yq e '.spec.template.spec.containers[0].image = "${{ needs.build-api.outputs.image }}"' -i koru-manifests/api-celery-deployment.yaml
 
       - name: Update Web image tag
         run: |

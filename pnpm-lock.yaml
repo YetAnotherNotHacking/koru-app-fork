@@ -145,6 +145,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@hcaptcha/react-hcaptcha':
+        specifier: ^1.12.0
+        version: 1.12.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@hookform/resolvers':
         specifier: ^5.0.1
         version: 5.0.1(react-hook-form@7.56.4(react@19.1.0))
@@ -1360,6 +1363,15 @@ packages:
 
   '@hapi/topo@5.1.0':
     resolution: {integrity: sha512-foQZKJig7Ob0BMAYBfcJk8d77QtOe7Wo4ox7ff1lQYoNNAb6jwcY1ncdoy2e9wQZzvNy7ODZCYJkK8kzmcAnAg==}
+
+  '@hcaptcha/loader@2.0.0':
+    resolution: {integrity: sha512-fFQH6ApU/zCCl6Y1bnbsxsp1Er/lKX+qlgljrpWDeFcenpEtoP68hExlKSXECospzKLeSWcr06cbTjlR/x3IJA==}
+
+  '@hcaptcha/react-hcaptcha@1.12.0':
+    resolution: {integrity: sha512-QiHnQQ52k8SJJSHkc3cq4TlYzag7oPd4f5ZqnjVSe4fJDSlZaOQFtu5F5AYisVslwaitdDELPVLRsRJxiiI0Aw==}
+    peerDependencies:
+      react: '>= 16.3.0'
+      react-dom: '>= 16.3.0'
 
   '@hey-api/client-fetch@0.10.1':
     resolution: {integrity: sha512-C1XZEnzvOIdXppvMcnO8/V/RpcORxA4rh+5qjuMcItkV++hv7aBz7tSLd0z+bSLFUwttec077WT/nPS+oO4BiA==}
@@ -8516,6 +8528,15 @@ snapshots:
   '@hapi/topo@5.1.0':
     dependencies:
       '@hapi/hoek': 9.3.0
+
+  '@hcaptcha/loader@2.0.0': {}
+
+  '@hcaptcha/react-hcaptcha@1.12.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+    dependencies:
+      '@babel/runtime': 7.27.1
+      '@hcaptcha/loader': 2.0.0
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
 
   '@hey-api/client-fetch@0.10.1(@hey-api/openapi-ts@0.67.4(typescript@5.8.3))':
     dependencies:

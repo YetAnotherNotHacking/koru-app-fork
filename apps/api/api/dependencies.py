@@ -1,8 +1,10 @@
 from typing import Annotated
 
-from fastapi import Depends, HTTPException, status
+import requests
+from fastapi import Depends, Header, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 
+from api.core.config import settings
 from api.core.redis import is_token_blacklisted
 from api.core.security import TokenPayload, decode_jwt
 
@@ -36,3 +38,21 @@ async def decode_token(
         )
 
     return payload
+
+
+def verify_hcaptcha(hcaptcha_token: Annotated[str, Header()]) -> bool:
+    response = requests.post(
+        "https://hcaptcha.com/siteverify",
+        data={
+            "secret": settings.HCAPTCHA_SECRET,
+            "response": hcaptcha_token,
+        },
+    )
+
+    if not response.json()["success"]:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid hCaptcha token",
+        )
+
+    return True

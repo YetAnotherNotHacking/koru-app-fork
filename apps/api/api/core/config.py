@@ -26,6 +26,8 @@ class Settings(BaseSettings):
     RABBITMQ_PASSWORD: str = "guest"
     RABBITMQ_VHOST: str | None = None
 
+    HCAPTCHA_SECRET: str
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

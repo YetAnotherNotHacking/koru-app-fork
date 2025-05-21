@@ -14,6 +14,7 @@ from api.core.security import (
     verify_password,
 )
 from api.db.database import get_db
+from api.dependencies import verify_hcaptcha
 from api.models.user import User, UserCreate
 from api.schemas.auth import Token
 from api.schemas.base import ErrorResponse, MessageResponse
@@ -29,6 +30,7 @@ async def password_login(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     response: Response,
     db: Annotated[Session, Depends(get_db)],
+    _: Annotated[bool, Depends(verify_hcaptcha)],
 ) -> Token:
     user = db.exec(select(User).where(User.email == form_data.username)).one_or_none()
 
@@ -72,6 +74,7 @@ async def register(
     user: UserCreate,
     response: Response,
     db: Annotated[Session, Depends(get_db)],
+    _: Annotated[bool, Depends(verify_hcaptcha)],
 ) -> Token:
     user_exists = db.exec(select(User).where(User.email == user.email)).one_or_none()
 

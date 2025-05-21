@@ -45,6 +45,9 @@ export type ValidationError = {
 
 export type PasswordLoginData = {
   body: BodyPasswordLogin;
+  headers: {
+    "hcaptcha-token": string;
+  };
   path?: never;
   query?: never;
   url: "/auth/login/password";
@@ -75,6 +78,9 @@ export type PasswordLoginResponse =
 
 export type RegisterData = {
   body: UserCreate;
+  headers: {
+    "hcaptcha-token": string;
+  };
   path?: never;
   query?: never;
   url: "/auth/register";

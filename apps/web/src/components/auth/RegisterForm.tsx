@@ -15,6 +15,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import HCaptcha from "@hcaptcha/react-hcaptcha";
+import { useRef, useState } from "react";
 
 const registerSchema = z.object({
   firstName: z.string().min(1, {
@@ -52,8 +54,13 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
     isError,
   } = useMutation(registerMutation());
 
+  const [hcaptchaToken, setHCaptchaToken] = useState<string | null>(null);
+  const hcaptchaRef = useRef<HCaptcha>(null);
+
   async function onSubmit(values: z.infer<typeof registerSchema>) {
     try {
+      if (!hcaptchaToken) return;
+
       const response = await register({
         body: {
           first_name: values.firstName,
@@ -61,10 +68,15 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
           email: values.email,
           password: values.password,
         },
+        headers: {
+          "hcaptcha-token": hcaptchaToken,
+        },
       });
       onSuccess(response.access_token);
     } catch (error) {
       console.error(error);
+    } finally {
+      hcaptchaRef.current?.resetCaptcha();
     }
   }
 
@@ -148,10 +160,19 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
             Registration failed. This email may already be in use.
           </div>
         )}
+        <div className="flex justify-center">
+          <HCaptcha
+            sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITEKEY!}
+            onVerify={setHCaptchaToken}
+            onExpire={() => setHCaptchaToken(null)}
+            ref={hcaptchaRef}
+            theme="dark"
+          />
+        </div>
         <Button
           type="submit"
           className="w-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700"
-          disabled={isPending}
+          disabled={isPending || !hcaptchaToken}
         >
           {isPending ? "Creating account..." : "Create Account"}
         </Button>

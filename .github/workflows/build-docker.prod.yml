@@ -117,7 +117,7 @@ jobs:
         id: image
         run: echo "tag=$(echo '${{ steps.meta.outputs.tags }}' | head -n 1)" >> $GITHUB_OUTPUT
 
-      - name: Build Web
+      - name: Build Email Service
         uses: docker/build-push-action@v3
         with:
           context: .
@@ -127,7 +127,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
 
   update-k8s-manifests:
-    needs: [build-api, build-web]
+    needs: [build-api, build-web, build-email]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout K8s config repo
@@ -157,7 +157,9 @@ jobs:
           git add .
           # Check if there are changes to commit
           if ! git diff --staged --quiet; then
-            git commit -m "Update image tags\n\n${{ needs.build-api.outputs.image }} ${{ needs.build-web.outputs.image }} ${{ needs.build-email.outputs.image }}"
+            git commit -m "Update image tags
+            
+            ${{ needs.build-api.outputs.image }} ${{ needs.build-web.outputs.image }} ${{ needs.build-email.outputs.image }}"
             git push
           else
             echo "No image changes to commit."

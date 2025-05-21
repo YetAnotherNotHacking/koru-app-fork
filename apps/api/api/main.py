@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.routing import APIRoute
 from pydantic import BaseModel
 
+from api.core.config import settings
 from api.core.security import TokenPayload
 from api.schemas.base import ErrorResponse, MessageResponse
 from api.tasks.test import test_task
@@ -91,3 +92,8 @@ async def create_user(
     print(f"Authenticated user (sub from payload): {token_payload.sub}")
     print(f"User to create: {user}")
     return MessageResponse(message="User created successfully!")
+
+
+@app.get("/hcaptcha/sitekey")
+async def get_hcaptcha_sitekey() -> MessageResponse:
+    return MessageResponse(message=settings.HCAPTCHA_SITEKEY)

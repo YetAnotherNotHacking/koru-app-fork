@@ -10,6 +10,7 @@ import {
   helloWorld,
   ping,
   createUser,
+  getHcaptchaSitekey,
 } from "../sdk.gen";
 import { queryOptions, type UseMutationOptions } from "@tanstack/react-query";
 import type {
@@ -31,6 +32,7 @@ import type {
   CreateUserData,
   CreateUserError,
   CreateUserResponse,
+  GetHcaptchaSitekeyData,
 } from "../types.gen";
 import { client as _heyApiClient } from "../client.gen";
 
@@ -326,4 +328,25 @@ export const createUserMutation = (
     },
   };
   return mutationOptions;
+};
+
+export const getHcaptchaSitekeyQueryKey = (
+  options?: Options<GetHcaptchaSitekeyData>
+) => createQueryKey("getHcaptchaSitekey", options);
+
+export const getHcaptchaSitekeyOptions = (
+  options?: Options<GetHcaptchaSitekeyData>
+) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await getHcaptchaSitekey({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: getHcaptchaSitekeyQueryKey(options),
+  });
 };

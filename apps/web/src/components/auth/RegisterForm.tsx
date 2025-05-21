@@ -3,8 +3,11 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useMutation } from "@tanstack/react-query";
-import { registerMutation } from "api-client/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+  getHcaptchaSitekeyOptions,
+  registerMutation,
+} from "api-client/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -54,6 +57,10 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
     isError,
   } = useMutation(registerMutation());
 
+  const hcaptchaSitekey = useQuery({
+    ...getHcaptchaSitekeyOptions(),
+    staleTime: Infinity,
+  });
   const [hcaptchaToken, setHCaptchaToken] = useState<string | null>(null);
   const hcaptchaRef = useRef<HCaptcha>(null);
 
@@ -162,7 +169,7 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
         )}
         <div className="flex justify-center">
           <HCaptcha
-            sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITEKEY!}
+            sitekey={hcaptchaSitekey.data?.message || ""}
             onVerify={setHCaptchaToken}
             onExpire={() => setHCaptchaToken(null)}
             ref={hcaptchaRef}

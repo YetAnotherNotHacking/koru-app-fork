@@ -249,6 +249,23 @@ export type CreateUserResponses = {
 
 export type CreateUserResponse = CreateUserResponses[keyof CreateUserResponses];
 
+export type GetHcaptchaSitekeyData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/hcaptcha/sitekey";
+};
+
+export type GetHcaptchaSitekeyResponses = {
+  /**
+   * Successful Response
+   */
+  200: MessageResponse;
+};
+
+export type GetHcaptchaSitekeyResponse =
+  GetHcaptchaSitekeyResponses[keyof GetHcaptchaSitekeyResponses];
+
 export type ClientOptions = {
   baseUrl: `${string}://${string}` | (string & {});
 };

@@ -26,6 +26,8 @@ class Settings(BaseSettings):
     RABBITMQ_PASSWORD: str = "guest"
     RABBITMQ_VHOST: str | None = None
 
+    # hCaptcha configuration
+    HCAPTCHA_SITEKEY: str
     HCAPTCHA_SECRET: str
 
     model_config = SettingsConfigDict(

@@ -29,6 +29,8 @@ import type {
   CreateUserData,
   CreateUserResponse,
   CreateUserError,
+  GetHcaptchaSitekeyData,
+  GetHcaptchaSitekeyResponse,
 } from "./types.gen";
 import { client as _heyApiClient } from "./client.gen";
 
@@ -199,5 +201,21 @@ export const createUser = <ThrowOnError extends boolean = false>(
       "Content-Type": "application/json",
       ...options?.headers,
     },
+  });
+};
+
+/**
+ * Get Hcaptcha Sitekey
+ */
+export const getHcaptchaSitekey = <ThrowOnError extends boolean = false>(
+  options?: Options<GetHcaptchaSitekeyData, ThrowOnError>
+) => {
+  return (options?.client ?? _heyApiClient).get<
+    GetHcaptchaSitekeyResponse,
+    unknown,
+    ThrowOnError
+  >({
+    url: "/hcaptcha/sitekey",
+    ...options,
   });
 };

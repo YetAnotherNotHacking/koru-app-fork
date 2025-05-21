@@ -60,3 +60,5 @@ export const zHelloWorldResponse = zMessageResponse;
 export const zPingResponse = zMessageResponse;
 
 export const zCreateUserResponse = zMessageResponse;
+
+export const zGetHcaptchaSitekeyResponse = zMessageResponse;

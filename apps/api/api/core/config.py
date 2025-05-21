@@ -19,6 +19,13 @@ class Settings(BaseSettings):
     REDIS_PASSWORD: str = ""
     REDIS_PREFIX: str = "koru:"
 
+    # RabbitMQ configuration
+    RABBITMQ_HOST: str = "localhost"
+    RABBITMQ_PORT: int = 5672
+    RABBITMQ_USER: str = "guest"
+    RABBITMQ_PASSWORD: str = "guest"
+    RABBITMQ_VHOST: str | None = None
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

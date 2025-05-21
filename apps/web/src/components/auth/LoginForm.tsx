@@ -20,6 +20,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useRef, useState } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const loginSchema = z.object({
   email: z.string().min(2, {
@@ -119,14 +120,18 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
             Invalid credentials. Please try again.
           </div>
         )}
-        <div className="flex justify-center">
-          <HCaptcha
-            sitekey={hcaptchaSitekey.data?.message || ""}
-            onVerify={setHCaptchaToken}
-            onExpire={() => setHCaptchaToken(null)}
-            ref={hcaptchaRef}
-            theme="dark"
-          />
+        <div className="flex justify-center h-[78px]">
+          {hcaptchaSitekey.isLoading ? (
+            <Skeleton className="h-[78px] w-[300px] bg-neutral-800/50" />
+          ) : (
+            <HCaptcha
+              sitekey={hcaptchaSitekey.data?.message || ""}
+              onVerify={setHCaptchaToken}
+              onExpire={() => setHCaptchaToken(null)}
+              ref={hcaptchaRef}
+              theme="dark"
+            />
+          )}
         </div>
         <Button
           type="submit"

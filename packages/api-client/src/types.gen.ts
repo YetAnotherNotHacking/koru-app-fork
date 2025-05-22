@@ -103,10 +103,35 @@ export type RegisterResponses = {
   /**
    * Successful Response
    */
-  200: Token;
+  200: MessageResponse;
 };
 
 export type RegisterResponse = RegisterResponses[keyof RegisterResponses];
+
+export type ConfirmEmailData = {
+  body?: never;
+  path: {
+    email_token: string;
+  };
+  query?: never;
+  url: "/auth/confirm-email/{email_token}";
+};
+
+export type ConfirmEmailErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type ConfirmEmailError = ConfirmEmailErrors[keyof ConfirmEmailErrors];
+
+export type ConfirmEmailResponses = {
+  /**
+   * Successful Response
+   */
+  200: unknown;
+};
 
 export type RefreshTokenData = {
   body?: never;

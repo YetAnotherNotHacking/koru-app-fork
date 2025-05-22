@@ -279,6 +279,9 @@ importers:
       dotenv:
         specifier: ^16.5.0
         version: 16.5.0
+      lucide-react:
+        specifier: ^0.511.0
+        version: 0.511.0(react@19.1.0)
       react:
         specifier: ^19.1.0
         version: 19.1.0

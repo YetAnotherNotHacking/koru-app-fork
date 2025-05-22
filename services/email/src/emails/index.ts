@@ -1,2 +1,1 @@
-import "./my-email";
-import "./welcome-email";
+import "./confirm-email";

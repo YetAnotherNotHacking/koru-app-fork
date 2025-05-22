@@ -14,16 +14,49 @@ import {
 } from "@/components/ui/card";
 import LoginForm from "./LoginForm";
 import RegisterForm from "./RegisterForm";
+import { CheckCircle, Mail } from "lucide-react";
 
 export default function AuthForm() {
   const router = useRouter();
   const { updateToken } = useAuthStore();
   const [isLogin, setIsLogin] = useState(true);
+  const [registrationComplete, setRegistrationComplete] = useState(false);
 
-  const onSuccess = (token: string) => {
+  const onLoginSuccess = (token: string) => {
     updateToken(token);
     router.push("/");
   };
+
+  const onRegisterSuccess = () => {
+    setRegistrationComplete(true);
+  };
+
+  if (registrationComplete) {
+    return (
+      <div className="flex items-center justify-center min-h-screen p-4">
+        <div className="w-full max-w-md z-10">
+          <Card className="backdrop-blur-md bg-black/30 border-neutral-800 shadow-xl">
+            <CardContent className="flex flex-col items-center justify-center space-y-6 py-10 text-center">
+              <div className="rounded-full bg-green-500/20 p-3">
+                <CheckCircle className="h-10 w-10 text-green-500" />
+              </div>
+              <CardTitle className="text-xl font-semibold text-white">
+                Registration Complete!
+              </CardTitle>
+              <div className="flex items-center justify-center gap-2 text-neutral-300">
+                <Mail className="h-4 w-4" />
+                <p>Confirmation email sent</p>
+              </div>
+              <p className="text-sm text-neutral-400">
+                Please check your inbox and click the verification link to
+                activate your account. You can close this tab now.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex items-center justify-center min-h-screen p-4">
@@ -41,9 +74,9 @@ export default function AuthForm() {
           </CardHeader>
           <CardContent>
             {isLogin ? (
-              <LoginForm onSuccess={onSuccess} />
+              <LoginForm onSuccess={onLoginSuccess} />
             ) : (
-              <RegisterForm onSuccess={onSuccess} />
+              <RegisterForm onSuccess={onRegisterSuccess} />
             )}
           </CardContent>
           <CardFooter className="flex justify-center border-t border-neutral-800 pt-4">

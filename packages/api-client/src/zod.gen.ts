@@ -47,7 +47,7 @@ export const zUserCreate = z.object({
 
 export const zPasswordLoginResponse = zToken;
 
-export const zRegisterResponse = zToken;
+export const zRegisterResponse = zMessageResponse;
 
 export const zRefreshTokenResponse = zToken;
 

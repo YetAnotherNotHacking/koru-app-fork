@@ -3,20 +3,11 @@ from typing import Literal
 from .email_base import BaseEmail, BaseEmailPayload
 
 
-class WelcomeEmailPayload(BaseEmailPayload):
-    username: str
-    verificationLink: str
-
-
-class WelcomeEmail(BaseEmail[WelcomeEmailPayload]):
-    type: Literal["welcome-email"] = "welcome-email"
-
-
-class MyEmailPayload(BaseEmailPayload):
+class ConfirmEmailPayload(BaseEmailPayload):
     name: str
-    email: str
-    message: str
+    confirmationLink: str
+    expirationHours: int = 24
 
 
-class MyEmail(BaseEmail[MyEmailPayload]):
-    type: Literal["my-email"] = "my-email"
+class ConfirmEmail(BaseEmail[ConfirmEmailPayload]):
+    type: Literal["confirm-email"] = "confirm-email"

@@ -38,7 +38,7 @@ const registerSchema = z.object({
 });
 
 type RegisterFormProps = {
-  onSuccess: (token: string) => void;
+  onSuccess: () => void;
 };
 
 export default function RegisterForm({ onSuccess }: RegisterFormProps) {
@@ -69,7 +69,7 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
     try {
       if (!hcaptchaToken) return;
 
-      const response = await register({
+      await register({
         body: {
           first_name: values.firstName,
           last_name: values.lastName,
@@ -80,7 +80,7 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
           "hcaptcha-token": hcaptchaToken,
         },
       });
-      onSuccess(response.access_token);
+      onSuccess();
     } catch (error) {
       console.error(error);
     } finally {

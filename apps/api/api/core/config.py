@@ -4,6 +4,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    APP_URL: str = "http://localhost:3000"
     DATABASE_URL: str
 
     JWT_SECRET: str
@@ -11,6 +12,7 @@ class Settings(BaseSettings):
 
     ACCESS_TOKEN_EXPIRATION: int = 60 * 15
     REFRESH_TOKEN_EXPIRATION: int = 60 * 60 * 24 * 7
+    EMAIL_TOKEN_EXPIRATION: int = 60 * 60 * 24
 
     # Redis configuration
     REDIS_HOST: str = "localhost"

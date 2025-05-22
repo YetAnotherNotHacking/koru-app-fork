@@ -13,6 +13,8 @@ import type {
   RegisterData,
   RegisterResponse,
   RegisterError,
+  ConfirmEmailData,
+  ConfirmEmailError,
   RefreshTokenData,
   RefreshTokenResponse,
   RefreshTokenError,
@@ -89,6 +91,22 @@ export const register = <ThrowOnError extends boolean = false>(
       "Content-Type": "application/json",
       ...options?.headers,
     },
+  });
+};
+
+/**
+ * Confirm Email
+ */
+export const confirmEmail = <ThrowOnError extends boolean = false>(
+  options: Options<ConfirmEmailData, ThrowOnError>
+) => {
+  return (options.client ?? _heyApiClient).get<
+    unknown,
+    ConfirmEmailError,
+    ThrowOnError
+  >({
+    url: "/auth/confirm-email/{email_token}",
+    ...options,
   });
 };
 

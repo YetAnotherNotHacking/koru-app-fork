@@ -4,6 +4,7 @@ import {
   type Options,
   passwordLogin,
   register,
+  confirmEmail,
   refreshToken,
   logout,
   root,
@@ -20,6 +21,7 @@ import type {
   RegisterData,
   RegisterError,
   RegisterResponse,
+  ConfirmEmailData,
   RefreshTokenData,
   RefreshTokenError,
   RefreshTokenResponse,
@@ -152,6 +154,24 @@ export const registerMutation = (
     },
   };
   return mutationOptions;
+};
+
+export const confirmEmailQueryKey = (options: Options<ConfirmEmailData>) =>
+  createQueryKey("confirmEmail", options);
+
+export const confirmEmailOptions = (options: Options<ConfirmEmailData>) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await confirmEmail({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: confirmEmailQueryKey(options),
+  });
 };
 
 export const refreshTokenQueryKey = (options: Options<RefreshTokenData>) =>

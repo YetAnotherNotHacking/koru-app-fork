@@ -75,6 +75,9 @@ const createQueryKey = <TOptions extends Options>(
 export const passwordLoginQueryKey = (options: Options<PasswordLoginData>) =>
   createQueryKey("passwordLogin", options);
 
+/**
+ * Password Login
+ */
 export const passwordLoginOptions = (options: Options<PasswordLoginData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -90,6 +93,9 @@ export const passwordLoginOptions = (options: Options<PasswordLoginData>) => {
   });
 };
 
+/**
+ * Password Login
+ */
 export const passwordLoginMutation = (
   options?: Partial<Options<PasswordLoginData>>
 ): UseMutationOptions<
@@ -117,6 +123,9 @@ export const passwordLoginMutation = (
 export const registerQueryKey = (options: Options<RegisterData>) =>
   createQueryKey("register", options);
 
+/**
+ * Register
+ */
 export const registerOptions = (options: Options<RegisterData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -132,6 +141,9 @@ export const registerOptions = (options: Options<RegisterData>) => {
   });
 };
 
+/**
+ * Register
+ */
 export const registerMutation = (
   options?: Partial<Options<RegisterData>>
 ): UseMutationOptions<
@@ -159,6 +171,9 @@ export const registerMutation = (
 export const confirmEmailQueryKey = (options: Options<ConfirmEmailData>) =>
   createQueryKey("confirmEmail", options);
 
+/**
+ * Confirm Email
+ */
 export const confirmEmailOptions = (options: Options<ConfirmEmailData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -177,6 +192,9 @@ export const confirmEmailOptions = (options: Options<ConfirmEmailData>) => {
 export const refreshTokenQueryKey = (options: Options<RefreshTokenData>) =>
   createQueryKey("refreshToken", options);
 
+/**
+ * Refresh Token
+ */
 export const refreshTokenOptions = (options: Options<RefreshTokenData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -192,6 +210,9 @@ export const refreshTokenOptions = (options: Options<RefreshTokenData>) => {
   });
 };
 
+/**
+ * Refresh Token
+ */
 export const refreshTokenMutation = (
   options?: Partial<Options<RefreshTokenData>>
 ): UseMutationOptions<
@@ -219,6 +240,9 @@ export const refreshTokenMutation = (
 export const logoutQueryKey = (options?: Options<LogoutData>) =>
   createQueryKey("logout", options);
 
+/**
+ * Logout
+ */
 export const logoutOptions = (options?: Options<LogoutData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -234,6 +258,9 @@ export const logoutOptions = (options?: Options<LogoutData>) => {
   });
 };
 
+/**
+ * Logout
+ */
 export const logoutMutation = (
   options?: Partial<Options<LogoutData>>
 ): UseMutationOptions<LogoutResponse, LogoutError, Options<LogoutData>> => {
@@ -257,6 +284,9 @@ export const logoutMutation = (
 export const rootQueryKey = (options?: Options<RootData>) =>
   createQueryKey("root", options);
 
+/**
+ * Root
+ */
 export const rootOptions = (options?: Options<RootData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -275,6 +305,9 @@ export const rootOptions = (options?: Options<RootData>) => {
 export const helloWorldQueryKey = (options?: Options<HelloWorldData>) =>
   createQueryKey("helloWorld", options);
 
+/**
+ * Hello World
+ */
 export const helloWorldOptions = (options?: Options<HelloWorldData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -293,6 +326,9 @@ export const helloWorldOptions = (options?: Options<HelloWorldData>) => {
 export const pingQueryKey = (options?: Options<PingData>) =>
   createQueryKey("ping", options);
 
+/**
+ * Ping
+ */
 export const pingOptions = (options?: Options<PingData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -311,6 +347,9 @@ export const pingOptions = (options?: Options<PingData>) => {
 export const createUserQueryKey = (options: Options<CreateUserData>) =>
   createQueryKey("createUser", options);
 
+/**
+ * Create User
+ */
 export const createUserOptions = (options: Options<CreateUserData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -326,6 +365,9 @@ export const createUserOptions = (options: Options<CreateUserData>) => {
   });
 };
 
+/**
+ * Create User
+ */
 export const createUserMutation = (
   options?: Partial<Options<CreateUserData>>
 ): UseMutationOptions<
@@ -354,6 +396,9 @@ export const getHcaptchaSitekeyQueryKey = (
   options?: Options<GetHcaptchaSitekeyData>
 ) => createQueryKey("getHcaptchaSitekey", options);
 
+/**
+ * Get Hcaptcha Sitekey
+ */
 export const getHcaptchaSitekeyOptions = (
   options?: Options<GetHcaptchaSitekeyData>
 ) => {

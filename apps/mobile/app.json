@@ -1,13 +1,18 @@
 {
   "expo": {
-    "name": "mobile",
-    "slug": "koru-app",
+    "name": "koru",
+    "slug": "koru",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "mobile",
+    "scheme": "koru",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/images/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
     "ios": {
       "supportsTablet": true
     },
@@ -17,7 +22,7 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.jamdon2.koruapp"
+      "package": "dev.jamdon2.koru"
     },
     "web": {
       "bundler": "metro",
@@ -25,16 +30,7 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      "expo-router",
-      [
-        "expo-splash-screen",
-        {
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200,
-          "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
-        }
-      ]
+      "expo-router"
     ],
     "experiments": {
       "typedRoutes": true
@@ -42,7 +38,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "936351c1-732d-4b41-afb6-5c0e08772261"
+        "projectId": "8f9157c7-6ef4-46e2-bbb8-e397aec309a9"
       }
     },
     "owner": "jamdon2"

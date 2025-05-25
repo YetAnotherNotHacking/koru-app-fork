@@ -2,5 +2,11 @@ packages:
   - apps/*
   - packages/*
   - services/*
-nodeLinker: hoisted
+ignoredBuiltDependencies:
+  - sharp
+  - unrs-resolver
 injectWorkspacePackages: true
+nodeLinker: hoisted
+onlyBuiltDependencies:
+  - '@tailwindcss/oxide'
+  - esbuild

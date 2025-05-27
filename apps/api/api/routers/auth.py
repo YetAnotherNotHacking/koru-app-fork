@@ -52,12 +52,12 @@ async def password_login(
     refresh_token = create_token(user.id, "refresh")
 
     response.set_cookie(
-        key="refresh_token",
-        value=refresh_token.token,
+        key="access_token",
+        value=access_token.token,
         httponly=True,
         secure=True,
-        samesite="strict",
-        max_age=settings.REFRESH_TOKEN_EXPIRATION,
+        samesite="lax",
+        max_age=settings.ACCESS_TOKEN_EXPIRATION,
     )
 
     response.set_cookie(
@@ -70,11 +70,11 @@ async def password_login(
     )
 
     response.set_cookie(
-        key="access_token",
-        value=access_token.token,
+        key="refresh_token",
+        value=refresh_token.token,
         httponly=True,
         secure=True,
-        samesite="lax",
+        samesite="strict",
         max_age=settings.REFRESH_TOKEN_EXPIRATION,
     )
 

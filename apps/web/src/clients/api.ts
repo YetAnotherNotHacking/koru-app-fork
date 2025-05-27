@@ -1,26 +1,21 @@
 import useAuthStore from "@/stores/auth.store";
 import { refreshToken } from "api-client";
 import { client } from "api-client/client";
-import { jwtDecode } from "jwt-decode";
+import Cookies from "js-cookie";
 
 if (typeof window !== "undefined") {
   client.interceptors.request.use(async (request) => {
-    const accessToken = request.headers.get("Authorization")?.split(" ")[1];
+    const expirationCookie = Cookies.get("access_token_expiration");
 
-    if (!accessToken) return request;
+    if (!expirationCookie) return request;
 
-    const decodedToken = jwtDecode(accessToken);
+    const expiration = parseInt(expirationCookie) * 1000;
 
-    if (!decodedToken.exp || decodedToken.exp > Date.now() / 1000) {
+    if (expiration > Date.now()) {
       return request;
     }
 
-    const { data, error } = await refreshToken({});
-
-    if (data && !error) {
-      useAuthStore.getState().updateToken(data.access_token);
-      request.headers.set("Authorization", `Bearer ${data.access_token}`);
-    }
+    await refreshToken({});
 
     return request;
   });
@@ -30,15 +25,13 @@ if (typeof window !== "undefined") {
 
     if (
       response.status === 401 &&
-      useAuthStore.getState().token &&
+      useAuthStore.getState().loggedIn &&
       path !== "/api/auth/refresh"
     ) {
-      const { data, error } = await refreshToken({});
+      const { error } = await refreshToken({});
 
-      if (data && !error) {
-        useAuthStore.getState().updateToken(data.access_token);
-      } else {
-        useAuthStore.getState().logOut();
+      if (error) {
+        useAuthStore.getState().logout();
       }
     }
 

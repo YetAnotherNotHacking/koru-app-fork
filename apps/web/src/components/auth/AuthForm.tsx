@@ -18,13 +18,13 @@ import { CheckCircle, Mail } from "lucide-react";
 
 export default function AuthForm() {
   const router = useRouter();
-  const { updateToken } = useAuthStore();
+  const { login } = useAuthStore();
   const [isLogin, setIsLogin] = useState(true);
   const [registrationComplete, setRegistrationComplete] = useState(false);
 
-  const onLoginSuccess = (token: string) => {
-    updateToken(token);
+  const onLoginSuccess = () => {
     router.push("/");
+    login();
   };
 
   const onRegisterSuccess = () => {

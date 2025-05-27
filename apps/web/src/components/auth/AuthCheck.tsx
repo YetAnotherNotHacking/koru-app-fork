@@ -9,10 +9,10 @@ const PUBLIC_PATHS = ["/auth"];
 export default function AuthCheck({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { token, _hasHydrated } = useAuthStore();
+  const { loggedIn, _hasHydrated } = useAuthStore();
 
   useEffect(() => {
-    if (_hasHydrated && pathname === "/auth" && token) {
+    if (_hasHydrated && pathname === "/auth" && loggedIn) {
       router.replace("/");
       return;
     }
@@ -20,20 +20,20 @@ export default function AuthCheck({ children }: { children: React.ReactNode }) {
     if (
       _hasHydrated &&
       !PUBLIC_PATHS.some((path) => pathname.startsWith(path)) &&
-      !token
+      !loggedIn
     ) {
       router.replace("/auth");
       return;
     }
-  }, [pathname, token, router, _hasHydrated]);
+  }, [pathname, loggedIn, router, _hasHydrated]);
 
   if (!_hasHydrated) {
     return null;
   }
 
   if (
-    (pathname === "/auth" && token) ||
-    (!PUBLIC_PATHS.some((path) => pathname.startsWith(path)) && !token)
+    (pathname === "/auth" && loggedIn) ||
+    (!PUBLIC_PATHS.some((path) => pathname.startsWith(path)) && !loggedIn)
   ) {
     return null;
   }

@@ -323,13 +323,13 @@ export const helloWorldOptions = (options?: Options<HelloWorldData>) => {
   });
 };
 
-export const pingQueryKey = (options?: Options<PingData>) =>
+export const pingQueryKey = (options: Options<PingData>) =>
   createQueryKey("ping", options);
 
 /**
  * Ping
  */
-export const pingOptions = (options?: Options<PingData>) => {
+export const pingOptions = (options: Options<PingData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await ping({

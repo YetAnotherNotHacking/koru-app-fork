@@ -178,19 +178,13 @@ export const helloWorld = <ThrowOnError extends boolean = false>(
  * Ping
  */
 export const ping = <ThrowOnError extends boolean = false>(
-  options?: Options<PingData, ThrowOnError>
+  options: Options<PingData, ThrowOnError>
 ) => {
-  return (options?.client ?? _heyApiClient).get<
+  return (options.client ?? _heyApiClient).get<
     PingResponse,
     PingError,
     ThrowOnError
   >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
     url: "/ping",
     ...options,
   });
@@ -207,12 +201,6 @@ export const createUser = <ThrowOnError extends boolean = false>(
     CreateUserError,
     ThrowOnError
   >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
     url: "/users",
     ...options,
     headers: {

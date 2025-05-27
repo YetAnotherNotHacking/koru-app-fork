@@ -1,3 +1,4 @@
+from math import floor
 from typing import Annotated
 
 from fastapi import APIRouter, Cookie, Depends, HTTPException, Response, status
@@ -23,7 +24,6 @@ from api.core.security import (
 from api.db.database import get_db
 from api.dependencies import verify_hcaptcha
 from api.models.user import User, UserCreate
-from api.schemas.auth import Token
 from api.schemas.base import ErrorResponse, MessageResponse
 from api.schemas.emails import ConfirmEmail, ConfirmEmailPayload
 
@@ -39,7 +39,7 @@ async def password_login(
     response: Response,
     db: Annotated[Session, Depends(get_db)],
     _: Annotated[bool, Depends(verify_hcaptcha)],
-) -> Token:
+) -> MessageResponse:
     user = db.exec(select(User).where(User.email == form_data.username)).one_or_none()
 
     if user is None:
@@ -48,12 +48,12 @@ async def password_login(
     if not verify_password(form_data.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    access_token, _jti = create_token(user.id, "access")
-    refresh_token, _jti = create_token(user.id, "refresh")
+    access_token = create_token(user.id, "access")
+    refresh_token = create_token(user.id, "refresh")
 
     response.set_cookie(
         key="refresh_token",
-        value=refresh_token,
+        value=refresh_token.token,
         httponly=True,
         secure=True,
         samesite="strict",
@@ -61,17 +61,24 @@ async def password_login(
     )
 
     response.set_cookie(
+        key="access_token_expiration",
+        value=str(floor(access_token.expires_at.timestamp())),
+        httponly=False,
+        secure=True,
+        samesite="lax",
+        max_age=settings.ACCESS_TOKEN_EXPIRATION,
+    )
+
+    response.set_cookie(
         key="access_token",
-        value=access_token,
+        value=access_token.token,
         httponly=True,
         secure=True,
         samesite="lax",
         max_age=settings.REFRESH_TOKEN_EXPIRATION,
     )
 
-    return Token(
-        access_token=access_token,
-    )
+    return MessageResponse(message="Logged in successfully")
 
 
 @router.post(
@@ -93,11 +100,11 @@ async def register(
         user, update={"password_hash": get_password_hash(user.password)}
     )
 
-    email_token, jti = create_token(db_user.id, "email")
+    email_token = create_token(db_user.id, "email")
 
     payload = ConfirmEmailPayload(
         name=db_user.first_name.split(" ")[0],
-        confirmationLink=f"{settings.APP_URL}/api/auth/confirm-email/{email_token}",
+        confirmationLink=f"{settings.APP_URL}/api/auth/confirm-email/{email_token.token}",
         expirationHours=24,
     )
 
@@ -107,7 +114,7 @@ async def register(
         payload=payload,
     )
 
-    store_temp_user(db_user, jti, user.email)
+    store_temp_user(db_user, email_token.jti, user.email)
 
     rmq_conn = get_rabbitmq_connection()
     rmq_conn.publish_message(email.model_dump_json(), "koru.email.dx", "email.send")
@@ -135,16 +142,16 @@ async def confirm_email(
     db.add(user)
     db.commit()
 
-    access_token, _jti = create_token(user.id, "access")
-    refresh_token, _jti = create_token(user.id, "refresh")
+    access_token = create_token(user.id, "access")
+    refresh_token = create_token(user.id, "refresh")
 
     response = RedirectResponse(
-        url=f"{settings.APP_URL}/auth/login",
+        url="/",
     )
 
     response.set_cookie(
         key="access_token",
-        value=access_token,
+        value=access_token.token,
         httponly=True,
         secure=True,
         samesite="lax",
@@ -152,8 +159,17 @@ async def confirm_email(
     )
 
     response.set_cookie(
+        key="access_token_expiration",
+        value=str(floor(access_token.expires_at.timestamp())),
+        httponly=False,
+        secure=True,
+        samesite="lax",
+        max_age=settings.ACCESS_TOKEN_EXPIRATION,
+    )
+
+    response.set_cookie(
         key="refresh_token",
-        value=refresh_token,
+        value=refresh_token.token,
         httponly=True,
         secure=True,
         samesite="strict",
@@ -169,7 +185,7 @@ async def confirm_email(
 async def refresh_token(
     refresh_token: Annotated[str, Cookie()],
     response: Response,
-) -> Token:
+) -> MessageResponse:
     payload = decode_jwt(refresh_token)
 
     if payload is None or payload.type != "refresh":
@@ -178,20 +194,27 @@ async def refresh_token(
     if is_token_blacklisted(payload.jti):
         raise HTTPException(status_code=401, detail="Refresh token has been revoked")
 
-    access_token, _jti = create_token(payload.sub, "access")
+    access_token = create_token(payload.sub, "access")
 
     response.set_cookie(
         key="access_token",
-        value=access_token,
+        value=access_token.token,
         httponly=True,
         secure=True,
         samesite="lax",
         max_age=settings.ACCESS_TOKEN_EXPIRATION,
     )
 
-    return Token(
-        access_token=access_token,
+    response.set_cookie(
+        key="access_token_expiration",
+        value=str(floor(access_token.expires_at.timestamp())),
+        httponly=False,
+        secure=True,
+        samesite="lax",
+        max_age=settings.ACCESS_TOKEN_EXPIRATION,
     )
+
+    return MessageResponse(message="Token refreshed")
 
 
 @router.post("/logout")
@@ -213,5 +236,6 @@ async def logout(
     # Clear the cookies
     response.delete_cookie("refresh_token")
     response.delete_cookie("access_token")
+    response.delete_cookie("access_token_expiration")
 
     return MessageResponse(message="Logged out successfully")

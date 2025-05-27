@@ -1,5 +1,5 @@
 from datetime import UTC, datetime, timedelta
-from typing import Literal
+from typing import Literal, NamedTuple
 
 import jwt  # PyJWT
 from nanoid import generate
@@ -28,11 +28,17 @@ EXPIRY_TIMES: dict[TOKEN_TYPES, int] = {
 }
 
 
+class JWTTokenResult(NamedTuple):
+    token: str
+    jti: str
+    expires_at: datetime
+
+
 def create_jwt_token(
     subject: str,
     token_type: TOKEN_TYPES,
     expires_delta: timedelta,
-) -> tuple[str, str]:
+) -> JWTTokenResult:
     expire = datetime.now(UTC) + expires_delta
     jti = generate()
     to_encode = TokenPayload(
@@ -47,10 +53,10 @@ def create_jwt_token(
         settings.JWT_SECRET,
         algorithm=settings.JWT_ALGORITHM,
     )
-    return encoded_jwt, jti
+    return JWTTokenResult(token=encoded_jwt, jti=jti, expires_at=expire)
 
 
-def create_token(subject: str, token_type: TOKEN_TYPES) -> tuple[str, str]:
+def create_token(subject: str, token_type: TOKEN_TYPES) -> JWTTokenResult:
     expires_delta = timedelta(seconds=EXPIRY_TIMES[token_type])
     return create_jwt_token(
         subject=subject, token_type=token_type, expires_delta=expires_delta

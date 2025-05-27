@@ -10,7 +10,7 @@ function ClientPing() {
   const handlePing = async () => {
     setIsPinging(true);
     try {
-      const { data, error } = await ping();
+      const { data, error } = await ping({});
       if (data) {
         setMessage(data.message);
       } else if (error) {

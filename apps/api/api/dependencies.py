@@ -1,20 +1,17 @@
 from typing import Annotated
 
 import requests
-from fastapi import Depends, Header, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi import Cookie, Header, HTTPException, status
 
 from api.core.config import settings
 from api.core.redis import is_token_blacklisted
 from api.core.security import TokenPayload, decode_jwt
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login/password")
-
 
 async def decode_token(
-    token: Annotated[str, Depends(oauth2_scheme)],
+    access_token: Annotated[str, Cookie()],
 ) -> TokenPayload:
-    payload = decode_jwt(token)
+    payload = decode_jwt(access_token)
 
     if payload is None:
         raise HTTPException(

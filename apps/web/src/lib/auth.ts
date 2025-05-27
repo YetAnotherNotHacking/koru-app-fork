@@ -1,15 +1,15 @@
 import { refreshToken } from "api-client";
-import { jwtDecode } from "jwt-decode";
 import { cookies } from "next/headers";
+import { parse } from "cookie";
 
 async function refreshExpiredToken(token: string) {
-  const { data, error } = await refreshToken({
+  const { response } = await refreshToken({
     headers: { Cookie: `refresh_token=${token}` },
   });
 
-  if (data && !error) {
-    return data.access_token;
-  }
+  const cookies = parse(response.headers.get("set-cookie") ?? "");
+
+  return cookies.access_token;
 }
 
 /**
@@ -19,6 +19,7 @@ async function refreshExpiredToken(token: string) {
 export async function getRequestConfig() {
   const cookieStore = await cookies();
   const tokenCookie = cookieStore.get("access_token");
+  const expirationCookie = cookieStore.get("access_token_expiration");
   const refreshTokenCookie = cookieStore.get("refresh_token");
 
   let token: string | undefined = tokenCookie?.value;
@@ -30,15 +31,11 @@ export async function getRequestConfig() {
     token = await refreshExpiredToken(refreshToken);
   }
 
-  if (!token) return {};
+  const expiration = parseInt(expirationCookie?.value ?? "0") * 1000;
 
-  const decodedToken = jwtDecode(token);
-
-  if (!decodedToken.exp || decodedToken.exp < Date.now() / 1000) {
-    if (!refreshTokenCookie) return {};
-
-    token = await refreshExpiredToken(refreshTokenCookie.value);
+  if (expiration < Date.now() && refreshToken) {
+    token = await refreshExpiredToken(refreshToken);
   }
 
-  return { auth: token };
+  return { headers: { Cookie: `access_token=${token}` } };
 }

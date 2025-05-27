@@ -29,10 +29,6 @@ export const zMessageResponse = z.object({
   message: z.string(),
 });
 
-export const zToken = z.object({
-  access_token: z.string(),
-});
-
 export const zUser = z.object({
   name: z.string(),
   email: z.string(),
@@ -45,11 +41,11 @@ export const zUserCreate = z.object({
   password: z.string(),
 });
 
-export const zPasswordLoginResponse = zToken;
+export const zPasswordLoginResponse = zMessageResponse;
 
 export const zRegisterResponse = zMessageResponse;
 
-export const zRefreshTokenResponse = zToken;
+export const zRefreshTokenResponse = zMessageResponse;
 
 export const zLogoutResponse = zMessageResponse;
 

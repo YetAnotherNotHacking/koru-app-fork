@@ -30,7 +30,7 @@ const loginSchema = z.object({
 });
 
 type LoginFormProps = {
-  onSuccess: (token: string) => void;
+  onSuccess: () => void;
 };
 
 export default function LoginForm({ onSuccess }: LoginFormProps) {
@@ -59,7 +59,7 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
     try {
       if (!hcaptchaToken) return;
 
-      const response = await login({
+      await login({
         body: {
           username: values.email,
           password: values.password,
@@ -68,7 +68,7 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
           "hcaptcha-token": hcaptchaToken,
         },
       });
-      onSuccess(response.access_token);
+      onSuccess();
     } catch (error) {
       console.error(error);
     } finally {

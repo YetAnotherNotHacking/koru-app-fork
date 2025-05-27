@@ -21,10 +21,6 @@ export type MessageResponse = {
   message: string;
 };
 
-export type Token = {
-  access_token: string;
-};
-
 export type User = {
   name: string;
   email: string;
@@ -70,7 +66,7 @@ export type PasswordLoginResponses = {
   /**
    * Successful Response
    */
-  200: Token;
+  200: MessageResponse;
 };
 
 export type PasswordLoginResponse =
@@ -157,7 +153,7 @@ export type RefreshTokenResponses = {
   /**
    * Successful Response
    */
-  200: Token;
+  200: MessageResponse;
 };
 
 export type RefreshTokenResponse =
@@ -232,6 +228,10 @@ export type PingErrors = {
    * Authentication failed.
    */
   401: ErrorResponse;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
 };
 
 export type PingError = PingErrors[keyof PingErrors];

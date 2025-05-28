@@ -134,8 +134,6 @@ async def confirm_email(
 
     user = pop_temp_user(payload.jti)
 
-    print(user)
-
     if user is None:
         raise HTTPException(status_code=400, detail="Invalid email token")
 

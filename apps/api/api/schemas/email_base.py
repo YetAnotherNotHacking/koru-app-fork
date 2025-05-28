@@ -15,6 +15,3 @@ class BaseEmail(BaseModel, Generic[PayloadType]):
     to: str
     subject: str
     payload: PayloadType
-
-    def send(self):
-        print(self.model_dump_json())

@@ -89,8 +89,6 @@ async def create_user(
     user: User,
     token_payload: Annotated[TokenPayload, Depends(decode_token)],
 ) -> MessageResponse:
-    print(f"Authenticated user (sub from payload): {token_payload.sub}")
-    print(f"User to create: {user}")
     return MessageResponse(message="User created successfully!")
 
 

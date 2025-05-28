@@ -3,8 +3,6 @@ import { refreshToken } from "api-client";
 import { client } from "api-client/client";
 import Cookies from "js-cookie";
 
-console.log("test123");
-
 if (typeof window !== "undefined") {
   client.interceptors.request.use(async (request) => {
     const expirationCookie = Cookies.get("access_token_expiration");

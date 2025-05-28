@@ -43,7 +43,6 @@
   "devDependencies": {
     "@hey-api/openapi-ts": "^0.67.4",
     "@types/node": "^20.17.46",
-    "orval": "^7.9.0",
     "prettier": "^3.5.3",
     "typescript": "^5.8.3"
   },

@@ -3,11 +3,20 @@ import { refreshToken } from "api-client";
 import { client } from "api-client/client";
 import Cookies from "js-cookie";
 
+console.log("test123");
+
 if (typeof window !== "undefined") {
   client.interceptors.request.use(async (request) => {
     const expirationCookie = Cookies.get("access_token_expiration");
 
-    if (!expirationCookie) return request;
+    const path = new URL(request.url).pathname;
+
+    if (path === "/api/auth/refresh") return request;
+
+    if (!expirationCookie) {
+      await refreshToken({});
+      return request;
+    }
 
     const expiration = parseInt(expirationCookie) * 1000;
 

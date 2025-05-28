@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 
 import "./globals.css";
 import Providers from "./providers";
+import "@/clients/api";
 import AuthCheck from "@/components/auth/AuthCheck";
 
 export const metadata: Metadata = {

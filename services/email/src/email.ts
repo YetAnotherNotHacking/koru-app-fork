@@ -30,7 +30,7 @@ export function handleMessage(message: unknown) {
   const EmailComponent = emailModule.component;
 
   resend.emails.send({
-    from: "Koru App <koru@jamdon2.dev>",
+    from: env.EMAIL_FROM,
     to: parsedMessage.to,
     subject: parsedMessage.subject,
     react: React.createElement(EmailComponent, parsedPayload),

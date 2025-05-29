@@ -144,7 +144,7 @@ async def confirm_email(
     refresh_token = create_token(user.id, "refresh")
 
     response = RedirectResponse(
-        url="/",
+        url="/auth/login",
     )
 
     response.set_cookie(

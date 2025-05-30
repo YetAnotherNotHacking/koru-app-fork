@@ -1,10 +1,10 @@
 import EditScreenInfo from "@/components/EditScreenInfo";
 import { Text, View } from "@/components/Themed";
 import { useQuery } from "@tanstack/react-query";
-import { helloWorldOptions } from "api-client/react-query";
+import { pingOptions } from "api-client/react-query";
 import useAuthStore from "@/stores/auth.store";
 export default function TabOneScreen() {
-  const { data } = useQuery(helloWorldOptions());
+  const { data } = useQuery(pingOptions({}));
 
   const { logout } = useAuthStore();
 

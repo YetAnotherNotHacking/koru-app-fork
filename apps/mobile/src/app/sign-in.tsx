@@ -1,6 +1,6 @@
 import useAuthStore from "@/stores/auth.store";
-import { passwordLogin, getHcaptchaSitekey } from "api-client";
-import { useState, useEffect, useRef } from "react";
+import { passwordLogin } from "api-client";
+import { useRef, useState } from "react";
 import {
   Text,
   View,
@@ -14,8 +14,10 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as SecureStore from "expo-secure-store";
 import ConfirmHcaptcha from "@hcaptcha/react-native-hcaptcha";
-import cookie from "cookie";
+import parseCookie from "set-cookie-parser";
 import { z } from "zod";
+import { getHcaptchaSitekeyOptions } from "api-client/react-query";
+import { useQuery } from "@tanstack/react-query";
 
 const emailSchema = z
   .string({ required_error: "Email is required" })
@@ -31,27 +33,11 @@ export default function SignIn() {
   const [passwordError, setPasswordError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
-  const [hcaptchaToken, setHcaptchaToken] = useState<string | null>(null);
-  const [siteKey, setSiteKey] = useState<string>("");
-  const [siteKeyLoading, setSiteKeyLoading] = useState(true);
-  const [showCaptcha, setShowCaptcha] = useState(false);
-  const hcaptchaRef = useRef<ConfirmHcaptcha>(null);
-
-  // Fetch hCaptcha site key on component mount
-  useEffect(() => {
-    const fetchSiteKey = async () => {
-      try {
-        const { data } = await getHcaptchaSitekey();
-        setSiteKey(data?.message || "");
-      } catch (error) {
-        console.error("Failed to fetch hCaptcha site key:", error);
-      } finally {
-        setSiteKeyLoading(false);
-      }
-    };
-
-    fetchSiteKey();
-  }, []);
+  const captchaForm = useRef<ConfirmHcaptcha>(null);
+  const hcaptchaSitekey = useQuery({
+    ...getHcaptchaSitekeyOptions(),
+    staleTime: Infinity,
+  });
 
   const validateForm = () => {
     let isValid = true;
@@ -74,89 +60,69 @@ export default function SignIn() {
     return isValid;
   };
 
-  const handleSubmit = async () => {
-    if (!validateForm()) return;
-
-    // Show hCaptcha first
-    if (!hcaptchaToken) {
-      setShowCaptcha(true);
-      // Trigger hCaptcha to show
-      hcaptchaRef.current?.show();
-      return;
+  const handleMessage = async (event: any) => {
+    if (event.nativeEvent.data !== "open") {
+      captchaForm.current?.hide();
     }
+
+    if (event.success && event.nativeEvent.data !== "open") {
+      await handleSubmit(event.nativeEvent.data);
+      event.markUsed();
+    }
+  };
+
+  const handleSubmit = async (hcaptchaToken: string) => {
+    if (!validateForm()) return;
 
     setIsLoading(true);
     setIsError(false);
 
-    try {
-      const { error, response } = await passwordLogin({
-        body: {
-          username: email,
-          password: password,
-        },
-        headers: {
-          "hcaptcha-token": hcaptchaToken,
-        },
-      });
+    const { error, response } = await passwordLogin({
+      body: {
+        username: email,
+        password: password,
+      },
+      headers: {
+        "hcaptcha-token": hcaptchaToken,
+      },
+    });
 
-      if (error) {
-        setIsError(true);
-        // Reset hCaptcha on error
-        setHcaptchaToken(null);
-        setShowCaptcha(false);
-      } else {
-        const setCookieHeader = response.headers.get("Set-Cookie") || "";
-        const cookies = cookie.parse(setCookieHeader);
+    if (error) {
+      setIsError(true);
+    } else {
+      const cookieHeader = response.headers.get("set-cookie") ?? "";
 
-        if (cookies.access_token && cookies.access_token_expiration) {
-          if (cookies.refresh_token) {
-            await SecureStore.setItemAsync(
-              "refreshToken",
-              cookies.refresh_token
-            );
-          }
+      const cookies = parseCookie(cookieHeader, { map: true });
 
+      let accessTokenExpiration = cookies.access_token_expiration.value;
+      let refreshToken = cookies.refresh_token.value;
+
+      // getSetCookie isn't available in react native, and headers.get returns additional cookies like this on Android (possibly iOS too)
+      if ("secure, refresh_token" in cookies.access_token) {
+        refreshToken = cookies.access_token["secure, refresh_token"] as string;
+      }
+
+      if ("secure, access_token_expiration" in cookies.access_token) {
+        accessTokenExpiration = cookies.access_token[
+          "secure, access_token_expiration"
+        ] as string;
+      }
+
+      if (cookies.access_token && accessTokenExpiration) {
+        if (refreshToken) {
+          await SecureStore.setItemAsync("refreshToken", refreshToken);
+        }
+
+        if (accessTokenExpiration) {
           setAccessToken(
-            cookies.access_token,
-            Number(cookies.access_token_expiration)
+            cookies.access_token.value,
+            Number(accessTokenExpiration)
           );
         }
       }
-    } catch (error) {
-      setIsError(true);
-      // Reset hCaptcha on error
-      setHcaptchaToken(null);
-      setShowCaptcha(false);
-    } finally {
-      setIsLoading(false);
     }
-  };
 
-  const handleHcaptchaMessage = (event: any) => {
-    if (event && event.nativeEvent && event.nativeEvent.data) {
-      const data = event.nativeEvent.data;
-
-      if (data === "open") {
-        // hCaptcha opened
-        console.log("hCaptcha opened");
-      } else if (data === "challenge-closed") {
-        // User closed the challenge
-        setShowCaptcha(false);
-        setHcaptchaToken(null);
-      } else if (data === "error") {
-        // Error occurred
-        setShowCaptcha(false);
-        setHcaptchaToken(null);
-        setIsError(true);
-      } else if (event.success && typeof data === "string") {
-        // Success - got the token
-        setHcaptchaToken(data);
-        setShowCaptcha(false);
-        setIsError(false);
-        // Mark as used after storing token
-        event.markUsed();
-      }
-    }
+    setIsLoading(false);
   };
 
   return (
@@ -235,52 +201,23 @@ export default function SignIn() {
                 ) : null}
               </View>
 
-              {/* hCaptcha Status */}
-              {siteKeyLoading ? (
-                <View className="h-16 bg-gray-800/50 rounded-lg justify-center items-center">
-                  <ActivityIndicator color="#6B7280" />
-                  <Text className="text-gray-400 text-sm mt-2">
-                    Loading verification...
-                  </Text>
-                </View>
-              ) : !siteKey ? (
-                <View className="h-16 bg-red-500/10 border border-red-500/20 rounded-lg justify-center items-center">
-                  <Text className="text-red-400 text-sm">
-                    Failed to load verification
-                  </Text>
-                </View>
-              ) : hcaptchaToken ? (
-                <View className="h-16 bg-green-500/10 border border-green-500/20 rounded-lg justify-center items-center">
-                  <Text className="text-green-400 text-sm">
-                    ✓ Verification completed
-                  </Text>
-                </View>
-              ) : (
-                <View className="h-16 bg-gray-800/50 rounded-lg justify-center items-center">
-                  <Text className="text-gray-400 text-sm">
-                    Ready for verification
-                  </Text>
-                </View>
-              )}
-
               {/* Error Message */}
               {isError && (
                 <View className="bg-red-500/10 border border-red-500/20 rounded-lg p-3 mt-2">
                   <Text className="text-sm text-red-400 text-center">
-                    {!hcaptchaToken
-                      ? "Please complete the verification to continue."
-                      : "Invalid credentials. Please try again."}
+                    Invalid credentials or captcha verification failed. Please
+                    try again.
                   </Text>
                 </View>
               )}
 
               {/* Submit Button */}
               <Pressable
-                onPress={handleSubmit}
+                onPress={() => captchaForm.current?.show()}
                 disabled={isLoading}
                 className={`mt-6 py-4 rounded-lg ${
                   isLoading
-                    ? "bg-gray-700"
+                    ? "bg-indigo-700"
                     : "bg-indigo-600 active:bg-indigo-700"
                 }`}
               >
@@ -288,27 +225,38 @@ export default function SignIn() {
                   <ActivityIndicator color="white" />
                 ) : (
                   <Text className="text-white font-semibold text-center text-base">
-                    {hcaptchaToken ? "Sign In" : "Verify & Sign In"}
+                    Sign In
                   </Text>
                 )}
               </Pressable>
+
+              {/* Register Link */}
+              {/* <View className="mt-6">
+                <Text className="text-center text-gray-400">
+                  Don't have an account?{" "}
+                  <ExternalLink
+                    href="https://koru.cash/sign-up"
+                    className="text-indigo-400 font-medium"
+                  >
+                    Register
+                  </ExternalLink>
+                </Text>
+              </View> */}
+
+              {hcaptchaSitekey.data && (
+                <View className="flex items-center justify-center">
+                  <ConfirmHcaptcha
+                    ref={captchaForm}
+                    siteKey={hcaptchaSitekey.data.message}
+                    size="invisible"
+                    onMessage={handleMessage}
+                  />
+                </View>
+              )}
             </View>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-
-      {/* hCaptcha Modal */}
-      {siteKey && (
-        <ConfirmHcaptcha
-          ref={hcaptchaRef}
-          siteKey={siteKey}
-          onMessage={handleHcaptchaMessage}
-          languageCode="en"
-          theme="dark"
-          showLoading={true}
-          size="invisible"
-        />
-      )}
     </SafeAreaView>
   );
 }

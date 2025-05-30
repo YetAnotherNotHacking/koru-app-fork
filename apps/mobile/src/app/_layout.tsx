@@ -13,6 +13,8 @@ import "react-native-reanimated";
 import "../global.css";
 import Providers from "@/providers";
 import { useColorScheme } from "@/components/useColorScheme";
+import { SplashScreenController } from "@/splash";
+import useAuthStore from "@/stores/auth.store";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -21,7 +23,7 @@ export {
 
 export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.
-  initialRouteName: "(tabs)",
+  initialRouteName: "(app)",
 };
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -50,6 +52,7 @@ export default function RootLayout() {
 
   return (
     <Providers>
+      <SplashScreenController />
       <RootLayoutNav />
     </Providers>
   );
@@ -57,12 +60,18 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
+  const { accessToken } = useAuthStore();
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: "modal" }} />
+        <Stack.Protected guard={accessToken !== null}>
+          <Stack.Screen name="(app)" options={{ headerShown: false }} />
+          <Stack.Screen name="modal" options={{ presentation: "modal" }} />
+        </Stack.Protected>
+        <Stack.Protected guard={accessToken === null}>
+          <Stack.Screen name="sign-in" options={{ headerShown: false }} />
+        </Stack.Protected>
       </Stack>
     </ThemeProvider>
   );

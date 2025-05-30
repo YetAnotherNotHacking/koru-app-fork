@@ -1,7 +1,7 @@
 import { logout } from "api-client";
 import { create } from "zustand";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import SecureStore from "expo-secure-store";
+import * as SecureStore from "expo-secure-store";
 
 interface AuthStore {
   accessToken: string | null;

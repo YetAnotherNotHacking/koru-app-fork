@@ -14,7 +14,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as SecureStore from "expo-secure-store";
 import ConfirmHcaptcha from "@hcaptcha/react-native-hcaptcha";
-import parseCookie from "set-cookie-parser";
+import parseCookie from "@/lib/cookie";
 import { z } from "zod";
 import { getHcaptchaSitekeyOptions } from "api-client/react-query";
 import { useQuery } from "@tanstack/react-query";
@@ -93,33 +93,20 @@ export default function SignIn() {
       } else {
         const cookieHeader = response.headers.get("set-cookie") ?? "";
 
-        const cookies = parseCookie(cookieHeader, { map: true });
+        const cookies = parseCookie(cookieHeader);
 
-        let accessTokenExpiration = cookies.access_token_expiration?.value;
-        let refreshToken = cookies.refresh_token?.value;
-
-        // getSetCookie isn't available in react native, and headers.get returns additional cookies like this on Android (possibly iOS too)
-        if ("secure, refresh_token" in cookies.access_token) {
-          refreshToken = cookies.access_token[
-            "secure, refresh_token"
-          ] as string;
-        }
-
-        if ("secure, access_token_expiration" in cookies.access_token) {
-          accessTokenExpiration = cookies.access_token[
-            "secure, access_token_expiration"
-          ] as string;
-        }
-
-        if (cookies.access_token && accessTokenExpiration) {
-          if (refreshToken) {
-            await SecureStore.setItemAsync("refreshToken", refreshToken);
+        if (cookies.access_token && cookies.access_token_expiration) {
+          if (cookies.refresh_token) {
+            await SecureStore.setItemAsync(
+              "refreshToken",
+              cookies.refresh_token
+            );
           }
 
-          if (accessTokenExpiration) {
+          if (cookies.access_token_expiration) {
             setAccessToken(
-              cookies.access_token.value,
-              Number(accessTokenExpiration)
+              cookies.access_token,
+              Number(cookies.access_token_expiration)
             );
           }
         }

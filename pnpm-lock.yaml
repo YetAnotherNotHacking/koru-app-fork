@@ -114,9 +114,6 @@ importers:
       react-native-webview:
         specifier: 13.13.5
         version: 13.13.5(react-native@0.79.2(@babel/core@7.27.1)(@types/react@19.0.14)(react@19.0.0))(react@19.0.0)
-      set-cookie-parser:
-        specifier: ^2.7.1
-        version: 2.7.1
       zod:
         specifier: ^3.25.28
         version: 3.25.28
@@ -130,9 +127,6 @@ importers:
       '@types/react':
         specifier: ~19.0.10
         version: 19.0.14
-      '@types/set-cookie-parser':
-        specifier: ^2.4.10
-        version: 2.4.10
       autoprefixer:
         specifier: ^10.4.21
         version: 10.4.21(postcss@8.5.3)
@@ -2330,9 +2324,6 @@ packages:
 
   '@types/react@19.0.14':
     resolution: {integrity: sha512-ixLZ7zG7j1fM0DijL9hDArwhwcCb4vqmePgwtV0GfnkHRSCUEv4LvzarcTdhoqgyMznUx/EhoTUv31CKZzkQlw==}
-
-  '@types/set-cookie-parser@2.4.10':
-    resolution: {integrity: sha512-GGmQVGpQWUe5qglJozEjZV/5dyxbOOZ0LHe/lqyWssB88Y4svNfst0uqBVscdDeIKl5Jy5+aPSvy7mI9tYRguw==}
 
   '@types/stack-utils@2.0.3':
     resolution: {integrity: sha512-9aEbYZ3TbYMznPdcdr3SmIrLXwC/AKZXQeCf9Pgao5CKb8CyHuEX5jzWPTkvregvhRJHcpRO6BFoGW9ycaOkYw==}
@@ -5408,9 +5399,6 @@ packages:
   server-only@0.0.1:
     resolution: {integrity: sha512-qepMx2JxAa5jjfzxG79yPPq+8BuFToHd1hm7kI+Z4zAq1ftQiP7HcxMhDDItrbtwVeLg/cY2JnKnrcFkmiswNA==}
 
-  set-cookie-parser@2.7.1:
-    resolution: {integrity: sha512-IOc8uWeOZgnb3ptbCURJWNjWUPcO3ZnTTdzsurqERrP6nPyv+paC55vJM0LpOlT2ne+Ix+9+CRG1MNLlyZ4GjQ==}
-
   set-function-length@1.2.2:
     resolution: {integrity: sha512-pgRc4hJ4/sNjWCSS9AmnS40x3bNMDTknHgL5UaMBTMyJnU90EgWh1Rz+MC9eFu4BuN/UwZjKQuY/1v3rM7HMfg==}
     engines: {node: '>= 0.4'}
@@ -8363,10 +8351,6 @@ snapshots:
   '@types/react@19.0.14':
     dependencies:
       csstype: 3.1.3
-
-  '@types/set-cookie-parser@2.4.10':
-    dependencies:
-      '@types/node': 20.17.50
 
   '@types/stack-utils@2.0.3': {}
 
@@ -11936,8 +11920,6 @@ snapshots:
       - supports-color
 
   server-only@0.0.1: {}
-
-  set-cookie-parser@2.7.1: {}
 
   set-function-length@1.2.2:
     dependencies:

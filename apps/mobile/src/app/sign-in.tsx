@@ -72,54 +72,61 @@ export default function SignIn() {
   };
 
   const handleSubmit = async (hcaptchaToken: string) => {
-    if (!validateForm()) return;
+    try {
+      if (!validateForm()) return;
 
-    setIsLoading(true);
-    setIsError(false);
+      setIsLoading(true);
+      setIsError(false);
 
-    const { error, response } = await passwordLogin({
-      body: {
-        username: email,
-        password: password,
-      },
-      headers: {
-        "hcaptcha-token": hcaptchaToken,
-      },
-    });
+      const { error, response } = await passwordLogin({
+        body: {
+          username: email,
+          password: password,
+        },
+        headers: {
+          "hcaptcha-token": hcaptchaToken,
+        },
+      });
 
-    if (error) {
+      if (error) {
+        setIsError(true);
+      } else {
+        const cookieHeader = response.headers.get("set-cookie") ?? "";
+
+        const cookies = parseCookie(cookieHeader, { map: true });
+
+        let accessTokenExpiration = cookies.access_token_expiration?.value;
+        let refreshToken = cookies.refresh_token?.value;
+
+        // getSetCookie isn't available in react native, and headers.get returns additional cookies like this on Android (possibly iOS too)
+        if ("secure, refresh_token" in cookies.access_token) {
+          refreshToken = cookies.access_token[
+            "secure, refresh_token"
+          ] as string;
+        }
+
+        if ("secure, access_token_expiration" in cookies.access_token) {
+          accessTokenExpiration = cookies.access_token[
+            "secure, access_token_expiration"
+          ] as string;
+        }
+
+        if (cookies.access_token && accessTokenExpiration) {
+          if (refreshToken) {
+            await SecureStore.setItemAsync("refreshToken", refreshToken);
+          }
+
+          if (accessTokenExpiration) {
+            setAccessToken(
+              cookies.access_token.value,
+              Number(accessTokenExpiration)
+            );
+          }
+        }
+      }
+    } catch (err) {
+      console.error(err);
       setIsError(true);
-    } else {
-      const cookieHeader = response.headers.get("set-cookie") ?? "";
-
-      const cookies = parseCookie(cookieHeader, { map: true });
-
-      let accessTokenExpiration = cookies.access_token_expiration.value;
-      let refreshToken = cookies.refresh_token.value;
-
-      // getSetCookie isn't available in react native, and headers.get returns additional cookies like this on Android (possibly iOS too)
-      if ("secure, refresh_token" in cookies.access_token) {
-        refreshToken = cookies.access_token["secure, refresh_token"] as string;
-      }
-
-      if ("secure, access_token_expiration" in cookies.access_token) {
-        accessTokenExpiration = cookies.access_token[
-          "secure, access_token_expiration"
-        ] as string;
-      }
-
-      if (cookies.access_token && accessTokenExpiration) {
-        if (refreshToken) {
-          await SecureStore.setItemAsync("refreshToken", refreshToken);
-        }
-
-        if (accessTokenExpiration) {
-          setAccessToken(
-            cookies.access_token.value,
-            Number(accessTokenExpiration)
-          );
-        }
-      }
     }
 
     setIsLoading(false);

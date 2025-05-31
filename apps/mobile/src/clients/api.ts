@@ -3,6 +3,7 @@ import useAuthStore from "@/stores/auth.store";
 import { refreshToken } from "api-client";
 import { client } from "api-client/client";
 import parseCookie from "set-cookie-parser";
+
 async function refreshAccessToken() {
   const { response } = await refreshToken({});
 
@@ -11,7 +12,7 @@ async function refreshAccessToken() {
 
     const cookies = parseCookie(cookieHeader, { map: true });
 
-    let accessTokenExpiration = cookies.access_token_expiration.value;
+    let accessTokenExpiration = cookies.access_token_expiration?.value;
 
     // getSetCookie isn't available in react native, and headers.get returns additional cookies like this on Android (possibly iOS too)
     if ("secure, access_token_expiration" in cookies.access_token) {
@@ -34,9 +35,15 @@ async function refreshAccessToken() {
 client.interceptors.request.use(async (request) => {
   // Refresh access token if it's about to expire
 
+  const path = new URL(request.url).pathname;
+
   const expiresAt = useAuthStore.getState().expiresAt;
 
-  if (expiresAt && expiresAt * 1000 < Date.now()) {
+  if (
+    path !== "/api/auth/refresh" &&
+    expiresAt &&
+    expiresAt * 1000 < Date.now()
+  ) {
     try {
       await refreshAccessToken();
     } catch (error) {
@@ -45,8 +52,6 @@ client.interceptors.request.use(async (request) => {
   }
 
   // Add cookies to request
-
-  const path = new URL(request.url).pathname;
 
   const cookies: Record<string, string> = {};
 
@@ -97,6 +102,8 @@ client.interceptors.response.use(async (response) => {
 
   return response;
 });
+
+client.setConfig({ credentials: "omit" });
 
 const apiClient = client;
 

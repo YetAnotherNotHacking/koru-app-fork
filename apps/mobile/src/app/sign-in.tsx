@@ -48,12 +48,12 @@ export default function SignIn() {
     const passwordResult = passwordSchema.safeParse(password);
 
     if (!emailResult.success) {
-      setEmailError(emailResult.error.format()._errors[0]);
+      setEmailError(emailResult.error.format()._errors[0] ?? "");
       isValid = false;
     }
 
     if (!passwordResult.success) {
-      setPasswordError(passwordResult.error.format()._errors[0]);
+      setPasswordError(passwordResult.error.format()._errors[0] ?? "");
       isValid = false;
     }
 

@@ -14,7 +14,9 @@
       "reactNativeDirectoryCheck": {
         "exclude": [
           "api-client",
-          "react-native-css-interop"
+          "react-native-css-interop",
+          "@hcaptcha/react-native-hcaptcha",
+          "set-cookie-parser"
         ]
       }
     }

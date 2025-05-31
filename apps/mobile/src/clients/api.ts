@@ -5,7 +5,11 @@ import { client } from "api-client/client";
 import parseCookie from "set-cookie-parser";
 
 async function refreshAccessToken() {
-  const { response } = await refreshToken({});
+  const { response, error } = await refreshToken({});
+
+  if (error) {
+    throw error;
+  }
 
   if (response.status === 200) {
     const cookieHeader = response.headers.get("set-cookie") ?? "";
@@ -32,6 +36,9 @@ async function refreshAccessToken() {
   }
 }
 
+const REFRESH_WHITELIST = ["/api/auth/refresh", "/api/auth/logout"];
+const INCLUDE_REFRESH_PATHS = ["/api/auth/refresh", "/api/auth/logout"];
+
 client.interceptors.request.use(async (request) => {
   // Refresh access token if it's about to expire
 
@@ -40,7 +47,7 @@ client.interceptors.request.use(async (request) => {
   const expiresAt = useAuthStore.getState().expiresAt;
 
   if (
-    path !== "/api/auth/refresh" &&
+    !REFRESH_WHITELIST.includes(path) &&
     expiresAt &&
     expiresAt * 1000 < Date.now()
   ) {
@@ -55,8 +62,8 @@ client.interceptors.request.use(async (request) => {
 
   const cookies: Record<string, string> = {};
 
-  // Add refresh token to request if it's a refresh request
-  if (path === "/api/auth/refresh") {
+  // Add refresh token to request if it's a refresh or a logout request
+  if (INCLUDE_REFRESH_PATHS.includes(path)) {
     const refreshToken = await SecureStore.getItemAsync("refreshToken");
     if (refreshToken) {
       cookies.refresh_token = refreshToken;
@@ -65,9 +72,9 @@ client.interceptors.request.use(async (request) => {
 
   const accessToken = useAuthStore.getState().accessToken;
 
-  if (!accessToken) return request;
-
-  cookies.access_token = accessToken;
+  if (accessToken) {
+    cookies.access_token = accessToken;
+  }
 
   let cookieString = Object.entries(cookies)
     .map(([key, value]) => `${key}=${value}`)
@@ -88,9 +95,9 @@ client.interceptors.response.use(async (response) => {
   const path = new URL(response.url).pathname;
 
   if (
+    !REFRESH_WHITELIST.includes(path) &&
     response.status === 401 &&
-    useAuthStore.getState().accessToken &&
-    path !== "/api/auth/refresh"
+    useAuthStore.getState().accessToken
   ) {
     try {
       await refreshAccessToken();

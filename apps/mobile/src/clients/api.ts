@@ -2,7 +2,7 @@ import * as SecureStore from "expo-secure-store";
 import useAuthStore from "@/stores/auth.store";
 import { refreshToken } from "api-client";
 import { client } from "api-client/client";
-import parseCookie from "set-cookie-parser";
+import parseCookie from "@/lib/cookie";
 
 async function refreshAccessToken() {
   const { response, error } = await refreshToken({});
@@ -14,23 +14,14 @@ async function refreshAccessToken() {
   if (response.status === 200) {
     const cookieHeader = response.headers.get("set-cookie") ?? "";
 
-    const cookies = parseCookie(cookieHeader, { map: true });
+    const cookies = parseCookie(cookieHeader);
 
-    let accessTokenExpiration = cookies.access_token_expiration?.value;
-
-    // getSetCookie isn't available in react native, and headers.get returns additional cookies like this on Android (possibly iOS too)
-    if ("secure, access_token_expiration" in cookies.access_token) {
-      accessTokenExpiration = cookies.access_token[
-        "secure, access_token_expiration"
-      ] as string;
-    }
-
-    if (cookies.access_token && accessTokenExpiration) {
+    if (cookies.access_token && cookies.access_token_expiration) {
       useAuthStore
         .getState()
         .setAccessToken(
-          cookies.access_token.value,
-          Number(accessTokenExpiration)
+          cookies.access_token,
+          Number(cookies.access_token_expiration)
         );
     }
   }

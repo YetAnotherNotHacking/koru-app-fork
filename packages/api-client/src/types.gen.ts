@@ -21,11 +21,6 @@ export type MessageResponse = {
   message: string;
 };
 
-export type User = {
-  name: string;
-  email: string;
-};
-
 export type UserCreate = {
   first_name: string;
   last_name: string;
@@ -244,35 +239,6 @@ export type PingResponses = {
 };
 
 export type PingResponse = PingResponses[keyof PingResponses];
-
-export type CreateUserData = {
-  body: User;
-  path?: never;
-  query?: never;
-  url: "/users";
-};
-
-export type CreateUserErrors = {
-  /**
-   * Authentication failed.
-   */
-  401: ErrorResponse;
-  /**
-   * Validation Error
-   */
-  422: HttpValidationError;
-};
-
-export type CreateUserError = CreateUserErrors[keyof CreateUserErrors];
-
-export type CreateUserResponses = {
-  /**
-   * Successful Response
-   */
-  200: MessageResponse;
-};
-
-export type CreateUserResponse = CreateUserResponses[keyof CreateUserResponses];
 
 export type GetHcaptchaSitekeyData = {
   body?: never;

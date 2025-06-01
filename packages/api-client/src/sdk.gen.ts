@@ -28,9 +28,6 @@ import type {
   PingData,
   PingResponse,
   PingError,
-  CreateUserData,
-  CreateUserResponse,
-  CreateUserError,
   GetHcaptchaSitekeyData,
   GetHcaptchaSitekeyResponse,
 } from "./types.gen";
@@ -187,26 +184,6 @@ export const ping = <ThrowOnError extends boolean = false>(
   >({
     url: "/ping",
     ...options,
-  });
-};
-
-/**
- * Create User
- */
-export const createUser = <ThrowOnError extends boolean = false>(
-  options: Options<CreateUserData, ThrowOnError>
-) => {
-  return (options.client ?? _heyApiClient).post<
-    CreateUserResponse,
-    CreateUserError,
-    ThrowOnError
-  >({
-    url: "/users",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options?.headers,
-    },
   });
 };
 

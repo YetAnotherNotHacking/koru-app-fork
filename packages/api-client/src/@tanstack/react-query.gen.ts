@@ -10,7 +10,6 @@ import {
   root,
   helloWorld,
   ping,
-  createUser,
   getHcaptchaSitekey,
 } from "../sdk.gen";
 import { queryOptions, type UseMutationOptions } from "@tanstack/react-query";
@@ -31,9 +30,6 @@ import type {
   RootData,
   HelloWorldData,
   PingData,
-  CreateUserData,
-  CreateUserError,
-  CreateUserResponse,
   GetHcaptchaSitekeyData,
 } from "../types.gen";
 import { client as _heyApiClient } from "../client.gen";
@@ -342,54 +338,6 @@ export const pingOptions = (options: Options<PingData>) => {
     },
     queryKey: pingQueryKey(options),
   });
-};
-
-export const createUserQueryKey = (options: Options<CreateUserData>) =>
-  createQueryKey("createUser", options);
-
-/**
- * Create User
- */
-export const createUserOptions = (options: Options<CreateUserData>) => {
-  return queryOptions({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await createUser({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
-    },
-    queryKey: createUserQueryKey(options),
-  });
-};
-
-/**
- * Create User
- */
-export const createUserMutation = (
-  options?: Partial<Options<CreateUserData>>
-): UseMutationOptions<
-  CreateUserResponse,
-  CreateUserError,
-  Options<CreateUserData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    CreateUserResponse,
-    CreateUserError,
-    Options<CreateUserData>
-  > = {
-    mutationFn: async (localOptions) => {
-      const { data } = await createUser({
-        ...options,
-        ...localOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
 };
 
 export const getHcaptchaSitekeyQueryKey = (

@@ -3,7 +3,6 @@ from typing import Annotated
 from fastapi import Depends, FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.routing import APIRoute
-from pydantic import BaseModel
 
 from api.core.config import settings
 from api.core.security import TokenPayload
@@ -44,11 +43,6 @@ app.add_middleware(
 )
 
 
-class User(BaseModel):
-    name: str
-    email: str
-
-
 @app.get("/")
 async def root() -> MessageResponse:
     # This endpoint is less relevant when running via Uvicorn directly on main:app
@@ -74,22 +68,6 @@ async def ping(
 ) -> MessageResponse:
     res = test_task.delay()
     return MessageResponse(message=f"API says: Pong! {res.get(timeout=10)}")
-
-
-@app.post(
-    "/users",
-    responses={
-        status.HTTP_401_UNAUTHORIZED: {
-            "description": "Authentication failed.",
-            "model": ErrorResponse,
-        }
-    },
-)
-async def create_user(
-    user: User,
-    token_payload: Annotated[TokenPayload, Depends(decode_token)],
-) -> MessageResponse:
-    return MessageResponse(message="User created successfully!")
 
 
 @app.get("/hcaptcha/sitekey")

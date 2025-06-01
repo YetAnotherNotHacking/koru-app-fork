@@ -29,11 +29,6 @@ export const zMessageResponse = z.object({
   message: z.string(),
 });
 
-export const zUser = z.object({
-  name: z.string(),
-  email: z.string(),
-});
-
 export const zUserCreate = z.object({
   first_name: z.string(),
   last_name: z.string(),
@@ -54,7 +49,5 @@ export const zRootResponse = zMessageResponse;
 export const zHelloWorldResponse = zMessageResponse;
 
 export const zPingResponse = zMessageResponse;
-
-export const zCreateUserResponse = zMessageResponse;
 
 export const zGetHcaptchaSitekeyResponse = zMessageResponse;

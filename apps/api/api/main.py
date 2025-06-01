@@ -9,6 +9,7 @@ from api.core.security import TokenPayload
 from api.schemas.base import ErrorResponse, MessageResponse
 from api.tasks.test import test_task
 
+from .cf_middleware import CloudflareMiddleware
 from .dependencies import decode_token
 from .routers import auth
 
@@ -25,6 +26,8 @@ app = FastAPI(
     generate_unique_id_function=custom_generate_unique_id,
     root_path="/api",
 )
+
+app.add_middleware(CloudflareMiddleware)
 
 app.include_router(auth.router)
 

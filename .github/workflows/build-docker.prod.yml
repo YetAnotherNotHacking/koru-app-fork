@@ -139,16 +139,16 @@ jobs:
       - name: Update API image tag
         run: |
           sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq && sudo chmod +x /usr/bin/yq
-          yq e '.spec.template.spec.containers[0].image = "${{ needs.build-api.outputs.image }}"' -i koru-manifests/api-deployment.yaml
-          yq e '.spec.template.spec.containers[0].image = "${{ needs.build-api.outputs.image }}"' -i koru-manifests/api-celery-deployment.yaml
+          yq e '.spec.template.spec.containers[0].image = "${{ needs.build-api.outputs.image }}"' -i koru-manifests/services/api/api-deployment.yaml
+          yq e '.spec.template.spec.containers[0].image = "${{ needs.build-api.outputs.image }}"' -i koru-manifests/services/api/api-celery-deployment.yaml
 
       - name: Update Web image tag
         run: |
-          yq e '.spec.template.spec.containers[0].image = "${{ needs.build-web.outputs.image }}"' -i koru-manifests/web-deployment.yaml
+          yq e '.spec.template.spec.containers[0].image = "${{ needs.build-web.outputs.image }}"' -i koru-manifests/services/web/web-deployment.yaml
 
       - name: Update Email image tag
         run: |
-          yq e '.spec.template.spec.containers[0].image = "${{ needs.build-email.outputs.image }}"' -i koru-manifests/email-deployment.yaml
+          yq e '.spec.template.spec.containers[0].image = "${{ needs.build-email.outputs.image }}"' -i koru-manifests/services/email/email-deployment.yaml
 
       - name: Commit and push changes
         run: |

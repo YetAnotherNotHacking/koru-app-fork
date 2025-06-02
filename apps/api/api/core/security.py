@@ -19,12 +19,15 @@ class TokenPayload(BaseModel):
     jti: str  # JWT ID, used for token revocation/blacklisting
 
 
-TOKEN_TYPES = Literal["access"] | Literal["refresh"] | Literal["email"]
+TOKEN_TYPES = (
+    Literal["access"] | Literal["refresh"] | Literal["email"] | Literal["waitlist"]
+)
 
 EXPIRY_TIMES: dict[TOKEN_TYPES, int] = {
     "access": settings.ACCESS_TOKEN_EXPIRATION,
     "refresh": settings.REFRESH_TOKEN_EXPIRATION,
     "email": settings.EMAIL_TOKEN_EXPIRATION,
+    "waitlist": settings.WAITLIST_TOKEN_EXPIRATION,
 }
 
 

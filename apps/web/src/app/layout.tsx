@@ -4,7 +4,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Providers from "./providers";
 import "@/clients/api";
-import AuthCheck from "@/components/auth/AuthCheck";
 
 export const metadata: Metadata = {
   title: "Koru",
@@ -31,7 +30,7 @@ export default function RootLayout({
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased dark bg-black text-white min-h-screen`}
         >
-          <AuthCheck>{children}</AuthCheck>
+          {children}
         </body>
       </html>
     </Providers>

@@ -21,6 +21,11 @@ import type {
   LogoutData,
   LogoutResponse,
   LogoutError,
+  JoinWaitlistData,
+  JoinWaitlistResponse,
+  JoinWaitlistError,
+  ConfirmWaitlistData,
+  ConfirmWaitlistError,
   RootData,
   RootResponse,
   HelloWorldData,
@@ -135,6 +140,38 @@ export const logout = <ThrowOnError extends boolean = false>(
     ThrowOnError
   >({
     url: "/auth/logout",
+    ...options,
+  });
+};
+
+/**
+ * Join Waitlist
+ */
+export const joinWaitlist = <ThrowOnError extends boolean = false>(
+  options: Options<JoinWaitlistData, ThrowOnError>
+) => {
+  return (options.client ?? _heyApiClient).post<
+    JoinWaitlistResponse,
+    JoinWaitlistError,
+    ThrowOnError
+  >({
+    url: "/waitlist/join",
+    ...options,
+  });
+};
+
+/**
+ * Confirm Waitlist
+ */
+export const confirmWaitlist = <ThrowOnError extends boolean = false>(
+  options: Options<ConfirmWaitlistData, ThrowOnError>
+) => {
+  return (options.client ?? _heyApiClient).get<
+    unknown,
+    ConfirmWaitlistError,
+    ThrowOnError
+  >({
+    url: "/waitlist/confirm/{waitlist_token}",
     ...options,
   });
 };

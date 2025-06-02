@@ -11,7 +11,7 @@ from api.tasks.test import test_task
 
 from .dependencies import decode_token
 from .middleware.cloudflare_ip import CloudflareMiddleware
-from .routers import auth
+from .routers import auth, waitlist
 
 
 def custom_generate_unique_id(route: APIRoute) -> str:
@@ -30,6 +30,7 @@ app = FastAPI(
 app.add_middleware(CloudflareMiddleware)
 
 app.include_router(auth.router)
+app.include_router(waitlist.router)
 
 # --- CORS Configuration ---
 origins = [

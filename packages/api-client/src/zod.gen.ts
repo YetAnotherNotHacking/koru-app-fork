@@ -44,6 +44,8 @@ export const zRefreshTokenResponse = zMessageResponse;
 
 export const zLogoutResponse = zMessageResponse;
 
+export const zJoinWaitlistResponse = zMessageResponse;
+
 export const zRootResponse = zMessageResponse;
 
 export const zHelloWorldResponse = zMessageResponse;

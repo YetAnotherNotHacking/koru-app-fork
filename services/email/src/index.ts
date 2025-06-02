@@ -16,7 +16,8 @@ async function main() {
 
   const EXCHANGE = "koru.email.dx";
   const QUEUE = "koru.email.q";
-  const ROUTING_KEY = "email.send";
+  const EMAIL_SEND_ROUTING_KEY = "email.send";
+  const WAITLIST_ADD_ROUTING_KEY = "email.waitlist.add";
 
   await channel.assertExchange(EXCHANGE, "direct", {
     durable: true,
@@ -26,21 +27,33 @@ async function main() {
     durable: true,
   });
 
-  await channel.bindQueue(QUEUE, EXCHANGE, ROUTING_KEY);
+  await channel.bindQueue(QUEUE, EXCHANGE, EMAIL_SEND_ROUTING_KEY);
+  await channel.bindQueue(QUEUE, EXCHANGE, WAITLIST_ADD_ROUTING_KEY);
 
   channel.prefetch(1);
 
-  console.log("Email service started");
+  console.log(
+    `Email service started, listening on queue ${QUEUE} for routing keys: ${EMAIL_SEND_ROUTING_KEY}, ${WAITLIST_ADD_ROUTING_KEY}`
+  );
 
   channel.consume(
     QUEUE,
-    (message) => {
+    async (message) => {
       if (message) {
         try {
-          handleMessage(JSON.parse(message.content.toString()));
+          console.log(
+            `Received message on queue ${QUEUE} with routing key ${message.fields.routingKey}`
+          );
+          await handleMessage(
+            JSON.parse(message.content.toString()),
+            message.fields.routingKey
+          );
           channel.ack(message);
         } catch (error) {
-          console.error(error);
+          console.error(
+            `Error processing message from ${QUEUE} (routing key: ${message?.fields?.routingKey || "unknown"}):`,
+            error
+          );
           channel.nack(message, false, false);
         }
       }

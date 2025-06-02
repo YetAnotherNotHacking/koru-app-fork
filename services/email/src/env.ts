@@ -9,6 +9,7 @@ const envSchema = z.object({
   RABBITMQ_VHOST: z.string().default("/"),
   RESEND_API_KEY: z.string(),
   EMAIL_FROM: z.string(),
+  RESEND_AUDIENCE_ID: z.string(),
 });
 
 export default envSchema.parse(process.env);

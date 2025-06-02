@@ -6,7 +6,7 @@ from sqlmodel import Field, Relationship, SQLModel
 from .base import BaseModel
 
 if TYPE_CHECKING:
-    from .account import Account
+    from .connection import Connection
     from .counterparty import Counterparty
 
 
@@ -20,7 +20,7 @@ class User(UserBase, BaseModel, table=True):
     id: str = Field(default_factory=generate, primary_key=True)
     password_hash: str
 
-    accounts: list["Account"] = Relationship(back_populates="user")
+    connections: list["Connection"] = Relationship(back_populates="user")
     created_counterparties: list["Counterparty"] = Relationship(
         back_populates="creator"
     )

@@ -1,118 +1,134 @@
 "use client";
-
-import { useEffect, useRef, useCallback } from "react";
-import { motion, useSpring, useMotionValue } from "framer-motion";
+import {
+  motion,
+  useMotionValue,
+  animate,
+  AnimationPlaybackControlsWithThen,
+  MotionValue,
+} from "framer-motion";
+import { useEffect, useState, useRef, RefObject } from "react";
 
 export default function GlowBackground() {
-  const baseX1 = useMotionValue(0);
-  const baseY1 = useMotionValue(0);
-  const baseX2 = useMotionValue(0);
-  const baseY2 = useMotionValue(0);
-  const baseX3 = useMotionValue(0);
-  const baseY3 = useMotionValue(0);
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 
-  const centerX = useMotionValue(0);
-  const centerY = useMotionValue(0);
+  // Cache motion values - these persist across renders
+  const blob1X = useRef(useMotionValue(0));
+  const blob1Y = useRef(useMotionValue(0));
+  const blob2X = useRef(useMotionValue(0));
+  const blob2Y = useRef(useMotionValue(0));
+  const blob3X = useRef(useMotionValue(0));
+  const blob3Y = useRef(useMotionValue(0));
 
-  const springX1 = useSpring(baseX1, { damping: 25, stiffness: 40, mass: 1.5 });
-  const springY1 = useSpring(baseY1, { damping: 25, stiffness: 40, mass: 1.5 });
-  const springX2 = useSpring(baseX2, { damping: 25, stiffness: 40, mass: 2.2 });
-  const springY2 = useSpring(baseY2, { damping: 25, stiffness: 40, mass: 2.2 });
-  const springX3 = useSpring(baseX3, { damping: 25, stiffness: 40, mass: 1.8 });
-  const springY3 = useSpring(baseY3, { damping: 25, stiffness: 40, mass: 1.8 });
-
-  const animationRef = useRef<number>(0);
-  const timeRef = useRef<number>(0);
-
-  const updatePositions = useCallback(() => {
-    const newCenterX = window.innerWidth / 2;
-    const newCenterY = window.innerHeight / 2;
-
-    centerX.set(newCenterX);
-    centerY.set(newCenterY);
-
-    const time = timeRef.current;
-
-    baseX1.set(newCenterX - 250 + Math.sin(time * 0.3) * 80);
-    baseY1.set(newCenterY - 250 + Math.cos(time * 0.2) * 60);
-
-    baseX2.set(newCenterX + 200 + Math.cos(time * 0.25) * 100);
-    baseY2.set(newCenterY - 300 + Math.sin(time * 0.35) * 70);
-
-    baseX3.set(newCenterX - 100 + Math.sin(time * 0.4) * 70);
-    baseY3.set(newCenterY + 200 + Math.cos(time * 0.3) * 50);
-  }, [baseX1, baseY1, baseX2, baseY2, baseX3, baseY3, centerX, centerY]);
+  const animationsRef = useRef<AnimationPlaybackControlsWithThen[]>([]);
 
   useEffect(() => {
-    updatePositions();
-
-    window.addEventListener("resize", updatePositions);
-
-    return () => {
-      window.removeEventListener("resize", updatePositions);
+    const updateDimensions = () => {
+      setDimensions({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
     };
-  }, [updatePositions]);
 
+    updateDimensions();
+    window.addEventListener("resize", updateDimensions);
+    return () => window.removeEventListener("resize", updateDimensions);
+  }, []);
+
+  // Start animations only once when dimensions are set
   useEffect(() => {
-    const animateFloating = (timestamp: number) => {
-      const time = timestamp * 0.0005;
-      timeRef.current = time;
+    if (dimensions.width === 0) return;
 
-      const currCenterX = centerX.get();
-      const currCenterY = centerY.get();
+    // Clear existing animations
+    animationsRef.current.forEach((anim) => anim?.stop?.());
+    animationsRef.current = [];
 
-      const newX1 = currCenterX - 250 + Math.sin(time * 0.3) * 80;
-      const newY1 = currCenterY - 250 + Math.cos(time * 0.2) * 60;
+    const startFloatingAnimation = (
+      xValue: RefObject<MotionValue<number>>,
+      yValue: RefObject<MotionValue<number>>,
+      radius: number,
+      duration: number
+    ) => {
+      const centerX = dimensions.width / 2;
+      const centerY = dimensions.height / 2;
+      const maxOffsetX = dimensions.width / 4;
+      const maxOffsetY = dimensions.height / 4;
+      const offsetX = Math.random() * maxOffsetX - maxOffsetX / 2;
+      const offsetY = Math.random() * maxOffsetY - maxOffsetY / 2;
 
-      const newX2 = currCenterX + 200 + Math.cos(time * 0.25) * 100;
-      const newY2 = currCenterY - 300 + Math.sin(time * 0.35) * 70;
+      const xAnimation = animate(
+        xValue.current,
+        [
+          centerX + offsetX,
+          centerX + radius + offsetX,
+          centerX + offsetX,
+          centerX - radius + offsetX,
+          centerX + offsetX,
+        ],
+        {
+          duration,
+          ease: "easeOut",
+          repeat: Infinity,
+          repeatType: "loop",
+        }
+      );
 
-      const newX3 = currCenterX - 100 + Math.sin(time * 0.4) * 70;
-      const newY3 = currCenterY + 200 + Math.cos(time * 0.3) * 50;
+      const yAnimation = animate(
+        yValue.current,
+        [
+          centerY + offsetY,
+          centerY + radius + offsetY,
+          centerY + offsetY,
+          centerY - radius + offsetY,
+          centerY + offsetY,
+        ],
+        {
+          duration,
+          ease: "easeInOut",
+          repeat: Infinity,
+          repeatType: "loop",
+        }
+      );
 
-      baseX1.set(newX1);
-      baseY1.set(newY1);
-      baseX2.set(newX2);
-      baseY2.set(newY2);
-      baseX3.set(newX3);
-      baseY3.set(newY3);
-
-      animationRef.current = requestAnimationFrame(animateFloating);
+      return [xAnimation, yAnimation];
     };
 
-    animationRef.current = requestAnimationFrame(animateFloating);
+    // Start all animations
+    animationsRef.current = [
+      ...startFloatingAnimation(blob1X, blob1Y, 150, 15),
+      ...startFloatingAnimation(blob2X, blob2Y, 200, 20),
+      ...startFloatingAnimation(blob3X, blob3Y, 100, 25),
+    ];
 
     return () => {
-      cancelAnimationFrame(animationRef.current);
+      animationsRef.current.forEach((anim) => anim?.stop?.());
     };
-  }, [baseX1, baseY1, baseX2, baseY2, baseX3, baseY3, centerX, centerY]);
+  }, [dimensions.width, dimensions.height]);
+
+  if (dimensions.width === 0) return null;
 
   return (
-    <div className="fixed inset-0 -z-10 overflow-hidden">
+    <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
       <motion.div
-        className="absolute blur-[100px] opacity-70 rounded-full bg-gradient-to-r from-violet-600 to-indigo-600 w-[500px] h-[500px]"
+        className="absolute blur-[100px] opacity-70 rounded-full bg-gradient-to-r from-violet-600 to-indigo-600 w-[500px] h-[500px] -translate-1/2"
         style={{
-          x: springX1,
-          y: springY1,
+          x: blob1X.current,
+          y: blob1Y.current,
         }}
       />
-
       <motion.div
-        className="absolute blur-[120px] opacity-50 rounded-full bg-gradient-to-r from-fuchsia-500 to-cyan-500 w-[600px] h-[600px]"
+        className="absolute blur-[120px] opacity-50 rounded-full bg-gradient-to-r from-fuchsia-500 to-cyan-500 w-[600px] h-[600px] -translate-1/2"
         style={{
-          x: springX2,
-          y: springY2,
+          x: blob2X.current,
+          y: blob2Y.current,
         }}
       />
-
       <motion.div
-        className="absolute blur-[150px] opacity-40 rounded-full bg-gradient-to-r from-blue-500 to-emerald-500 w-[400px] h-[400px]"
+        className="absolute blur-[150px] opacity-40 rounded-full bg-gradient-to-r from-blue-500 to-emerald-500 w-[400px] h-[400px] -translate-1/2"
         style={{
-          x: springX3,
-          y: springY3,
+          x: blob3X.current,
+          y: blob3Y.current,
         }}
       />
-
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
     </div>
   );

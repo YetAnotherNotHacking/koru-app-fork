@@ -8,12 +8,12 @@ from api.schemas.account import AccountType, ISOAccountType, UsageType
 from .base import BaseModel
 
 if TYPE_CHECKING:
+    from .connection import Connection
     from .transaction import Transaction
-    from .user import User
 
 
 class AccountBase(SQLModel):
-    user_id: str = Field(default=None, foreign_key="user.id")
+    connection_id: str = Field(foreign_key="connection.id")
     name: str = Field(default=None, unique=True)
     notes: str | None = None
     currency: str
@@ -35,7 +35,7 @@ class AccountBase(SQLModel):
 class Account(AccountBase, BaseModel, table=True):
     id: str = Field(default_factory=generate, primary_key=True)
 
-    user: "User" = Relationship(back_populates="accounts")
+    connection: "Connection" = Relationship(back_populates="accounts")
     transactions: list["Transaction"] = Relationship(back_populates="account")
     opposing_transactions: list["Transaction"] = Relationship(
         back_populates="opposing_account"

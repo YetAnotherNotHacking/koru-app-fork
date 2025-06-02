@@ -9,10 +9,7 @@ class CloudflareMiddleware:
         if scope["type"] == "lifespan":
             return await self.app(scope, receive, send)
 
-        # Make a copy of scope before modifying (ASGI spec requirement)
-        scope = dict(scope)
-
-        headers = scope["headers"]
+        headers = dict(scope["headers"])
 
         if b"cf-connecting-ip" in headers:
             ip = headers[b"cf-connecting-ip"].decode("latin1")

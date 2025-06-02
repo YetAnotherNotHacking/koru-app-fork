@@ -9,8 +9,8 @@ from api.core.security import TokenPayload
 from api.schemas.base import ErrorResponse, MessageResponse
 from api.tasks.test import test_task
 
-from .cf_middleware import CloudflareMiddleware
 from .dependencies import decode_token
+from .middleware.cloudflare_ip import CloudflareMiddleware
 from .routers import auth
 
 

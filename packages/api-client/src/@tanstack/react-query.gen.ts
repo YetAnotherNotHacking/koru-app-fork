@@ -7,6 +7,8 @@ import {
   confirmEmail,
   refreshToken,
   logout,
+  joinWaitlist,
+  confirmWaitlist,
   root,
   helloWorld,
   ping,
@@ -27,6 +29,10 @@ import type {
   LogoutData,
   LogoutError,
   LogoutResponse,
+  JoinWaitlistData,
+  JoinWaitlistError,
+  JoinWaitlistResponse,
+  ConfirmWaitlistData,
   RootData,
   HelloWorldData,
   PingData,
@@ -275,6 +281,78 @@ export const logoutMutation = (
     },
   };
   return mutationOptions;
+};
+
+export const joinWaitlistQueryKey = (options: Options<JoinWaitlistData>) =>
+  createQueryKey("joinWaitlist", options);
+
+/**
+ * Join Waitlist
+ */
+export const joinWaitlistOptions = (options: Options<JoinWaitlistData>) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await joinWaitlist({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: joinWaitlistQueryKey(options),
+  });
+};
+
+/**
+ * Join Waitlist
+ */
+export const joinWaitlistMutation = (
+  options?: Partial<Options<JoinWaitlistData>>
+): UseMutationOptions<
+  JoinWaitlistResponse,
+  JoinWaitlistError,
+  Options<JoinWaitlistData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    JoinWaitlistResponse,
+    JoinWaitlistError,
+    Options<JoinWaitlistData>
+  > = {
+    mutationFn: async (localOptions) => {
+      const { data } = await joinWaitlist({
+        ...options,
+        ...localOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+export const confirmWaitlistQueryKey = (
+  options: Options<ConfirmWaitlistData>
+) => createQueryKey("confirmWaitlist", options);
+
+/**
+ * Confirm Waitlist
+ */
+export const confirmWaitlistOptions = (
+  options: Options<ConfirmWaitlistData>
+) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await confirmWaitlist({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: confirmWaitlistQueryKey(options),
+  });
 };
 
 export const rootQueryKey = (options?: Options<RootData>) =>

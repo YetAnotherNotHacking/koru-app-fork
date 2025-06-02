@@ -9,7 +9,7 @@ import { emailRegistry } from "@/email-registry";
 
 const resend = new Resend(env.RESEND_API_KEY);
 
-export function handleMessage(message: unknown) {
+async function sendEmail(message: unknown) {
   const messageSchema = z.object({
     type: z.string(),
     to: z.string().email(),
@@ -29,10 +29,43 @@ export function handleMessage(message: unknown) {
 
   const EmailComponent = emailModule.component;
 
-  resend.emails.send({
+  const result = await resend.emails.send({
     from: env.EMAIL_FROM,
     to: parsedMessage.to,
     subject: parsedMessage.subject,
     react: React.createElement(EmailComponent, parsedPayload),
   });
+
+  if (result.error) {
+    throw new Error(result.error.message);
+  } else {
+    console.log(`Sent email to ${parsedMessage.to}`);
+  }
+}
+
+async function addToWaitlist(message: unknown) {
+  const messageSchema = z.object({
+    email: z.string().email(),
+  });
+
+  const parsedMessage = messageSchema.parse(message);
+
+  const result = await resend.contacts.create({
+    email: parsedMessage.email,
+    audienceId: env.RESEND_AUDIENCE_ID,
+  });
+
+  if (result.error) {
+    throw new Error(result.error.message);
+  } else {
+    console.log(`Added ${parsedMessage.email} to waitlist`);
+  }
+}
+
+export async function handleMessage(message: unknown, routingKey: string) {
+  if (routingKey === "email.send") {
+    await sendEmail(message);
+  } else if (routingKey === "email.waitlist.add") {
+    await addToWaitlist(message);
+  }
 }

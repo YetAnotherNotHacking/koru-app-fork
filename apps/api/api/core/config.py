@@ -7,12 +7,15 @@ class Settings(BaseSettings):
     APP_URL: str = "http://localhost:3000"
     DATABASE_URL: str
 
+    SIGNUP_ENABLED: bool = True
+
     JWT_SECRET: str
     JWT_ALGORITHM: str = "HS256"
 
     ACCESS_TOKEN_EXPIRATION: int = 60 * 15
     REFRESH_TOKEN_EXPIRATION: int = 60 * 60 * 24 * 7
     EMAIL_TOKEN_EXPIRATION: int = 60 * 60 * 24
+    WAITLIST_TOKEN_EXPIRATION: int = 60 * 60 * 24
 
     # Redis configuration
     REDIS_HOST: str = "localhost"

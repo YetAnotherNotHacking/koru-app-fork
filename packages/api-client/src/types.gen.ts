@@ -179,6 +179,60 @@ export type LogoutResponses = {
 
 export type LogoutResponse = LogoutResponses[keyof LogoutResponses];
 
+export type JoinWaitlistData = {
+  body?: never;
+  path?: never;
+  query: {
+    email: string;
+  };
+  url: "/waitlist/join";
+};
+
+export type JoinWaitlistErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type JoinWaitlistError = JoinWaitlistErrors[keyof JoinWaitlistErrors];
+
+export type JoinWaitlistResponses = {
+  /**
+   * Successful Response
+   */
+  200: MessageResponse;
+};
+
+export type JoinWaitlistResponse =
+  JoinWaitlistResponses[keyof JoinWaitlistResponses];
+
+export type ConfirmWaitlistData = {
+  body?: never;
+  path: {
+    waitlist_token: string;
+  };
+  query?: never;
+  url: "/waitlist/confirm/{waitlist_token}";
+};
+
+export type ConfirmWaitlistErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type ConfirmWaitlistError =
+  ConfirmWaitlistErrors[keyof ConfirmWaitlistErrors];
+
+export type ConfirmWaitlistResponses = {
+  /**
+   * Successful Response
+   */
+  200: unknown;
+};
+
 export type RootData = {
   body?: never;
   path?: never;

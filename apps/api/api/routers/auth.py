@@ -90,6 +90,9 @@ async def register(
     db: Annotated[Session, Depends(get_db)],
     _: Annotated[bool, Depends(verify_hcaptcha)],
 ) -> MessageResponse:
+    if not settings.SIGNUP_ENABLED:
+        raise HTTPException(status_code=400, detail="Signup is disabled")
+
     user_exists = db.exec(select(User).where(User.email == user.email)).one_or_none()
     email_pending = is_email_pending(user.email)
 
@@ -104,6 +107,7 @@ async def register(
 
     payload = ConfirmEmailPayload(
         name=db_user.first_name.split(" ")[0],
+        type="signup",
         confirmationLink=f"{settings.APP_URL}/api/auth/confirm-email/{email_token.token}",
         expirationHours=24,
     )

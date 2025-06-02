@@ -1,44 +1,127 @@
-import { ping } from "api-client";
-import ClientPing from "@/components/clientPing";
-import { getRequestConfig } from "@/lib/auth";
+"use client";
 
-// We need to prevent static generation, since the API is not available at build time
-export const dynamic = "force-dynamic";
+import Image from "next/image";
+import { useState } from "react";
+import { joinWaitlist } from "api-client";
+import { z } from "zod";
 
-export default async function Home() {
-  const config = await getRequestConfig();
-  const { data, error } = await ping({ ...config });
+export default function LandingPage() {
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    setSuccess(false);
+
+    try {
+      if (!z.string().email().safeParse(email).success) {
+        setError("Invalid email address");
+        setLoading(false);
+        return;
+      }
+
+      await joinWaitlist({
+        query: { email },
+        headers: { "hcaptcha-token": "mock-token" },
+      });
+
+      setSuccess(true);
+      setEmail("");
+    } catch (err: unknown) {
+      console.error("API Call failed", err);
+
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-8 gap-8 bg-gradient-to-b from-gray-900 to-black">
-      <h1 className="text-4xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400 drop-shadow-[0_0_15px_rgba(179,136,255,0.5)]">
-        Koru App Test Page
-      </h1>
+    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white flex flex-col items-center justify-center p-4 overflow-x-hidden">
+      <main className="flex flex-col items-center justify-center text-center max-w-4xl w-full">
+        <Image
+          src="/logos/dark_flat.png"
+          alt="Koru Logo"
+          width={200}
+          height={200}
+          priority
+          className="mb-8"
+        />
 
-      <div className="bg-black/30 backdrop-blur-md p-6 rounded-lg border border-neutral-800 w-full max-w-md">
-        <h2 className="text-xl font-semibold mb-4 text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">
-          API Test
-        </h2>
+        <h1 className="text-5xl md:text-7xl font-bold mb-6">
+          Koru: Your Finances, Reimagined.
+        </h1>
 
-        {data && (
-          <p className="text-green-400 my-2 drop-shadow-[0_0_8px_rgba(74,222,128,0.4)]">
-            {data.message}
+        <p className="text-lg md:text-xl text-gray-300 mb-10 max-w-2xl">
+          Effortlessly manage your money across multiple currencies with Koru.
+          Experience seamless, automatic transaction imports from your banks and
+          gain true clarity on your financial world. Stop juggling, start
+          thriving.
+        </p>
+
+        <form
+          onSubmit={handleSubmit}
+          className="w-full max-w-md flex flex-col sm:flex-row gap-3"
+        >
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Enter your email"
+            required
+            className="flex-grow px-4 py-3 rounded-md bg-gray-800 text-white border border-gray-700 focus:ring-2 focus:ring-indigo-500 outline-none transition-all duration-300"
+            aria-label="Email for waitlist"
+          />
+          <button
+            type="submit"
+            disabled={loading}
+            className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-3 rounded-md transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+          >
+            {loading ? (
+              <svg
+                className="animate-spin h-5 w-5 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+            ) : (
+              "Join Waitlist"
+            )}
+          </button>
+        </form>
+
+        {success && (
+          <p className="mt-4 text-green-400">
+            Please check your email for a confirmation link. Thanks for joining!
+            We&apos;ll be in touch soon.
           </p>
         )}
+        {error && <p className="mt-4 text-red-400">{error}</p>}
 
-        {error && (
-          <p className="text-red-400 my-2 drop-shadow-[0_0_8px_rgba(248,113,113,0.4)]">
-            Error: {JSON.stringify(error)}
-          </p>
-        )}
-
-        <div className="mt-6">
-          <h3 className="font-medium mb-3 text-indigo-300 drop-shadow-[0_0_8px_rgba(129,140,248,0.4)]">
-            Client-side Ping Test:
-          </h3>
-          <ClientPing />
-        </div>
-      </div>
+        <footer className="mt-20 text-gray-500">
+          <p>&copy; {new Date().getFullYear()} Koru. All rights reserved.</p>
+        </footer>
+      </main>
     </div>
   );
 }
+
+// Helper type removed as Options is now imported

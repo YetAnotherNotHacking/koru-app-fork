@@ -36,9 +36,13 @@ class Account(AccountBase, BaseModel, table=True):
     id: str = Field(default_factory=generate, primary_key=True)
 
     connection: "Connection" = Relationship(back_populates="accounts")
-    transactions: list["Transaction"] = Relationship(back_populates="account")
+    transactions: list["Transaction"] = Relationship(
+        back_populates="account",
+        sa_relationship_kwargs={"foreign_keys": "[Transaction.account_id]"},
+    )
     opposing_transactions: list["Transaction"] = Relationship(
-        back_populates="opposing_account"
+        back_populates="opposing_account",
+        sa_relationship_kwargs={"foreign_keys": "[Transaction.opposing_account_id]"},
     )
 
 

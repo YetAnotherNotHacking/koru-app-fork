@@ -6,6 +6,7 @@ from sqlmodel import Field, Relationship, SQLModel
 from .base import BaseModel
 
 if TYPE_CHECKING:
+    from .transaction import Transaction
     from .user import User
 
 
@@ -20,6 +21,9 @@ class CounterpartyBase(SQLModel):
 class Counterparty(CounterpartyBase, BaseModel, table=True):
     id: str = Field(default_factory=generate, primary_key=True)
     creator: "User" = Relationship(back_populates="created_counterparties")
+    transactions: list["Transaction"] = Relationship(
+        back_populates="opposing_counterparty"
+    )
 
 
 class CounterpartyCreate(CounterpartyBase):

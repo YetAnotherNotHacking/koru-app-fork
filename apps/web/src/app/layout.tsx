@@ -7,8 +7,7 @@ import "@/clients/api";
 import AuthCheck from "@/components/auth/AuthCheck";
 
 export const metadata: Metadata = {
-  title: "Koru App",
-  description: "A modern, dark-themed application with beautiful UI",
+  title: "Koru",
 };
 
 const geistSans = Geist({

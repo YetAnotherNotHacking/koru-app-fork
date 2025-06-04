@@ -49,18 +49,24 @@ export default function LandingPage() {
           width={200}
           height={200}
           priority
-          className="mb-8"
+          className="mb-2"
         />
 
-        <h1 className="text-5xl md:text-7xl font-bold mb-6">
-          Koru: Your Finances, Reimagined.
+        <h1 className="text-6xl md:text-8xl font-extrabold mb-3">Koru</h1>
+
+        <h1 className="text-4xl md:text-6xl font-bold mb-6">
+          <span className="">
+            <span className="">Your Finances</span>,{" "}
+            <span className="bg-gradient-to-r from-indigo-400 via-fuchsia-400 to-cyan-400 bg-clip-text text-transparent drop-shadow-[0_0_18px_rgba(129,140,248,0.4)]">
+              Reimagined.
+            </span>
+          </span>
         </h1>
 
         <p className="text-lg md:text-xl text-gray-300 mb-10 max-w-2xl">
-          Effortlessly manage your money across multiple currencies with Koru.
-          Experience seamless, automatic transaction imports from your banks and
-          gain true clarity on your financial world. Stop juggling, start
-          thriving.
+          Manage your money across multiple currencies with Koru. Experience
+          seamless, automatic transaction imports from all your banks and get
+          true clarity on your financial world. Stop juggling, start thriving.
         </p>
 
         <form
@@ -116,7 +122,7 @@ export default function LandingPage() {
         )}
         {error && <p className="mt-4 text-red-400">{error}</p>}
 
-        <footer className="mt-20 text-gray-500">
+        <footer className="bottom-0 h-10 fixed text-gray-500">
           <p>&copy; {new Date().getFullYear()} Koru. All rights reserved.</p>
         </footer>
       </main>

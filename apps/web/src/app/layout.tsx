@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Rubik, Geist_Mono } from "next/font/google";
 
 import "./globals.css";
 import Providers from "./providers";
@@ -9,8 +9,8 @@ export const metadata: Metadata = {
   title: "Koru",
 };
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const rubik = Rubik({
+  variable: "--font-rubik",
   subsets: ["latin"],
 });
 
@@ -26,10 +26,11 @@ export default function RootLayout({
 }>) {
   return (
     <Providers>
-      <html lang="en" className="dark">
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased dark bg-black text-white min-h-screen`}
-        >
+      <html
+        lang="en"
+        className={`${rubik.variable} ${geistMono.variable} dark`}
+      >
+        <body className="antialiased dark bg-black text-white min-h-screen">
           {children}
         </body>
       </html>

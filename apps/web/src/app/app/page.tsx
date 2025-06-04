@@ -10,7 +10,7 @@ export default async function Home() {
   const { data, error } = await ping({ ...config });
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-8 gap-8 bg-gradient-to-b from-gray-900 to-black">
+    <div className="min-h-screen flex flex-col items-center justify-center p-8 gap-8">
       <h1 className="text-4xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400 drop-shadow-[0_0_15px_rgba(179,136,255,0.5)]">
         Koru App Test Page
       </h1>

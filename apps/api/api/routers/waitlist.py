@@ -1,10 +1,11 @@
 import json
+from typing import Annotated
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import RedirectResponse
 
 from api.core.config import settings
-from api.core.rabbitmq import get_rabbitmq_connection
+from api.core.rabbitmq import RabbitMQConnection, get_rabbitmq
 from api.core.redis import blacklist_token, is_token_blacklisted
 from api.core.security import create_token, decode_jwt
 from api.schemas.base import MessageResponse
@@ -16,6 +17,7 @@ router = APIRouter(prefix="/waitlist", tags=["Waitlist"])
 @router.post("/join")
 async def join_waitlist(
     email: str,
+    rmq: Annotated[RabbitMQConnection, Depends(get_rabbitmq)],
 ) -> MessageResponse:
     waitlist_token = create_token(email, "waitlist")
 
@@ -31,10 +33,7 @@ async def join_waitlist(
         payload=payload,
     )
 
-    rmq_conn = get_rabbitmq_connection()
-    rmq_conn.publish_message(
-        email_payload.model_dump_json(), "koru.email.dx", "email.send"
-    )
+    rmq.publish_message(email_payload.model_dump_json(), "koru.email.dx", "email.send")
 
     return MessageResponse(message="Waitlist email sent")
 
@@ -42,6 +41,7 @@ async def join_waitlist(
 @router.get("/confirm/{waitlist_token}")
 async def confirm_waitlist(
     waitlist_token: str,
+    rmq: Annotated[RabbitMQConnection, Depends(get_rabbitmq)],
 ) -> RedirectResponse:
     token_payload = decode_jwt(waitlist_token)
 
@@ -58,7 +58,6 @@ async def confirm_waitlist(
 
     payload = {"email": token_payload.sub}
 
-    rmq_conn = get_rabbitmq_connection()
-    rmq_conn.publish_message(json.dumps(payload), "koru.email.dx", "email.waitlist.add")
+    rmq.publish_message(json.dumps(payload), "koru.email.dx", "email.waitlist.add")
 
     return RedirectResponse(url="/waitlist/confirmed")

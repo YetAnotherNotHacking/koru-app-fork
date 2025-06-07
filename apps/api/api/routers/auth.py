@@ -7,7 +7,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import Session, select
 
 from api.core.config import settings
-from api.core.rabbitmq import get_rabbitmq_connection
+from api.core.rabbitmq import RabbitMQConnection, get_rabbitmq
 from api.core.redis import (
     blacklist_token,
     is_email_pending,
@@ -88,6 +88,7 @@ async def password_login(
 async def register(
     user: UserCreate,
     db: Annotated[Session, Depends(get_db)],
+    rmq: Annotated[RabbitMQConnection, Depends(get_rabbitmq)],
     _: Annotated[bool, Depends(verify_hcaptcha)],
 ) -> MessageResponse:
     if not settings.SIGNUP_ENABLED:
@@ -120,8 +121,7 @@ async def register(
 
     store_temp_user(db_user, email_token.jti, user.email)
 
-    rmq_conn = get_rabbitmq_connection()
-    rmq_conn.publish_message(email.model_dump_json(), "koru.email.dx", "email.send")
+    rmq.publish_message(email.model_dump_json(), "koru.email.dx", "email.send")
 
     return MessageResponse(message="Verification email sent")
 

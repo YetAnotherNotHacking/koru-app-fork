@@ -1,5 +1,5 @@
+from collections.abc import Generator
 from contextlib import suppress
-from functools import lru_cache
 
 import pika
 import pika.adapters.blocking_connection
@@ -101,6 +101,9 @@ class RabbitMQConnection:
         self._declared_exchanges.clear()
 
 
-@lru_cache
-def get_rabbitmq_connection() -> RabbitMQConnection:
-    return RabbitMQConnection()
+def get_rabbitmq() -> Generator[RabbitMQConnection, None, None]:
+    conn = RabbitMQConnection()
+    try:
+        yield conn
+    finally:
+        conn.close()

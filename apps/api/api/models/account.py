@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 class AccountBase(SQLModel):
     connection_id: str = Field(foreign_key="connection.id")
-    name: str = Field(default=None, unique=True)
+    name: str
     notes: str | None = None
     currency: str
     account_type: AccountType

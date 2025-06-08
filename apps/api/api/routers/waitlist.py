@@ -48,7 +48,7 @@ async def confirm_waitlist(
     if token_payload is None:
         raise HTTPException(status_code=401, detail="Invalid waitlist token")
 
-    if token_payload.type != "waitlist":
+    if token_payload.typ != "waitlist":
         raise HTTPException(status_code=401, detail="Invalid waitlist token")
 
     if is_token_blacklisted(token_payload.jti):

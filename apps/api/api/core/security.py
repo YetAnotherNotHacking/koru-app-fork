@@ -13,7 +13,7 @@ from api.core.config import settings
 
 class TokenPayload(BaseModel):
     sub: str  # Subject (user ID)
-    type: str = "access"  # "access" or "refresh"
+    typ: str = "access"  # "access" or "refresh"
     exp: datetime
     iat: datetime
     jti: str  # JWT ID, used for token revocation/blacklisting
@@ -46,7 +46,7 @@ def create_jwt_token(
     jti = generate()
     to_encode = TokenPayload(
         sub=subject,
-        type=token_type,
+        typ=token_type,
         exp=expire,
         iat=datetime.now(UTC),
         jti=jti,

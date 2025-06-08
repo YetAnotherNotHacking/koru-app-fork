@@ -114,6 +114,11 @@ export default function LandingPage() {
           </button>
         </form>
 
+        <span className="text-gray-500 text-sm mt-2">
+          Your privacy matters. No spam, just important updates and early
+          access.
+        </span>
+
         {success && (
           <p className="mt-4 text-green-400">
             Please check your email for a confirmation link. Thanks for joining!
@@ -121,10 +126,6 @@ export default function LandingPage() {
           </p>
         )}
         {error && <p className="mt-4 text-red-400">{error}</p>}
-
-        <footer className="bottom-0 h-10 fixed text-gray-500">
-          <p>&copy; {new Date().getFullYear()} Koru. All rights reserved.</p>
-        </footer>
       </main>
     </div>
   );

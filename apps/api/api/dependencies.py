@@ -20,7 +20,7 @@ async def decode_token(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    if payload.type != "access":
+    if payload.typ != "access":
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid token type, expected access token",

@@ -133,7 +133,7 @@ async def confirm_email(
 ) -> RedirectResponse:
     payload = decode_jwt(email_token)
 
-    if payload is None or payload.type != "email":
+    if payload is None or payload.typ != "email":
         raise HTTPException(status_code=400, detail="Invalid email token")
 
     user = pop_temp_user(payload.jti)
@@ -190,7 +190,7 @@ async def refresh_token(
 ) -> MessageResponse:
     payload = decode_jwt(refresh_token)
 
-    if payload is None or payload.type != "refresh":
+    if payload is None or payload.typ != "refresh":
         raise HTTPException(status_code=401, detail="Invalid refresh token")
 
     if is_token_blacklisted(payload.jti):

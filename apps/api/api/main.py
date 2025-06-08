@@ -1,7 +1,6 @@
 from typing import Annotated
 
 from fastapi import Depends, FastAPI, status
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi.routing import APIRoute
 
 from api.core.config import settings
@@ -31,20 +30,6 @@ app.add_middleware(CloudflareMiddleware)
 
 app.include_router(auth.router)
 app.include_router(waitlist.router)
-
-# --- CORS Configuration ---
-origins = [
-    "http://localhost:3000",  # Next.js default dev port
-    "http://localhost:8081",  # Expo web default dev port
-]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 
 @app.get("/")

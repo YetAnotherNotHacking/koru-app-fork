@@ -4,6 +4,8 @@ from typing import TYPE_CHECKING, Optional
 from nanoid import generate
 from sqlmodel import Field, Relationship, SQLModel
 
+from api.models.enums.transaction import ProcessingStatus
+
 from .base import BaseModel
 
 if TYPE_CHECKING:
@@ -13,19 +15,23 @@ if TYPE_CHECKING:
 
 class TransactionBase(SQLModel):
     account_id: str = Field(foreign_key="account.id")
-    raw_counterparty_name: str
     amount: float
     currency: str
     native_amount: float
+    processing_status: ProcessingStatus = Field(default=ProcessingStatus.UNPROCESSED)
 
     # Counterparty
+    opposing_name: str
+    opposing_iban: str | None = None
+    opposing_bban: str | None = None
+
     opposing_counterparty_id: str | None = Field(
         default=None, foreign_key="counterparty.id"
     )
     opposing_account_id: str | None = Field(default=None, foreign_key="account.id")
 
     # Transaction identifiers
-    gocardless_id: str | None = Field(default=None, unique=True)
+    gocardless_id: str = Field(unique=True)
     internal_id: str | None = None
 
     # Transaction metadata

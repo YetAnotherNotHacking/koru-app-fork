@@ -9,6 +9,7 @@ import {
   logout,
   joinWaitlist,
   confirmWaitlist,
+  importGocardless,
   root,
   helloWorld,
   ping,
@@ -33,6 +34,9 @@ import type {
   JoinWaitlistError,
   JoinWaitlistResponse,
   ConfirmWaitlistData,
+  ImportGocardlessData,
+  ImportGocardlessError,
+  ImportGocardlessResponse,
   RootData,
   HelloWorldData,
   PingData,
@@ -353,6 +357,57 @@ export const confirmWaitlistOptions = (
     },
     queryKey: confirmWaitlistQueryKey(options),
   });
+};
+
+export const importGocardlessQueryKey = (
+  options: Options<ImportGocardlessData>
+) => createQueryKey("importGocardless", options);
+
+/**
+ * Import Gocardless
+ */
+export const importGocardlessOptions = (
+  options: Options<ImportGocardlessData>
+) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await importGocardless({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: importGocardlessQueryKey(options),
+  });
+};
+
+/**
+ * Import Gocardless
+ */
+export const importGocardlessMutation = (
+  options?: Partial<Options<ImportGocardlessData>>
+): UseMutationOptions<
+  ImportGocardlessResponse,
+  ImportGocardlessError,
+  Options<ImportGocardlessData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    ImportGocardlessResponse,
+    ImportGocardlessError,
+    Options<ImportGocardlessData>
+  > = {
+    mutationFn: async (localOptions) => {
+      const { data } = await importGocardless({
+        ...options,
+        ...localOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
 };
 
 export const rootQueryKey = (options?: Options<RootData>) =>

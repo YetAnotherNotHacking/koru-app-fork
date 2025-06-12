@@ -233,6 +233,35 @@ export type ConfirmWaitlistResponses = {
   200: unknown;
 };
 
+export type ImportGocardlessData = {
+  body?: never;
+  path: {
+    connection_id: string;
+  };
+  query?: never;
+  url: "/import/gocardless/{connection_id}";
+};
+
+export type ImportGocardlessErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type ImportGocardlessError =
+  ImportGocardlessErrors[keyof ImportGocardlessErrors];
+
+export type ImportGocardlessResponses = {
+  /**
+   * Successful Response
+   */
+  200: MessageResponse;
+};
+
+export type ImportGocardlessResponse =
+  ImportGocardlessResponses[keyof ImportGocardlessResponses];
+
 export type RootData = {
   body?: never;
   path?: never;

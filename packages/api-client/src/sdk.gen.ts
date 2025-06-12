@@ -26,6 +26,9 @@ import type {
   JoinWaitlistError,
   ConfirmWaitlistData,
   ConfirmWaitlistError,
+  ImportGocardlessData,
+  ImportGocardlessResponse,
+  ImportGocardlessError,
   RootData,
   RootResponse,
   HelloWorldData,
@@ -172,6 +175,22 @@ export const confirmWaitlist = <ThrowOnError extends boolean = false>(
     ThrowOnError
   >({
     url: "/waitlist/confirm/{waitlist_token}",
+    ...options,
+  });
+};
+
+/**
+ * Import Gocardless
+ */
+export const importGocardless = <ThrowOnError extends boolean = false>(
+  options: Options<ImportGocardlessData, ThrowOnError>
+) => {
+  return (options.client ?? _heyApiClient).post<
+    ImportGocardlessResponse,
+    ImportGocardlessError,
+    ThrowOnError
+  >({
+    url: "/import/gocardless/{connection_id}",
     ...options,
   });
 };

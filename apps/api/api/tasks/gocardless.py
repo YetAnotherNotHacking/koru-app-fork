@@ -113,7 +113,7 @@ def import_transactions(transactions: list[dict], session: Session) -> None:
 
 
 @app.task
-def import_requisition(requisition_id: str, connection_id: str) -> None:
+def import_requisition(connection_id: str) -> None:
     with Session(engine) as session:
         connection = session.exec(
             select(Connection).where(Connection.id == connection_id)
@@ -122,7 +122,10 @@ def import_requisition(requisition_id: str, connection_id: str) -> None:
         if not connection:
             raise Exception(f"Connection {connection_id} not found")
 
-        account_ids = get_accounts(requisition_id)
+        if not connection.internal_id:
+            raise Exception(f"Connection {connection_id} has no internal ID")
+
+        account_ids = get_accounts(connection.internal_id)
 
         accounts_to_upsert = []
         all_transactions: dict[str, TransactionsContainer] = {}

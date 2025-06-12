@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Optional
 
 from nanoid import generate
-from sqlmodel import Field, Relationship, SQLModel
+from sqlmodel import Field, Index, Relationship, SQLModel, text
 
 from api.models.enums.transaction import ProcessingStatus
 
@@ -21,7 +21,7 @@ class TransactionBase(SQLModel):
     processing_status: ProcessingStatus = Field(default=ProcessingStatus.UNPROCESSED)
 
     # Counterparty
-    opposing_name: str
+    opposing_name: str | None = None
     opposing_iban: str | None = None
     opposing_bban: str | None = None
 
@@ -31,12 +31,21 @@ class TransactionBase(SQLModel):
     opposing_account_id: str | None = Field(default=None, foreign_key="account.id")
 
     # Transaction identifiers
-    gocardless_id: str = Field(unique=True)
+    gocardless_id: str | None = None
     internal_id: str | None = None
 
     # Transaction metadata
     booking_time: datetime
     value_time: datetime
+
+    __table_args__ = (
+        Index(
+            "ix_transaction_unique_identifiers",
+            text("coalesce(gocardless_id, '')"),
+            text("coalesce(internal_id, '')"),
+            unique=True,
+        ),
+    )
 
 
 class Transaction(TransactionBase, BaseModel, table=True):

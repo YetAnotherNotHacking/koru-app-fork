@@ -4,11 +4,12 @@ from fastapi import Depends, FastAPI, status
 from fastapi.routing import APIRoute
 
 from api.core.config import settings
-from api.core.security import TokenPayload
+from api.models.user import User
 from api.schemas.base import ErrorResponse, MessageResponse
+from api.tasks.gocardless import import_requisition
 from api.tasks.test import test_task
 
-from .dependencies import decode_token
+from .dependencies import get_user
 from .middleware.cloudflare_ip import CloudflareMiddleware
 from .routers import auth, waitlist
 
@@ -34,7 +35,7 @@ app.include_router(waitlist.router)
 
 @app.get("/")
 async def root() -> MessageResponse:
-    # This endpoint is less relevant when running via Uvicorn directly on main:app
+    import_requisition.delay("BhfBoZgAFxqMd3agt8wh2")
     return MessageResponse(message="Hello from FastAPI Backend (root of app object)!")
 
 
@@ -53,10 +54,12 @@ async def hello_world() -> MessageResponse:
     },
 )
 async def ping(
-    _: Annotated[TokenPayload, Depends(decode_token)],
+    user: Annotated[User, Depends(get_user)],
 ) -> MessageResponse:
     res = test_task.delay()
-    return MessageResponse(message=f"API says: Pong! {res.get(timeout=10)}")
+    return MessageResponse(
+        message=f"API says: Hi {user.first_name}! {res.get(timeout=10)}"
+    )
 
 
 @app.get("/hcaptcha/sitekey")

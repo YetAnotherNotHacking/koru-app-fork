@@ -31,7 +31,7 @@ if (typeof window !== "undefined") {
     const path = new URL(response.url).pathname;
 
     if (
-      response.status === 401 &&
+      (response.status === 401 || response.status === 422) &&
       useAuthStore.getState().loggedIn &&
       path !== "/api/auth/refresh"
     ) {

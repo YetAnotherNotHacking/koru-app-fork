@@ -23,9 +23,9 @@ TOKEN_EXPIRY_BUFFER = 60
 def get_token() -> str:
     token = redis_client.get(f"{settings.REDIS_PREFIX}gocardless:token")
 
-    assert isinstance(token, str)
-
     if token:
+        assert isinstance(token, str)
+
         return token
 
     refresh_token = redis_client.get(f"{settings.REDIS_PREFIX}gocardless:refresh_token")

@@ -29,6 +29,9 @@ import type {
   ImportGocardlessData,
   ImportGocardlessResponse,
   ImportGocardlessError,
+  GetTransactionsData,
+  GetTransactionsResponse,
+  GetTransactionsError,
   RootData,
   RootResponse,
   HelloWorldData,
@@ -191,6 +194,22 @@ export const importGocardless = <ThrowOnError extends boolean = false>(
     ThrowOnError
   >({
     url: "/import/gocardless/{connection_id}",
+    ...options,
+  });
+};
+
+/**
+ * Get Transactions
+ */
+export const getTransactions = <ThrowOnError extends boolean = false>(
+  options: Options<GetTransactionsData, ThrowOnError>
+) => {
+  return (options.client ?? _heyApiClient).get<
+    GetTransactionsResponse,
+    GetTransactionsError,
+    ThrowOnError
+  >({
+    url: "/transaction",
     ...options,
   });
 };

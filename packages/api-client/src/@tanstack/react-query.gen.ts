@@ -10,12 +10,18 @@ import {
   joinWaitlist,
   confirmWaitlist,
   importGocardless,
+  getTransactions,
   root,
   helloWorld,
   ping,
   getHcaptchaSitekey,
 } from "../sdk.gen";
-import { queryOptions, type UseMutationOptions } from "@tanstack/react-query";
+import {
+  queryOptions,
+  type UseMutationOptions,
+  infiniteQueryOptions,
+  type InfiniteData,
+} from "@tanstack/react-query";
 import type {
   PasswordLoginData,
   PasswordLoginError,
@@ -37,6 +43,9 @@ import type {
   ImportGocardlessData,
   ImportGocardlessError,
   ImportGocardlessResponse,
+  GetTransactionsData,
+  GetTransactionsError,
+  GetTransactionsResponse,
   RootData,
   HelloWorldData,
   PingData,
@@ -408,6 +417,115 @@ export const importGocardlessMutation = (
     },
   };
   return mutationOptions;
+};
+
+export const getTransactionsQueryKey = (
+  options: Options<GetTransactionsData>
+) => createQueryKey("getTransactions", options);
+
+/**
+ * Get Transactions
+ */
+export const getTransactionsOptions = (
+  options: Options<GetTransactionsData>
+) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await getTransactions({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: getTransactionsQueryKey(options),
+  });
+};
+
+const createInfiniteParams = <
+  K extends Pick<QueryKey<Options>[0], "body" | "headers" | "path" | "query">,
+>(
+  queryKey: QueryKey<Options>,
+  page: K
+) => {
+  const params = queryKey[0];
+  if (page.body) {
+    params.body = {
+      ...(queryKey[0].body as any),
+      ...(page.body as any),
+    };
+  }
+  if (page.headers) {
+    params.headers = {
+      ...queryKey[0].headers,
+      ...page.headers,
+    };
+  }
+  if (page.path) {
+    params.path = {
+      ...(queryKey[0].path as any),
+      ...(page.path as any),
+    };
+  }
+  if (page.query) {
+    params.query = {
+      ...(queryKey[0].query as any),
+      ...(page.query as any),
+    };
+  }
+  return params as unknown as typeof page;
+};
+
+export const getTransactionsInfiniteQueryKey = (
+  options: Options<GetTransactionsData>
+): QueryKey<Options<GetTransactionsData>> =>
+  createQueryKey("getTransactions", options, true);
+
+/**
+ * Get Transactions
+ */
+export const getTransactionsInfiniteOptions = (
+  options: Options<GetTransactionsData>
+) => {
+  return infiniteQueryOptions<
+    GetTransactionsResponse,
+    GetTransactionsError,
+    InfiniteData<GetTransactionsResponse>,
+    QueryKey<Options<GetTransactionsData>>,
+    | number
+    | Pick<
+        QueryKey<Options<GetTransactionsData>>[0],
+        "body" | "headers" | "path" | "query"
+      >
+  >(
+    // @ts-ignore
+    {
+      queryFn: async ({ pageParam, queryKey, signal }) => {
+        // @ts-ignore
+        const page: Pick<
+          QueryKey<Options<GetTransactionsData>>[0],
+          "body" | "headers" | "path" | "query"
+        > =
+          typeof pageParam === "object"
+            ? pageParam
+            : {
+                query: {
+                  offset: pageParam,
+                },
+              };
+        const params = createInfiniteParams(queryKey, page);
+        const { data } = await getTransactions({
+          ...options,
+          ...params,
+          signal,
+          throwOnError: true,
+        });
+        return data;
+      },
+      queryKey: getTransactionsInfiniteQueryKey(options),
+    }
+  );
 };
 
 export const rootQueryKey = (options?: Options<RootData>) =>

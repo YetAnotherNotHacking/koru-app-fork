@@ -55,7 +55,9 @@ class Transaction(TransactionBase, BaseModel, table=True):
         back_populates="transactions",
         sa_relationship_kwargs={"foreign_keys": "[Transaction.account_id]"},
     )
-    opposing_counterparty: "Counterparty" = Relationship(back_populates="transactions")
+    opposing_counterparty: Optional["Counterparty"] = Relationship(
+        back_populates="transactions"
+    )
     opposing_account: Optional["Account"] = Relationship(
         back_populates="opposing_transactions",
         sa_relationship_kwargs={"foreign_keys": "[Transaction.opposing_account_id]"},
@@ -68,3 +70,8 @@ class TransactionCreate(TransactionBase):
 
 class TransactionRead(TransactionBase):
     id: str
+
+
+class TransactionReadWithOpposing(TransactionRead):
+    opposing_counterparty: Optional["Counterparty"]
+    opposing_account: Optional["Account"]

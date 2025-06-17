@@ -1,4 +1,4 @@
-export function KoruLoader({ size = "h-12 w-12" }: { size?: string }) {
+export function Loader({ size = "h-12 w-12" }: { size?: string }) {
   return (
     <div className="flex h-full flex-1 items-center justify-center">
       <svg
@@ -25,4 +25,4 @@ export function KoruLoader({ size = "h-12 w-12" }: { size?: string }) {
   );
 }
 
-export default KoruLoader;
+export default Loader;

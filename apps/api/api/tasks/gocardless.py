@@ -1,7 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import text, tuple_
-from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy import text
 from sqlmodel import Session, col, select
 
 from api.core.celery import app
@@ -12,10 +11,17 @@ from api.core.gocardless import (
     get_transactions,
 )
 from api.db.database import engine
+from api.db.utils import upsert_db
 from api.models.account import Account, AccountType, ISOAccountType
 from api.models.connection import Connection
 from api.models.transaction import ProcessingStatus, Transaction
 
+account_index_elements = [
+    text("coalesce(iban, '')"),
+    text("coalesce(bban, '')"),
+    text("coalesce(bic, '')"),
+    text("coalesce(scan_code, '')"),
+]
 account_columns = Account.model_fields.keys()
 account_exclude_columns = {
     "id",
@@ -31,6 +37,10 @@ account_update_columns = [
     col for col in account_columns if col not in account_exclude_columns
 ]
 
+transaction_index_elements = [
+    text("coalesce(gocardless_id, '')"),
+    text("coalesce(internal_id, '')"),
+]
 transaction_columns = Transaction.model_fields.keys()
 transaction_exclude_columns = {
     "id",
@@ -46,70 +56,6 @@ transaction_exclude_columns = {
 transaction_update_columns = [
     col for col in transaction_columns if col not in transaction_exclude_columns
 ]
-
-
-def import_accounts(accounts: list[dict], session: Session) -> None:
-    insert_stmt = insert(Account).values(accounts)
-
-    update_columns = {
-        col: getattr(insert_stmt.excluded, col) for col in account_update_columns
-    }
-
-    update_columns["updated_at"] = text("now()")
-
-    where_tuple_existing = tuple_(
-        *[getattr(Account, col) for col in account_update_columns]
-    )
-    where_tuple_new = tuple_(
-        *[getattr(insert_stmt.excluded, col) for col in account_update_columns]
-    )
-
-    insert_stmt = insert_stmt.on_conflict_do_update(
-        index_elements=[
-            text("coalesce(iban, '')"),
-            text("coalesce(bban, '')"),
-            text("coalesce(bic, '')"),
-            text("coalesce(scan_code, '')"),
-        ],
-        set_=update_columns,
-        where=where_tuple_existing.is_distinct_from(where_tuple_new),
-    )
-
-    session.execute(insert_stmt)
-
-    session.commit()
-
-
-def import_transactions(transactions: list[dict], session: Session) -> None:
-    insert_stmt = insert(Transaction).values(transactions)
-
-    update_columns = {
-        col: getattr(insert_stmt.excluded, col) for col in transaction_update_columns
-    }
-
-    update_columns["updated_at"] = text("now()")
-    update_columns["processing_status"] = ProcessingStatus.UNPROCESSED.value
-    update_columns["opposing_counterparty_id"] = None
-    update_columns["opposing_account_id"] = None
-
-    where_tuple_existing = tuple_(
-        *[getattr(Transaction, col) for col in transaction_update_columns]
-    )
-    where_tuple_new = tuple_(
-        *[getattr(insert_stmt.excluded, col) for col in transaction_update_columns]
-    )
-
-    insert_stmt = insert_stmt.on_conflict_do_update(
-        index_elements=[
-            text("coalesce(gocardless_id, '')"),
-            text("coalesce(internal_id, '')"),
-        ],
-        set_=update_columns,
-        where=where_tuple_existing.is_distinct_from(where_tuple_new),
-    )
-
-    session.execute(insert_stmt)
-    session.commit()
 
 
 @app.task
@@ -151,7 +97,14 @@ def import_requisition(connection_id: str) -> None:
 
             accounts_to_upsert.append(db_account.model_dump())
 
-        import_accounts(accounts_to_upsert, session)
+        upsert_db(
+            accounts_to_upsert,
+            session,
+            model=Account,
+            update_whitelist=account_update_columns,
+            index_elements=account_index_elements,
+            update_override={"updated_at": text("now()")},
+        )
 
         account_mapping = {
             account.internal_id: account.id
@@ -216,4 +169,16 @@ def import_requisition(connection_id: str) -> None:
 
                 transactions_to_upsert.append(db_transaction.model_dump())
 
-        import_transactions(transactions_to_upsert, session)
+        upsert_db(
+            transactions_to_upsert,
+            session,
+            model=Transaction,
+            update_whitelist=transaction_update_columns,
+            index_elements=transaction_index_elements,
+            update_override={
+                "updated_at": text("now()"),
+                "processing_status": ProcessingStatus.UNPROCESSED.value,
+                "opposing_counterparty_id": None,
+                "opposing_account_id": None,
+            },
+        )

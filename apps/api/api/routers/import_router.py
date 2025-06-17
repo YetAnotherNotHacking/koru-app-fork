@@ -30,4 +30,4 @@ def import_gocardless(
         raise HTTPException(status_code=403, detail="Forbidden")
 
     import_requisition.delay(connection_id)
-    return MessageResponse(message="Importing transactions from GoCardless")
+    return MessageResponse(message="Starting import task")

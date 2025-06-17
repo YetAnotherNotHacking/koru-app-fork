@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from celery import group
 from sqlalchemy import text
 from sqlmodel import Session, col, select
 
@@ -10,7 +11,6 @@ from api.core.exceptions import (
     TransactionMissingDataError,
 )
 from api.core.gocardless import (
-    TransactionsContainer,
     get_account_details,
     get_accounts,
     get_transactions,
@@ -64,46 +64,28 @@ transaction_update_columns = [
 
 
 @app.task
-def import_requisition(connection_id: str) -> None:
+def import_account(account_id: str, connection_id: str) -> None:
     with Session(engine) as session:
-        connection = session.exec(
-            select(Connection).where(Connection.id == connection_id)
-        ).first()
+        details = get_account_details(account_id)
+        transactions = get_transactions(account_id)
 
-        if not connection:
-            raise ConnectionNotFoundError(connection_id)
-
-        if not connection.internal_id:
-            raise ConnectionMissingDataError(connection_id, "internal ID")
-
-        account_ids = get_accounts(connection.internal_id)
-
-        accounts_to_upsert = []
-        all_transactions: dict[str, TransactionsContainer] = {}
-
-        for account_id in account_ids:
-            details = get_account_details(account_id)
-            all_transactions[account_id] = get_transactions(account_id)
-
-            db_account = Account(
-                connection_id=connection_id,
-                name=details.displayName or details.name,
-                currency=details.currency,
-                account_type=AccountType.BANK_GOCARDLESS,
-                iban=details.iban,
-                bban=details.bban,
-                bic=details.bic,
-                scan_code=details.scan,
-                internal_id=account_id,
-                owner_name=details.ownerName,
-                usage_type=details.usage,
-                iso_account_type=ISOAccountType(details.cashAccountType),
-            )
-
-            accounts_to_upsert.append(db_account.model_dump())
+        db_account = Account(
+            connection_id=connection_id,
+            name=details.displayName or details.name,
+            currency=details.currency,
+            account_type=AccountType.BANK_GOCARDLESS,
+            iban=details.iban,
+            bban=details.bban,
+            bic=details.bic,
+            scan_code=details.scan,
+            internal_id=account_id,
+            owner_name=details.ownerName,
+            usage_type=details.usage,
+            iso_account_type=ISOAccountType(details.cashAccountType),
+        )
 
         upsert_db(
-            accounts_to_upsert,
+            [db_account.model_dump()],
             session,
             model=Account,
             update_whitelist=account_update_columns,
@@ -122,57 +104,55 @@ def import_requisition(connection_id: str) -> None:
         }
 
         transactions_to_upsert = []
-        for account_id, transactions in all_transactions.items():
-            for transaction in transactions.booked:
-                opposing_account = (
-                    transaction.creditorAccount
-                    if transaction.transactionAmount.amount < 0
-                    else transaction.debitorAccount
+
+        for transaction in transactions.booked:
+            opposing_account = (
+                transaction.creditorAccount
+                if transaction.transactionAmount.amount < 0
+                else transaction.debitorAccount
+            )
+
+            opposing_name = (
+                transaction.creditorName
+                if transaction.transactionAmount.amount < 0
+                else transaction.debitorName
+            )
+
+            opposing_iban = opposing_account.iban if opposing_account else None
+            opposing_bban = opposing_account.bban if opposing_account else None
+
+            booking_time_str = transaction.bookingDateTime or transaction.bookingDate
+            value_time_str = transaction.valueDateTime or transaction.valueDate
+
+            if not booking_time_str:
+                raise TransactionMissingDataError(
+                    transaction.transactionId, "booking date"
                 )
 
-                opposing_name = (
-                    transaction.creditorName
-                    if transaction.transactionAmount.amount < 0
-                    else transaction.debitorName
+            if not value_time_str:
+                raise TransactionMissingDataError(
+                    transaction.transactionId, "value date"
                 )
 
-                opposing_iban = opposing_account.iban if opposing_account else None
-                opposing_bban = opposing_account.bban if opposing_account else None
+            value_time = datetime.fromisoformat(value_time_str)
+            booking_time = datetime.fromisoformat(booking_time_str)
 
-                booking_time_str = (
-                    transaction.bookingDateTime or transaction.bookingDate
-                )
-                value_time_str = transaction.valueDateTime or transaction.valueDate
+            db_transaction = Transaction(
+                account_id=account_mapping[account_id],
+                amount=transaction.transactionAmount.amount,
+                currency=transaction.transactionAmount.currency,
+                native_amount=transaction.transactionAmount.amount,
+                processing_status=ProcessingStatus.UNPROCESSED,
+                opposing_name=opposing_name,
+                opposing_iban=opposing_iban,
+                opposing_bban=opposing_bban,
+                gocardless_id=transaction.internalTransactionId,
+                internal_id=transaction.transactionId,
+                booking_time=booking_time,
+                value_time=value_time,
+            )
 
-                if not booking_time_str:
-                    raise TransactionMissingDataError(
-                        transaction.transactionId, "booking date"
-                    )
-
-                if not value_time_str:
-                    raise TransactionMissingDataError(
-                        transaction.transactionId, "value date"
-                    )
-
-                value_time = datetime.fromisoformat(value_time_str)
-                booking_time = datetime.fromisoformat(booking_time_str)
-
-                db_transaction = Transaction(
-                    account_id=account_mapping[account_id],
-                    amount=transaction.transactionAmount.amount,
-                    currency=transaction.transactionAmount.currency,
-                    native_amount=transaction.transactionAmount.amount,
-                    processing_status=ProcessingStatus.UNPROCESSED,
-                    opposing_name=opposing_name,
-                    opposing_iban=opposing_iban,
-                    opposing_bban=opposing_bban,
-                    gocardless_id=transaction.internalTransactionId,
-                    internal_id=transaction.transactionId,
-                    booking_time=booking_time,
-                    value_time=value_time,
-                )
-
-                transactions_to_upsert.append(db_transaction.model_dump())
+            transactions_to_upsert.append(db_transaction.model_dump())
 
         upsert_db(
             transactions_to_upsert,
@@ -187,3 +167,25 @@ def import_requisition(connection_id: str) -> None:
                 "opposing_account_id": None,
             },
         )
+
+
+@app.task
+def import_requisition(connection_id: str) -> None:
+    with Session(engine) as session:
+        connection = session.exec(
+            select(Connection).where(Connection.id == connection_id)
+        ).first()
+
+        if not connection:
+            raise ConnectionNotFoundError(connection_id)
+
+        if not connection.internal_id:
+            raise ConnectionMissingDataError(connection_id, "internal ID")
+
+        account_ids = get_accounts(connection.internal_id)
+
+        account_tasks = group(
+            import_account.s(account_id, connection_id) for account_id in account_ids
+        )
+
+        account_tasks.apply_async()

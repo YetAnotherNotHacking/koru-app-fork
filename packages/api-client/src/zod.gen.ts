@@ -52,6 +52,30 @@ export const zAccount = z.object({
   id: z.string().optional(),
 });
 
+export const zAccountReadWithBalance = z.object({
+  connection_id: z.string(),
+  name: z.string(),
+  notes: z.union([z.string(), z.null()]).optional(),
+  currency: z.string(),
+  account_type: zAccountType,
+  balance_offset: z.number(),
+  iban: z.union([z.string(), z.null()]),
+  bban: z.union([z.string(), z.null()]),
+  bic: z.union([z.string(), z.null()]).optional(),
+  scan_code: z.union([z.string(), z.null()]).optional(),
+  internal_id: z.union([z.string(), z.null()]).optional(),
+  owner_name: z.union([z.string(), z.null()]).optional(),
+  usage_type: z.union([zUsageType, z.null()]).optional(),
+  iso_account_type: z.union([zIsoAccountType, z.null()]).optional(),
+  id: z.string(),
+  balance: z.number(),
+});
+
+export const zAccountStatistics = z.object({
+  last_30d_income: z.number(),
+  last_30d_expense: z.number(),
+});
+
 export const zBodyPasswordLogin = z.object({
   grant_type: z.union([z.string().regex(/^password$/), z.null()]).optional(),
   username: z.string(),
@@ -147,5 +171,9 @@ export const zImportGocardlessResponse = zImportRequisitionResponse;
 export const zGetTaskStatusResponse = zTaskStatusResponse;
 
 export const zGetTransactionsResponse = z.array(zTransactionReadWithOpposing);
+
+export const zGetAccountsResponse = z.array(zAccountReadWithBalance);
+
+export const zGetAccountStatisticsResponse = zAccountStatistics;
 
 export const zGetHcaptchaSitekeyResponse = zMessageResponse;

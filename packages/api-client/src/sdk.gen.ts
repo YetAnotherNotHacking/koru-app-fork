@@ -35,6 +35,12 @@ import type {
   GetTransactionsData,
   GetTransactionsResponse,
   GetTransactionsError,
+  GetAccountsData,
+  GetAccountsResponse,
+  GetAccountsError,
+  GetAccountStatisticsData,
+  GetAccountStatisticsResponse,
+  GetAccountStatisticsError,
   GetHcaptchaSitekeyData,
   GetHcaptchaSitekeyResponse,
   GetHcaptchaSitekeyError,
@@ -223,6 +229,38 @@ export const getTransactions = <ThrowOnError extends boolean = false>(
     ThrowOnError
   >({
     url: "/transaction",
+    ...options,
+  });
+};
+
+/**
+ * Get Accounts
+ */
+export const getAccounts = <ThrowOnError extends boolean = false>(
+  options: Options<GetAccountsData, ThrowOnError>
+) => {
+  return (options.client ?? _heyApiClient).get<
+    GetAccountsResponse,
+    GetAccountsError,
+    ThrowOnError
+  >({
+    url: "/account",
+    ...options,
+  });
+};
+
+/**
+ * Get Account Statistics
+ */
+export const getAccountStatistics = <ThrowOnError extends boolean = false>(
+  options: Options<GetAccountStatisticsData, ThrowOnError>
+) => {
+  return (options.client ?? _heyApiClient).get<
+    GetAccountStatisticsResponse,
+    GetAccountStatisticsError,
+    ThrowOnError
+  >({
+    url: "/account/statistics",
     ...options,
   });
 };

@@ -20,6 +20,30 @@ export type Account = {
   id?: string;
 };
 
+export type AccountReadWithBalance = {
+  connection_id: string;
+  name: string;
+  notes?: string | null;
+  currency: string;
+  account_type: AccountType;
+  balance_offset: number;
+  iban: string | null;
+  bban: string | null;
+  bic?: string | null;
+  scan_code?: string | null;
+  internal_id?: string | null;
+  owner_name?: string | null;
+  usage_type?: UsageType | null;
+  iso_account_type?: IsoAccountType | null;
+  id: string;
+  balance: number;
+};
+
+export type AccountStatistics = {
+  last_30d_income: number;
+  last_30d_expense: number;
+};
+
 export type AccountType = "CASH" | "BANK_GOCARDLESS" | "BANK_MANUAL";
 
 export type BodyPasswordLogin = {
@@ -562,6 +586,91 @@ export type GetTransactionsResponses = {
 
 export type GetTransactionsResponse =
   GetTransactionsResponses[keyof GetTransactionsResponses];
+
+export type GetAccountsData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/account";
+};
+
+export type GetAccountsErrors = {
+  /**
+   * Bad Request
+   */
+  400: ErrorResponse;
+  /**
+   * Unauthorized
+   */
+  401: ErrorResponse;
+  /**
+   * Forbidden
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetAccountsError = GetAccountsErrors[keyof GetAccountsErrors];
+
+export type GetAccountsResponses = {
+  /**
+   * Successful Response
+   */
+  200: Array<AccountReadWithBalance>;
+};
+
+export type GetAccountsResponse =
+  GetAccountsResponses[keyof GetAccountsResponses];
+
+export type GetAccountStatisticsData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/account/statistics";
+};
+
+export type GetAccountStatisticsErrors = {
+  /**
+   * Bad Request
+   */
+  400: ErrorResponse;
+  /**
+   * Unauthorized
+   */
+  401: ErrorResponse;
+  /**
+   * Forbidden
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetAccountStatisticsError =
+  GetAccountStatisticsErrors[keyof GetAccountStatisticsErrors];
+
+export type GetAccountStatisticsResponses = {
+  /**
+   * Successful Response
+   */
+  200: AccountStatistics;
+};
+
+export type GetAccountStatisticsResponse =
+  GetAccountStatisticsResponses[keyof GetAccountStatisticsResponses];
 
 export type GetHcaptchaSitekeyData = {
   body?: never;

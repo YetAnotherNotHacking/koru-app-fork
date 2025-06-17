@@ -5,7 +5,7 @@ from api.core.config import settings
 from api.schemas.base import ErrorResponse, MessageResponse
 
 from .middleware.cloudflare_ip import CloudflareMiddleware
-from .routers import auth, import_router, transaction, waitlist
+from .routers import account, auth, import_router, transaction, waitlist
 
 
 def custom_generate_unique_id(route: APIRoute) -> str:
@@ -33,6 +33,7 @@ app.include_router(auth.router)
 app.include_router(waitlist.router)
 app.include_router(import_router.router)
 app.include_router(transaction.router)
+app.include_router(account.router)
 
 
 @app.get("/hcaptcha/sitekey")

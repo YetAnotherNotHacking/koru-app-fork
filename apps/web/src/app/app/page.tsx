@@ -1,4 +1,9 @@
-import { getTransactions, type TransactionReadWithOpposing } from "api-client";
+import {
+  getAccountStatistics,
+  getAccounts,
+  getTransactions,
+  type TransactionReadWithOpposing,
+} from "api-client";
 import { getRequestConfig } from "@/lib/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MerchantLogo } from "@/components/ui/merchant-logo";
@@ -13,34 +18,6 @@ import {
 
 // We need to prevent static generation, since the API is not available at build time
 export const dynamic = "force-dynamic";
-
-// Dummy data for accounts (keeping for now until we add accounts API)
-const dummyAccounts = [
-  {
-    id: "1",
-    name: "Main Checking",
-    type: "CACC",
-    balance: 4250.67,
-    currency: "EUR",
-    iban: "GL06 5770 0000 0577 07",
-  },
-  {
-    id: "2",
-    name: "Savings Account",
-    type: "SVGS",
-    balance: 12850.0,
-    currency: "EUR",
-    iban: "GL08 7568 0000 0756 87",
-  },
-  {
-    id: "3",
-    name: "Credit Card",
-    type: "CARD",
-    balance: -342.15,
-    currency: "EUR",
-    iban: "GL08 7568 0000 0756 87",
-  },
-];
 
 // Enhanced transaction type with enriched data
 interface EnrichedTransaction {
@@ -260,34 +237,26 @@ export default async function Dashboard() {
     query: { limit: 5 },
   });
 
+  const accountsResult = await getAccounts({
+    ...config,
+  });
+
+  const accounts = accountsResult.data;
+
+  const statisticsResult = await getAccountStatistics({
+    ...config,
+  });
+
+  const statistics = statisticsResult.data;
+
   // Enrich transaction data with categories and better descriptions
   const enrichedTransactions = transactionsResult.data
     ? enrichTransactionData(transactionsResult.data)
     : [];
 
   // Calculate metrics from real data
-  const totalBalance = dummyAccounts.reduce(
-    (sum, account) => sum + account.balance,
-    0
-  );
-
-  const monthlyIncome = enrichedTransactions
-    .filter(
-      (t) =>
-        t.amount > 0 &&
-        new Date(t.booking_time).getMonth() === new Date().getMonth()
-    )
-    .reduce((sum, t) => sum + t.amount, 0);
-
-  const monthlyExpenses = Math.abs(
-    enrichedTransactions
-      .filter(
-        (t) =>
-          t.amount < 0 &&
-          new Date(t.booking_time).getMonth() === new Date().getMonth()
-      )
-      .reduce((sum, t) => sum + t.amount, 0)
-  );
+  const totalBalance =
+    accounts?.reduce((sum, account) => sum + account.balance, 0) ?? 0;
 
   return (
     <div className="min-h-full bg-gradient-to-br from-background via-background to-background/95 p-6">
@@ -306,7 +275,7 @@ export default async function Dashboard() {
                 {formatCurrency(totalBalance, "EUR")}
               </div>
               <p className="text-xs text-sky-300/80 mt-1">
-                Across {dummyAccounts.length} accounts
+                Across {accounts?.length} accounts
               </p>
             </CardContent>
           </Card>
@@ -320,9 +289,9 @@ export default async function Dashboard() {
             </CardHeader>
             <CardContent className="px-4 md:px-6">
               <div className="text-2xl md:text-3xl font-bold text-white">
-                {formatCurrency(monthlyIncome, "EUR")}
+                {formatCurrency(statistics?.last_30d_income ?? 0, "EUR")}
               </div>
-              <p className="text-xs text-emerald-300/80 mt-1">This month</p>
+              <p className="text-xs text-emerald-300/80 mt-1">Last 30 days</p>
             </CardContent>
           </Card>
 
@@ -335,9 +304,9 @@ export default async function Dashboard() {
             </CardHeader>
             <CardContent className="px-4 md:px-6">
               <div className="text-2xl md:text-3xl font-bold text-white">
-                {formatCurrency(monthlyExpenses, "EUR")}
+                {formatCurrency(statistics?.last_30d_expense ?? 0, "EUR")}
               </div>
-              <p className="text-xs text-red-300/80 mt-1">This month</p>
+              <p className="text-xs text-red-300/80 mt-1">Last 30 days</p>
             </CardContent>
           </Card>
         </div>
@@ -349,7 +318,7 @@ export default async function Dashboard() {
               <CardTitle className="text-white">Accounts</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {dummyAccounts.map((account) => (
+              {accounts?.map((account) => (
                 <div
                   key={account.id}
                   className="group p-4 rounded-lg bg-card/50 border border-border/50 hover:bg-card/80 transition-all duration-200 hover:shadow-lg"
@@ -358,18 +327,18 @@ export default async function Dashboard() {
                     {/* Left side: Icon, name, and type */}
                     <div className="flex items-center space-x-3 min-w-0 xl:flex-1">
                       <div className="p-2 rounded-full bg-muted/20 group-hover:bg-muted/30 transition-colors">
-                        {getAccountIcon(account.type)}
+                        {getAccountIcon(account.iso_account_type ?? "")}
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="font-medium text-white truncate">
                           {account.name}
                         </p>
                         <p className="text-xs text-muted-foreground/60">
-                          {account.type === "CACC"
+                          {account.iso_account_type === "CACC"
                             ? "Checking"
-                            : account.type === "SVGS"
+                            : account.iso_account_type === "SVGS"
                               ? "Savings"
-                              : account.type === "CARD"
+                              : account.iso_account_type === "CARD"
                                 ? "Credit"
                                 : "Account"}
                         </p>

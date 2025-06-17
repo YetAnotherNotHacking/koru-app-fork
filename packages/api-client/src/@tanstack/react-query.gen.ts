@@ -12,6 +12,8 @@ import {
   importGocardless,
   getTaskStatus,
   getTransactions,
+  getAccounts,
+  getAccountStatistics,
   getHcaptchaSitekey,
 } from "../sdk.gen";
 import {
@@ -45,6 +47,8 @@ import type {
   GetTransactionsData,
   GetTransactionsError,
   GetTransactionsResponse,
+  GetAccountsData,
+  GetAccountStatisticsData,
   GetHcaptchaSitekeyData,
 } from "../types.gen";
 import { client as _heyApiClient } from "../client.gen";
@@ -543,6 +547,51 @@ export const getTransactionsInfiniteOptions = (
       queryKey: getTransactionsInfiniteQueryKey(options),
     }
   );
+};
+
+export const getAccountsQueryKey = (options: Options<GetAccountsData>) =>
+  createQueryKey("getAccounts", options);
+
+/**
+ * Get Accounts
+ */
+export const getAccountsOptions = (options: Options<GetAccountsData>) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await getAccounts({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: getAccountsQueryKey(options),
+  });
+};
+
+export const getAccountStatisticsQueryKey = (
+  options: Options<GetAccountStatisticsData>
+) => createQueryKey("getAccountStatistics", options);
+
+/**
+ * Get Account Statistics
+ */
+export const getAccountStatisticsOptions = (
+  options: Options<GetAccountStatisticsData>
+) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await getAccountStatistics({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: getAccountStatisticsQueryKey(options),
+  });
 };
 
 export const getHcaptchaSitekeyQueryKey = (

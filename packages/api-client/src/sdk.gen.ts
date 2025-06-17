@@ -32,13 +32,6 @@ import type {
   GetTransactionsData,
   GetTransactionsResponse,
   GetTransactionsError,
-  RootData,
-  RootResponse,
-  HelloWorldData,
-  HelloWorldResponse,
-  PingData,
-  PingResponse,
-  PingError,
   GetHcaptchaSitekeyData,
   GetHcaptchaSitekeyResponse,
 } from "./types.gen";
@@ -210,54 +203,6 @@ export const getTransactions = <ThrowOnError extends boolean = false>(
     ThrowOnError
   >({
     url: "/transaction",
-    ...options,
-  });
-};
-
-/**
- * Root
- */
-export const root = <ThrowOnError extends boolean = false>(
-  options?: Options<RootData, ThrowOnError>
-) => {
-  return (options?.client ?? _heyApiClient).get<
-    RootResponse,
-    unknown,
-    ThrowOnError
-  >({
-    url: "/",
-    ...options,
-  });
-};
-
-/**
- * Hello World
- */
-export const helloWorld = <ThrowOnError extends boolean = false>(
-  options?: Options<HelloWorldData, ThrowOnError>
-) => {
-  return (options?.client ?? _heyApiClient).get<
-    HelloWorldResponse,
-    unknown,
-    ThrowOnError
-  >({
-    url: "/hello",
-    ...options,
-  });
-};
-
-/**
- * Ping
- */
-export const ping = <ThrowOnError extends boolean = false>(
-  options: Options<PingData, ThrowOnError>
-) => {
-  return (options.client ?? _heyApiClient).get<
-    PingResponse,
-    PingError,
-    ThrowOnError
-  >({
-    url: "/ping",
     ...options,
   });
 };

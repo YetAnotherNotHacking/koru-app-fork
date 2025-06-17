@@ -132,10 +132,4 @@ export const zImportGocardlessResponse = zMessageResponse;
 
 export const zGetTransactionsResponse = z.array(zTransactionReadWithOpposing);
 
-export const zRootResponse = zMessageResponse;
-
-export const zHelloWorldResponse = zMessageResponse;
-
-export const zPingResponse = zMessageResponse;
-
 export const zGetHcaptchaSitekeyResponse = zMessageResponse;

@@ -373,67 +373,6 @@ export type GetTransactionsResponses = {
 export type GetTransactionsResponse =
   GetTransactionsResponses[keyof GetTransactionsResponses];
 
-export type RootData = {
-  body?: never;
-  path?: never;
-  query?: never;
-  url: "/";
-};
-
-export type RootResponses = {
-  /**
-   * Successful Response
-   */
-  200: MessageResponse;
-};
-
-export type RootResponse = RootResponses[keyof RootResponses];
-
-export type HelloWorldData = {
-  body?: never;
-  path?: never;
-  query?: never;
-  url: "/hello";
-};
-
-export type HelloWorldResponses = {
-  /**
-   * Successful Response
-   */
-  200: MessageResponse;
-};
-
-export type HelloWorldResponse = HelloWorldResponses[keyof HelloWorldResponses];
-
-export type PingData = {
-  body?: never;
-  path?: never;
-  query?: never;
-  url: "/ping";
-};
-
-export type PingErrors = {
-  /**
-   * Authentication failed.
-   */
-  401: ErrorResponse;
-  /**
-   * Validation Error
-   */
-  422: HttpValidationError;
-};
-
-export type PingError = PingErrors[keyof PingErrors];
-
-export type PingResponses = {
-  /**
-   * Successful Response
-   */
-  200: MessageResponse;
-};
-
-export type PingResponse = PingResponses[keyof PingResponses];
-
 export type GetHcaptchaSitekeyData = {
   body?: never;
   path?: never;

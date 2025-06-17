@@ -1,15 +1,9 @@
-from typing import Annotated
-
-from fastapi import Depends, FastAPI, status
+from fastapi import FastAPI
 from fastapi.routing import APIRoute
 
 from api.core.config import settings
-from api.models.user import User
-from api.schemas.base import ErrorResponse, MessageResponse
-from api.tasks.gocardless import import_requisition
-from api.tasks.test import test_task
+from api.schemas.base import MessageResponse
 
-from .dependencies import get_user
 from .middleware.cloudflare_ip import CloudflareMiddleware
 from .routers import auth, import_router, transaction, waitlist
 
@@ -33,35 +27,6 @@ app.include_router(auth.router)
 app.include_router(waitlist.router)
 app.include_router(import_router.router)
 app.include_router(transaction.router)
-
-
-@app.get("/")
-async def root() -> MessageResponse:
-    import_requisition.delay("BhfBoZgAFxqMd3agt8wh2")
-    return MessageResponse(message="Hello from FastAPI Backend (root of app object)!")
-
-
-@app.get("/hello")
-async def hello_world() -> MessageResponse:
-    return MessageResponse(message="API says: Hello World, from Python!")
-
-
-@app.get(
-    "/ping",
-    responses={
-        status.HTTP_401_UNAUTHORIZED: {
-            "description": "Authentication failed.",
-            "model": ErrorResponse,
-        }
-    },
-)
-async def ping(
-    user: Annotated[User, Depends(get_user)],
-) -> MessageResponse:
-    res = test_task.delay()
-    return MessageResponse(
-        message=f"API says: Hi {user.first_name}! {res.get(timeout=10)}"
-    )
 
 
 @app.get("/hcaptcha/sitekey")

@@ -11,9 +11,6 @@ import {
   confirmWaitlist,
   importGocardless,
   getTransactions,
-  root,
-  helloWorld,
-  ping,
   getHcaptchaSitekey,
 } from "../sdk.gen";
 import {
@@ -46,9 +43,6 @@ import type {
   GetTransactionsData,
   GetTransactionsError,
   GetTransactionsResponse,
-  RootData,
-  HelloWorldData,
-  PingData,
   GetHcaptchaSitekeyData,
 } from "../types.gen";
 import { client as _heyApiClient } from "../client.gen";
@@ -526,69 +520,6 @@ export const getTransactionsInfiniteOptions = (
       queryKey: getTransactionsInfiniteQueryKey(options),
     }
   );
-};
-
-export const rootQueryKey = (options?: Options<RootData>) =>
-  createQueryKey("root", options);
-
-/**
- * Root
- */
-export const rootOptions = (options?: Options<RootData>) => {
-  return queryOptions({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await root({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
-    },
-    queryKey: rootQueryKey(options),
-  });
-};
-
-export const helloWorldQueryKey = (options?: Options<HelloWorldData>) =>
-  createQueryKey("helloWorld", options);
-
-/**
- * Hello World
- */
-export const helloWorldOptions = (options?: Options<HelloWorldData>) => {
-  return queryOptions({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await helloWorld({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
-    },
-    queryKey: helloWorldQueryKey(options),
-  });
-};
-
-export const pingQueryKey = (options: Options<PingData>) =>
-  createQueryKey("ping", options);
-
-/**
- * Ping
- */
-export const pingOptions = (options: Options<PingData>) => {
-  return queryOptions({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await ping({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
-    },
-    queryKey: pingQueryKey(options),
-  });
 };
 
 export const getHcaptchaSitekeyQueryKey = (

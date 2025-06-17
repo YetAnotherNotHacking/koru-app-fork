@@ -37,6 +37,9 @@ account_exclude_columns = {
     "bban",
     "bic",
     "scan_code",
+    # User managed columns
+    "notes",
+    "balance_offset",
 }
 account_update_columns = [
     col for col in account_columns if col not in account_exclude_columns

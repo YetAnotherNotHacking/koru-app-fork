@@ -30,4 +30,5 @@ def get_transactions(
         .limit(limit)
     ).all()
 
+    # FastAPI would handle the conversion, but mypy doesn't know that
     return [TransactionReadWithOpposing.model_validate(t) for t in transactions]

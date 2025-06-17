@@ -10,6 +10,7 @@ import {
   joinWaitlist,
   confirmWaitlist,
   importGocardless,
+  getTaskStatus,
   getTransactions,
   getHcaptchaSitekey,
 } from "../sdk.gen";
@@ -40,6 +41,7 @@ import type {
   ImportGocardlessData,
   ImportGocardlessError,
   ImportGocardlessResponse,
+  GetTaskStatusData,
   GetTransactionsData,
   GetTransactionsError,
   GetTransactionsResponse,
@@ -411,6 +413,27 @@ export const importGocardlessMutation = (
     },
   };
   return mutationOptions;
+};
+
+export const getTaskStatusQueryKey = (options: Options<GetTaskStatusData>) =>
+  createQueryKey("getTaskStatus", options);
+
+/**
+ * Get Task Status
+ */
+export const getTaskStatusOptions = (options: Options<GetTaskStatusData>) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await getTaskStatus({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: getTaskStatusQueryKey(options),
+  });
 };
 
 export const getTransactionsQueryKey = (

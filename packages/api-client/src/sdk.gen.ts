@@ -29,6 +29,9 @@ import type {
   ImportGocardlessData,
   ImportGocardlessResponse,
   ImportGocardlessError,
+  GetTaskStatusData,
+  GetTaskStatusResponse,
+  GetTaskStatusError,
   GetTransactionsData,
   GetTransactionsResponse,
   GetTransactionsError,
@@ -187,6 +190,22 @@ export const importGocardless = <ThrowOnError extends boolean = false>(
     ThrowOnError
   >({
     url: "/import/gocardless/{connection_id}",
+    ...options,
+  });
+};
+
+/**
+ * Get Task Status
+ */
+export const getTaskStatus = <ThrowOnError extends boolean = false>(
+  options: Options<GetTaskStatusData, ThrowOnError>
+) => {
+  return (options.client ?? _heyApiClient).get<
+    GetTaskStatusResponse,
+    GetTaskStatusError,
+    ThrowOnError
+  >({
+    url: "/import/task/{task_id}",
     ...options,
   });
 };

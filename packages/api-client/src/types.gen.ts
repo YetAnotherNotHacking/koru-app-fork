@@ -74,11 +74,24 @@ export type IsoAccountType =
   | "VACC"
   | "NFCA";
 
+export type ImportRequisitionResponse = {
+  task_id: string;
+};
+
 export type MessageResponse = {
   message: string;
 };
 
 export type ProcessingStatus = "UNPROCESSED" | "PROCESSED";
+
+export type TaskStatus = "pending" | "success" | "failure";
+
+export type TaskStatusResponse = {
+  ready: boolean;
+  status: TaskStatus;
+  completed_count: number;
+  total_count: number;
+};
 
 export type TransactionReadWithOpposing = {
   account_id: string;
@@ -337,11 +350,43 @@ export type ImportGocardlessResponses = {
   /**
    * Successful Response
    */
-  200: MessageResponse;
+  200: ImportRequisitionResponse;
 };
 
 export type ImportGocardlessResponse =
   ImportGocardlessResponses[keyof ImportGocardlessResponses];
+
+export type GetTaskStatusData = {
+  body?: never;
+  path: {
+    task_id: string;
+  };
+  query?: never;
+  url: "/import/task/{task_id}";
+};
+
+export type GetTaskStatusErrors = {
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetTaskStatusError = GetTaskStatusErrors[keyof GetTaskStatusErrors];
+
+export type GetTaskStatusResponses = {
+  /**
+   * Successful Response
+   */
+  200: TaskStatusResponse;
+};
+
+export type GetTaskStatusResponse =
+  GetTaskStatusResponses[keyof GetTaskStatusResponses];
 
 export type GetTransactionsData = {
   body?: never;

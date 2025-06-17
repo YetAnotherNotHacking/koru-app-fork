@@ -85,11 +85,24 @@ export const zHttpValidationError = z.object({
   detail: z.array(zValidationError).optional(),
 });
 
+export const zImportRequisitionResponse = z.object({
+  task_id: z.string(),
+});
+
 export const zMessageResponse = z.object({
   message: z.string(),
 });
 
 export const zProcessingStatus = z.enum(["UNPROCESSED", "PROCESSED"]);
+
+export const zTaskStatus = z.enum(["pending", "success", "failure"]);
+
+export const zTaskStatusResponse = z.object({
+  ready: z.boolean(),
+  status: zTaskStatus,
+  completed_count: z.number().int(),
+  total_count: z.number().int(),
+});
 
 export const zTransactionReadWithOpposing = z.object({
   account_id: z.string(),
@@ -128,7 +141,9 @@ export const zLogoutResponse = zMessageResponse;
 
 export const zJoinWaitlistResponse = zMessageResponse;
 
-export const zImportGocardlessResponse = zMessageResponse;
+export const zImportGocardlessResponse = zImportRequisitionResponse;
+
+export const zGetTaskStatusResponse = zTaskStatusResponse;
 
 export const zGetTransactionsResponse = z.array(zTransactionReadWithOpposing);
 

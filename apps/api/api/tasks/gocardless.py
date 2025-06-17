@@ -170,7 +170,7 @@ def import_account(account_id: str, connection_id: str) -> None:
 
 
 @app.task
-def import_requisition(connection_id: str) -> None:
+def import_requisition(connection_id: str) -> str:
     with Session(engine) as session:
         connection = session.exec(
             select(Connection).where(Connection.id == connection_id)
@@ -188,4 +188,10 @@ def import_requisition(connection_id: str) -> None:
             import_account.s(account_id, connection_id) for account_id in account_ids
         )
 
-        account_tasks.apply_async()
+        result = account_tasks.apply_async()
+
+        # celery-types doesn't properly type this, this should be a GroupResult
+        # not an AsyncResult, but that is also not properly typed
+        result.save()  # type: ignore[attr-defined]
+
+        return result.id

@@ -4,6 +4,11 @@ from sqlalchemy import text
 from sqlmodel import Session, col, select
 
 from api.core.celery import app
+from api.core.exceptions import (
+    GoCardlessConnectionMissingDataError,
+    GoCardlessConnectionNotFoundError,
+    TransactionMissingDataError,
+)
 from api.core.gocardless import (
     TransactionsContainer,
     get_account_details,
@@ -66,10 +71,10 @@ def import_requisition(connection_id: str) -> None:
         ).first()
 
         if not connection:
-            raise Exception(f"Connection {connection_id} not found")
+            raise GoCardlessConnectionNotFoundError(connection_id)
 
         if not connection.internal_id:
-            raise Exception(f"Connection {connection_id} has no internal ID")
+            raise GoCardlessConnectionMissingDataError(connection_id, "internal ID")
 
         account_ids = get_accounts(connection.internal_id)
 
@@ -140,13 +145,13 @@ def import_requisition(connection_id: str) -> None:
                 value_time_str = transaction.valueDateTime or transaction.valueDate
 
                 if not booking_time_str:
-                    raise Exception(
-                        f"Transaction {transaction.transactionId} has no booking date"
+                    raise TransactionMissingDataError(
+                        transaction.transactionId, "booking date"
                     )
 
                 if not value_time_str:
-                    raise Exception(
-                        f"Transaction {transaction.transactionId} has no value date"
+                    raise TransactionMissingDataError(
+                        transaction.transactionId, "value date"
                     )
 
                 value_time = datetime.fromisoformat(value_time_str)

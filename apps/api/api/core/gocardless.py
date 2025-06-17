@@ -1,6 +1,7 @@
 import requests
 
 from api.core.config import settings
+from api.core.exceptions import GoCardlessAPIError
 from api.schemas.gocardless import (
     AccountDetails,
     AccountDetailsResponse,
@@ -39,7 +40,11 @@ def get_token() -> str:
         )
 
         if not response.ok:
-            raise Exception(response.text)
+            raise GoCardlessAPIError(
+                "refresh GoCardless token",
+                response.text,
+                status_code=response.status_code,
+            )
 
         token = RefreshResponse.model_validate_json(response.text)
         redis_client.set(
@@ -58,7 +63,11 @@ def get_token() -> str:
     )
 
     if not response.ok:
-        raise Exception(response.text)
+        raise GoCardlessAPIError(
+            "create GoCardless token",
+            response.text,
+            status_code=response.status_code,
+        )
 
     token = TokenResponse.model_validate_json(response.text)
     redis_client.set(
@@ -93,7 +102,11 @@ def get_institutions(country: str | None = None) -> list[Institution]:
     )
 
     if not response.ok:
-        raise Exception(response.text)
+        raise GoCardlessAPIError(
+            "fetch institutions",
+            response.text,
+            status_code=response.status_code,
+        )
 
     institutions = InstitutionsResponse.validate_json(response.text)
     redis_client.set(
@@ -119,7 +132,11 @@ def create_requisition(
     )
 
     if not response.ok:
-        raise Exception(response.text)
+        raise GoCardlessAPIError(
+            "create requisition",
+            response.text,
+            status_code=response.status_code,
+        )
 
     return CreateRequisitionResponse.model_validate_json(response.text)
 
@@ -132,7 +149,11 @@ def get_accounts(requisition_id: str) -> list[str]:
     )
 
     if not response.ok:
-        raise Exception(response.text)
+        raise GoCardlessAPIError(
+            "fetch accounts",
+            response.text,
+            status_code=response.status_code,
+        )
 
     return GetRequisitionResponse.model_validate_json(response.text).accounts
 
@@ -145,7 +166,11 @@ def get_account_details(account_id: str) -> AccountDetails:
     )
 
     if not response.ok:
-        raise Exception(response.text)
+        raise GoCardlessAPIError(
+            "fetch account details",
+            response.text,
+            status_code=response.status_code,
+        )
 
     return AccountDetailsResponse.model_validate_json(response.text).account
 
@@ -158,6 +183,10 @@ def get_transactions(account_id: str) -> TransactionsContainer:
     )
 
     if not response.ok:
-        raise Exception(response.text)
+        raise GoCardlessAPIError(
+            "fetch transactions",
+            response.text,
+            status_code=response.status_code,
+        )
 
     return TransactionsResponse.model_validate_json(response.text).transactions

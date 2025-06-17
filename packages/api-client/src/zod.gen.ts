@@ -40,6 +40,7 @@ export const zAccount = z.object({
   notes: z.union([z.string(), z.null()]).optional(),
   currency: z.string(),
   account_type: zAccountType,
+  balance_offset: z.number(),
   iban: z.union([z.string(), z.null()]),
   bban: z.union([z.string(), z.null()]),
   bic: z.union([z.string(), z.null()]).optional(),

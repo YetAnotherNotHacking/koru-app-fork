@@ -19,6 +19,7 @@ class AccountBase(SQLModel):
     notes: str | None = None
     currency: str
     account_type: AccountType
+    balance_offset: float
 
     # Account identifiers (only relevant for bank accounts)
     iban: str | None

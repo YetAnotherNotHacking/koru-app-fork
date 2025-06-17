@@ -8,6 +8,7 @@ export type Account = {
   notes?: string | null;
   currency: string;
   account_type: AccountType;
+  balance_offset: number;
   iban: string | null;
   bban: string | null;
   bic?: string | null;

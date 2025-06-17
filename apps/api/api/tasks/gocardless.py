@@ -74,6 +74,7 @@ def import_account(account_id: str, connection_id: str) -> None:
             name=details.displayName or details.name,
             currency=details.currency,
             account_type=AccountType.BANK_GOCARDLESS,
+            balance_offset=0.0,
             iban=details.iban,
             bban=details.bban,
             bic=details.bic,

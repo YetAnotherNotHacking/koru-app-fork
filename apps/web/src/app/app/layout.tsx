@@ -4,8 +4,10 @@ import Header from "@/components/layout/AppHeader";
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <AuthCheck>
-      <Header />
-      <main>{children}</main>
+      <div className="min-h-screen grid grid-rows-[auto_1fr]">
+        <Header />
+        <main className="overflow-auto">{children}</main>
+      </div>
     </AuthCheck>
   );
 }

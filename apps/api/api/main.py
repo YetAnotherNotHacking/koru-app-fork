@@ -1,8 +1,8 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, status
 from fastapi.routing import APIRoute
 
 from api.core.config import settings
-from api.schemas.base import MessageResponse
+from api.schemas.base import ErrorResponse, MessageResponse
 
 from .middleware.cloudflare_ip import CloudflareMiddleware
 from .routers import auth, import_router, transaction, waitlist
@@ -19,6 +19,12 @@ def custom_generate_unique_id(route: APIRoute) -> str:
 app = FastAPI(
     generate_unique_id_function=custom_generate_unique_id,
     root_path="/api",
+    responses={
+        status.HTTP_400_BAD_REQUEST: {"model": ErrorResponse},
+        status.HTTP_401_UNAUTHORIZED: {"model": ErrorResponse},
+        status.HTTP_403_FORBIDDEN: {"model": ErrorResponse},
+        status.HTTP_404_NOT_FOUND: {"model": ErrorResponse},
+    },
 )
 
 app.add_middleware(CloudflareMiddleware)

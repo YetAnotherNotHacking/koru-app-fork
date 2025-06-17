@@ -37,6 +37,7 @@ import type {
   GetTransactionsError,
   GetHcaptchaSitekeyData,
   GetHcaptchaSitekeyResponse,
+  GetHcaptchaSitekeyError,
 } from "./types.gen";
 import { client as _heyApiClient } from "./client.gen";
 
@@ -234,7 +235,7 @@ export const getHcaptchaSitekey = <ThrowOnError extends boolean = false>(
 ) => {
   return (options?.client ?? _heyApiClient).get<
     GetHcaptchaSitekeyResponse,
-    unknown,
+    GetHcaptchaSitekeyError,
     ThrowOnError
   >({
     url: "/hcaptcha/sitekey",

@@ -140,9 +140,21 @@ export type PasswordLoginData = {
 
 export type PasswordLoginErrors = {
   /**
+   * Bad Request
+   */
+  400: ErrorResponse;
+  /**
    * Unauthorized
    */
   401: ErrorResponse;
+  /**
+   * Forbidden
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
   /**
    * Validation Error
    */
@@ -177,6 +189,18 @@ export type RegisterErrors = {
    */
   400: ErrorResponse;
   /**
+   * Unauthorized
+   */
+  401: ErrorResponse;
+  /**
+   * Forbidden
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
    * Validation Error
    */
   422: HttpValidationError;
@@ -204,6 +228,22 @@ export type ConfirmEmailData = {
 
 export type ConfirmEmailErrors = {
   /**
+   * Bad Request
+   */
+  400: ErrorResponse;
+  /**
+   * Unauthorized
+   */
+  401: ErrorResponse;
+  /**
+   * Forbidden
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
    * Validation Error
    */
   422: HttpValidationError;
@@ -227,9 +267,21 @@ export type RefreshTokenData = {
 
 export type RefreshTokenErrors = {
   /**
+   * Bad Request
+   */
+  400: ErrorResponse;
+  /**
    * Unauthorized
    */
   401: ErrorResponse;
+  /**
+   * Forbidden
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
   /**
    * Validation Error
    */
@@ -257,6 +309,22 @@ export type LogoutData = {
 
 export type LogoutErrors = {
   /**
+   * Bad Request
+   */
+  400: ErrorResponse;
+  /**
+   * Unauthorized
+   */
+  401: ErrorResponse;
+  /**
+   * Forbidden
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
    * Validation Error
    */
   422: HttpValidationError;
@@ -283,6 +351,22 @@ export type JoinWaitlistData = {
 };
 
 export type JoinWaitlistErrors = {
+  /**
+   * Bad Request
+   */
+  400: ErrorResponse;
+  /**
+   * Unauthorized
+   */
+  401: ErrorResponse;
+  /**
+   * Forbidden
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
   /**
    * Validation Error
    */
@@ -312,6 +396,22 @@ export type ConfirmWaitlistData = {
 
 export type ConfirmWaitlistErrors = {
   /**
+   * Bad Request
+   */
+  400: ErrorResponse;
+  /**
+   * Unauthorized
+   */
+  401: ErrorResponse;
+  /**
+   * Forbidden
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
    * Validation Error
    */
   422: HttpValidationError;
@@ -337,6 +437,22 @@ export type ImportGocardlessData = {
 };
 
 export type ImportGocardlessErrors = {
+  /**
+   * Bad Request
+   */
+  400: ErrorResponse;
+  /**
+   * Unauthorized
+   */
+  401: ErrorResponse;
+  /**
+   * Forbidden
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
   /**
    * Validation Error
    */
@@ -366,6 +482,18 @@ export type GetTaskStatusData = {
 };
 
 export type GetTaskStatusErrors = {
+  /**
+   * Bad Request
+   */
+  400: ErrorResponse;
+  /**
+   * Unauthorized
+   */
+  401: ErrorResponse;
+  /**
+   * Forbidden
+   */
+  403: ErrorResponse;
   /**
    * Not Found
    */
@@ -400,6 +528,22 @@ export type GetTransactionsData = {
 
 export type GetTransactionsErrors = {
   /**
+   * Bad Request
+   */
+  400: ErrorResponse;
+  /**
+   * Unauthorized
+   */
+  401: ErrorResponse;
+  /**
+   * Forbidden
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
    * Validation Error
    */
   422: HttpValidationError;
@@ -424,6 +568,28 @@ export type GetHcaptchaSitekeyData = {
   query?: never;
   url: "/hcaptcha/sitekey";
 };
+
+export type GetHcaptchaSitekeyErrors = {
+  /**
+   * Bad Request
+   */
+  400: ErrorResponse;
+  /**
+   * Unauthorized
+   */
+  401: ErrorResponse;
+  /**
+   * Forbidden
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+};
+
+export type GetHcaptchaSitekeyError =
+  GetHcaptchaSitekeyErrors[keyof GetHcaptchaSitekeyErrors];
 
 export type GetHcaptchaSitekeyResponses = {
   /**

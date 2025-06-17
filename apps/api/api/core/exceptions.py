@@ -59,13 +59,13 @@ class GoCardlessAPIError(GoCardlessException):
         super().__init__(message, error_code)
 
 
-class GoCardlessConnectionException(GoCardlessException):
+class ConnectionImportException(KoruBaseException):
     """Raised when there are issues with GoCardless connections."""
 
     pass
 
 
-class GoCardlessConnectionNotFoundError(GoCardlessConnectionException):
+class ConnectionNotFoundError(ConnectionImportException):
     """Raised when a connection cannot be found."""
 
     def __init__(
@@ -80,7 +80,7 @@ class GoCardlessConnectionNotFoundError(GoCardlessConnectionException):
         super().__init__(message, error_code)
 
 
-class GoCardlessConnectionMissingDataError(GoCardlessConnectionException):
+class ConnectionMissingDataError(ConnectionImportException):
     """Raised when a connection is missing required data."""
 
     def __init__(

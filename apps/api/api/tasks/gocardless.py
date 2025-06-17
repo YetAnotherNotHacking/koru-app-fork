@@ -5,8 +5,8 @@ from sqlmodel import Session, col, select
 
 from api.core.celery import app
 from api.core.exceptions import (
-    GoCardlessConnectionMissingDataError,
-    GoCardlessConnectionNotFoundError,
+    ConnectionMissingDataError,
+    ConnectionNotFoundError,
     TransactionMissingDataError,
 )
 from api.core.gocardless import (
@@ -71,10 +71,10 @@ def import_requisition(connection_id: str) -> None:
         ).first()
 
         if not connection:
-            raise GoCardlessConnectionNotFoundError(connection_id)
+            raise ConnectionNotFoundError(connection_id)
 
         if not connection.internal_id:
-            raise GoCardlessConnectionMissingDataError(connection_id, "internal ID")
+            raise ConnectionMissingDataError(connection_id, "internal ID")
 
         account_ids = get_accounts(connection.internal_id)
 

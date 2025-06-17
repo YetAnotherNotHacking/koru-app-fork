@@ -294,24 +294,24 @@ export default async function Dashboard() {
       <div className="mx-auto max-w-7xl space-y-8">
         {/* Overview Cards */}
         <div className="grid gap-4 md:gap-6 md:grid-cols-3">
-          <Card className="bg-gradient-to-br from-violet-500/10 to-purple-600/10 border-violet-500/20 md:py-6 py-4 gap-2 md:gap-4">
+          <Card className="bg-gradient-to-br from-sky-500/10 to-blue-600/10 border-sky-500/40 md:py-6 py-4 gap-2 md:gap-4">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-0 px-4 md:px-6">
-              <CardTitle className="text-sm font-medium text-violet-300">
+              <CardTitle className="text-sm font-medium text-sky-300">
                 Total Balance
               </CardTitle>
-              <TrendingUp className="h-4 w-4 text-violet-400" />
+              <TrendingUp className="h-4 w-4 text-sky-400" />
             </CardHeader>
             <CardContent className="px-4 md:px-6">
               <div className="text-2xl md:text-3xl font-bold text-white">
                 {formatCurrency(totalBalance, "EUR")}
               </div>
-              <p className="text-xs text-violet-300/80 mt-1">
+              <p className="text-xs text-sky-300/80 mt-1">
                 Across {dummyAccounts.length} accounts
               </p>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-emerald-500/10 to-green-600/10 border-emerald-500/20 md:py-6 py-4 gap-2 md:gap-4">
+          <Card className="bg-gradient-to-br from-emerald-500/10 to-green-600/10 border-emerald-500/40 md:py-6 py-4 gap-2 md:gap-4">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-0 px-4 md:px-6">
               <CardTitle className="text-sm font-medium text-emerald-300">
                 Monthly Income
@@ -326,7 +326,7 @@ export default async function Dashboard() {
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-red-500/10 to-rose-600/10 border-red-500/20 md:py-6 py-4 gap-2 md:gap-4">
+          <Card className="bg-gradient-to-br from-red-500/10 to-rose-600/10 border-red-500/40 md:py-6 py-4 gap-2 md:gap-4">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-0 px-4 md:px-6">
               <CardTitle className="text-sm font-medium text-red-300">
                 Monthly Expenses

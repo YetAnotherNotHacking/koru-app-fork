@@ -34,7 +34,7 @@ def get_accounts(
             ).label("balance"),
         )
         .join(Connection)
-        .outerjoin(Transaction)
+        .outerjoin(Transaction, Account.id == Transaction.account_id)  # type: ignore[arg-type]
         .where(Connection.user_id == user.id)
         .group_by(Account.id)
     )
@@ -77,7 +77,7 @@ def get_account_statistics(
         )
         .select_from(Account)
         .join(Connection)
-        .outerjoin(Transaction)
+        .outerjoin(Transaction, Account.id == Transaction.account_id)  # type: ignore[arg-type]
         .where(
             and_(
                 Connection.user_id == user.id,  # type: ignore[arg-type]

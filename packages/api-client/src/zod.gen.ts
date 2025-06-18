@@ -4,7 +4,7 @@ import { z } from "zod";
 
 export const zAccountType = z.enum(["CASH", "BANK_GOCARDLESS", "BANK_MANUAL"]);
 
-export const zUsageType = z.enum(["PERSONAL", "BUSINESS"]);
+export const zUsageType = z.enum(["PRIV", "ORGA"]);
 
 export const zIsoAccountType = z.enum([
   "CACC",

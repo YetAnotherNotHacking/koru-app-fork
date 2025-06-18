@@ -8,8 +8,8 @@ class AccountType(str, Enum):
 
 
 class UsageType(str, Enum):
-    PERSONAL = "PERSONAL"
-    BUSINESS = "BUSINESS"
+    PRIV = "PRIV"
+    ORGA = "ORGA"
 
 
 class ISOAccountType(str, Enum):

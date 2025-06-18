@@ -138,7 +138,7 @@ export type TransactionReadWithOpposing = {
   opposing_account: Account | null;
 };
 
-export type UsageType = "PERSONAL" | "BUSINESS";
+export type UsageType = "PRIV" | "ORGA";
 
 export type UserCreate = {
   first_name: string;

@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import useAuthStore from "@/stores/auth.store";
-import KoruLoader from "@/components/ui/loader";
+import Loader from "@/components/ui/loader";
 
 export default function AuthCheck({
   redirectTo = "/auth",
@@ -27,7 +27,7 @@ export default function AuthCheck({
   if (!_hasHydrated) {
     return (
       <div className="flex h-screen w-full items-center justify-center flex-col">
-        <KoruLoader />
+        <Loader />
       </div>
     );
   }

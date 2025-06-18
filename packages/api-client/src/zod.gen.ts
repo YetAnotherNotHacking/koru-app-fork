@@ -2,6 +2,80 @@
 
 import { z } from "zod";
 
+export const zAccountType = z.enum(["CASH", "BANK_GOCARDLESS", "BANK_MANUAL"]);
+
+export const zUsageType = z.enum(["PERSONAL", "BUSINESS"]);
+
+export const zIsoAccountType = z.enum([
+  "CACC",
+  "CARD",
+  "CASH",
+  "CHAR",
+  "CISH",
+  "COMM",
+  "CPAC",
+  "LLSV",
+  "LOAN",
+  "MGLD",
+  "MOMA",
+  "NREX",
+  "ODFT",
+  "ONDP",
+  "OTHR",
+  "SACC",
+  "SLRY",
+  "SVGS",
+  "TAXE",
+  "TRAN",
+  "TRAS",
+  "VACC",
+  "NFCA",
+]);
+
+export const zAccount = z.object({
+  created_at: z.string().datetime().optional(),
+  updated_at: z.string().datetime().optional(),
+  connection_id: z.string(),
+  name: z.string(),
+  notes: z.union([z.string(), z.null()]).optional(),
+  currency: z.string(),
+  account_type: zAccountType,
+  balance_offset: z.number(),
+  iban: z.union([z.string(), z.null()]),
+  bban: z.union([z.string(), z.null()]),
+  bic: z.union([z.string(), z.null()]).optional(),
+  scan_code: z.union([z.string(), z.null()]).optional(),
+  internal_id: z.union([z.string(), z.null()]).optional(),
+  owner_name: z.union([z.string(), z.null()]).optional(),
+  usage_type: z.union([zUsageType, z.null()]).optional(),
+  iso_account_type: z.union([zIsoAccountType, z.null()]).optional(),
+  id: z.string().optional(),
+});
+
+export const zAccountReadWithBalance = z.object({
+  connection_id: z.string(),
+  name: z.string(),
+  notes: z.union([z.string(), z.null()]).optional(),
+  currency: z.string(),
+  account_type: zAccountType,
+  balance_offset: z.number(),
+  iban: z.union([z.string(), z.null()]),
+  bban: z.union([z.string(), z.null()]),
+  bic: z.union([z.string(), z.null()]).optional(),
+  scan_code: z.union([z.string(), z.null()]).optional(),
+  internal_id: z.union([z.string(), z.null()]).optional(),
+  owner_name: z.union([z.string(), z.null()]).optional(),
+  usage_type: z.union([zUsageType, z.null()]).optional(),
+  iso_account_type: z.union([zIsoAccountType, z.null()]).optional(),
+  id: z.string(),
+  balance: z.number(),
+});
+
+export const zAccountStatistics = z.object({
+  last_30d_income: z.number(),
+  last_30d_expense: z.number(),
+});
+
 export const zBodyPasswordLogin = z.object({
   grant_type: z.union([z.string().regex(/^password$/), z.null()]).optional(),
   username: z.string(),
@@ -9,6 +83,17 @@ export const zBodyPasswordLogin = z.object({
   scope: z.string().optional().default(""),
   client_id: z.union([z.string(), z.null()]).optional(),
   client_secret: z.union([z.string(), z.null()]).optional(),
+});
+
+export const zCounterparty = z.object({
+  created_at: z.string().datetime().optional(),
+  updated_at: z.string().datetime().optional(),
+  creator_id: z.string(),
+  name: z.string(),
+  notes: z.union([z.string(), z.null()]).optional(),
+  iban: z.union([z.string(), z.null()]).optional(),
+  bban: z.union([z.string(), z.null()]).optional(),
+  id: z.string().optional(),
 });
 
 export const zErrorResponse = z.object({
@@ -25,8 +110,43 @@ export const zHttpValidationError = z.object({
   detail: z.array(zValidationError).optional(),
 });
 
+export const zImportRequisitionResponse = z.object({
+  task_id: z.string(),
+});
+
 export const zMessageResponse = z.object({
   message: z.string(),
+});
+
+export const zProcessingStatus = z.enum(["UNPROCESSED", "PROCESSED"]);
+
+export const zTaskStatus = z.enum(["pending", "success", "failure"]);
+
+export const zTaskStatusResponse = z.object({
+  ready: z.boolean(),
+  status: zTaskStatus,
+  completed_count: z.number().int(),
+  total_count: z.number().int(),
+});
+
+export const zTransactionReadWithOpposing = z.object({
+  account_id: z.string(),
+  amount: z.number(),
+  currency: z.string(),
+  native_amount: z.number(),
+  processing_status: zProcessingStatus.optional(),
+  opposing_name: z.union([z.string(), z.null()]).optional(),
+  opposing_iban: z.union([z.string(), z.null()]).optional(),
+  opposing_bban: z.union([z.string(), z.null()]).optional(),
+  opposing_counterparty_id: z.union([z.string(), z.null()]).optional(),
+  opposing_account_id: z.union([z.string(), z.null()]).optional(),
+  gocardless_id: z.union([z.string(), z.null()]).optional(),
+  internal_id: z.union([z.string(), z.null()]).optional(),
+  booking_time: z.string().datetime(),
+  value_time: z.string().datetime(),
+  id: z.string(),
+  opposing_counterparty: z.union([zCounterparty, z.null()]),
+  opposing_account: z.union([zAccount, z.null()]),
 });
 
 export const zUserCreate = z.object({
@@ -46,10 +166,14 @@ export const zLogoutResponse = zMessageResponse;
 
 export const zJoinWaitlistResponse = zMessageResponse;
 
-export const zRootResponse = zMessageResponse;
+export const zImportGocardlessResponse = zImportRequisitionResponse;
 
-export const zHelloWorldResponse = zMessageResponse;
+export const zGetTaskStatusResponse = zTaskStatusResponse;
 
-export const zPingResponse = zMessageResponse;
+export const zGetTransactionsResponse = z.array(zTransactionReadWithOpposing);
+
+export const zGetAccountsResponse = z.array(zAccountReadWithBalance);
+
+export const zGetAccountStatisticsResponse = zAccountStatistics;
 
 export const zGetHcaptchaSitekeyResponse = zMessageResponse;

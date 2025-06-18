@@ -87,7 +87,7 @@ client.interceptors.response.use(async (response) => {
 
   if (
     !REFRESH_WHITELIST.includes(path) &&
-    response.status === 401 &&
+    (response.status === 401 || response.status === 422) &&
     useAuthStore.getState().accessToken
   ) {
     try {

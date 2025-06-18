@@ -9,12 +9,19 @@ import {
   logout,
   joinWaitlist,
   confirmWaitlist,
-  root,
-  helloWorld,
-  ping,
+  importGocardless,
+  getTaskStatus,
+  getTransactions,
+  getAccounts,
+  getAccountStatistics,
   getHcaptchaSitekey,
 } from "../sdk.gen";
-import { queryOptions, type UseMutationOptions } from "@tanstack/react-query";
+import {
+  queryOptions,
+  type UseMutationOptions,
+  infiniteQueryOptions,
+  type InfiniteData,
+} from "@tanstack/react-query";
 import type {
   PasswordLoginData,
   PasswordLoginError,
@@ -33,9 +40,15 @@ import type {
   JoinWaitlistError,
   JoinWaitlistResponse,
   ConfirmWaitlistData,
-  RootData,
-  HelloWorldData,
-  PingData,
+  ImportGocardlessData,
+  ImportGocardlessError,
+  ImportGocardlessResponse,
+  GetTaskStatusData,
+  GetTransactionsData,
+  GetTransactionsError,
+  GetTransactionsResponse,
+  GetAccountsData,
+  GetAccountStatisticsData,
   GetHcaptchaSitekeyData,
 } from "../types.gen";
 import { client as _heyApiClient } from "../client.gen";
@@ -355,16 +368,19 @@ export const confirmWaitlistOptions = (
   });
 };
 
-export const rootQueryKey = (options?: Options<RootData>) =>
-  createQueryKey("root", options);
+export const importGocardlessQueryKey = (
+  options: Options<ImportGocardlessData>
+) => createQueryKey("importGocardless", options);
 
 /**
- * Root
+ * Import Gocardless
  */
-export const rootOptions = (options?: Options<RootData>) => {
+export const importGocardlessOptions = (
+  options: Options<ImportGocardlessData>
+) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await root({
+      const { data } = await importGocardless({
         ...options,
         ...queryKey[0],
         signal,
@@ -372,20 +388,47 @@ export const rootOptions = (options?: Options<RootData>) => {
       });
       return data;
     },
-    queryKey: rootQueryKey(options),
+    queryKey: importGocardlessQueryKey(options),
   });
 };
 
-export const helloWorldQueryKey = (options?: Options<HelloWorldData>) =>
-  createQueryKey("helloWorld", options);
+/**
+ * Import Gocardless
+ */
+export const importGocardlessMutation = (
+  options?: Partial<Options<ImportGocardlessData>>
+): UseMutationOptions<
+  ImportGocardlessResponse,
+  ImportGocardlessError,
+  Options<ImportGocardlessData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    ImportGocardlessResponse,
+    ImportGocardlessError,
+    Options<ImportGocardlessData>
+  > = {
+    mutationFn: async (localOptions) => {
+      const { data } = await importGocardless({
+        ...options,
+        ...localOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+export const getTaskStatusQueryKey = (options: Options<GetTaskStatusData>) =>
+  createQueryKey("getTaskStatus", options);
 
 /**
- * Hello World
+ * Get Task Status
  */
-export const helloWorldOptions = (options?: Options<HelloWorldData>) => {
+export const getTaskStatusOptions = (options: Options<GetTaskStatusData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await helloWorld({
+      const { data } = await getTaskStatus({
         ...options,
         ...queryKey[0],
         signal,
@@ -393,20 +436,23 @@ export const helloWorldOptions = (options?: Options<HelloWorldData>) => {
       });
       return data;
     },
-    queryKey: helloWorldQueryKey(options),
+    queryKey: getTaskStatusQueryKey(options),
   });
 };
 
-export const pingQueryKey = (options: Options<PingData>) =>
-  createQueryKey("ping", options);
+export const getTransactionsQueryKey = (
+  options: Options<GetTransactionsData>
+) => createQueryKey("getTransactions", options);
 
 /**
- * Ping
+ * Get Transactions
  */
-export const pingOptions = (options: Options<PingData>) => {
+export const getTransactionsOptions = (
+  options: Options<GetTransactionsData>
+) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await ping({
+      const { data } = await getTransactions({
         ...options,
         ...queryKey[0],
         signal,
@@ -414,7 +460,137 @@ export const pingOptions = (options: Options<PingData>) => {
       });
       return data;
     },
-    queryKey: pingQueryKey(options),
+    queryKey: getTransactionsQueryKey(options),
+  });
+};
+
+const createInfiniteParams = <
+  K extends Pick<QueryKey<Options>[0], "body" | "headers" | "path" | "query">,
+>(
+  queryKey: QueryKey<Options>,
+  page: K
+) => {
+  const params = queryKey[0];
+  if (page.body) {
+    params.body = {
+      ...(queryKey[0].body as any),
+      ...(page.body as any),
+    };
+  }
+  if (page.headers) {
+    params.headers = {
+      ...queryKey[0].headers,
+      ...page.headers,
+    };
+  }
+  if (page.path) {
+    params.path = {
+      ...(queryKey[0].path as any),
+      ...(page.path as any),
+    };
+  }
+  if (page.query) {
+    params.query = {
+      ...(queryKey[0].query as any),
+      ...(page.query as any),
+    };
+  }
+  return params as unknown as typeof page;
+};
+
+export const getTransactionsInfiniteQueryKey = (
+  options: Options<GetTransactionsData>
+): QueryKey<Options<GetTransactionsData>> =>
+  createQueryKey("getTransactions", options, true);
+
+/**
+ * Get Transactions
+ */
+export const getTransactionsInfiniteOptions = (
+  options: Options<GetTransactionsData>
+) => {
+  return infiniteQueryOptions<
+    GetTransactionsResponse,
+    GetTransactionsError,
+    InfiniteData<GetTransactionsResponse>,
+    QueryKey<Options<GetTransactionsData>>,
+    | number
+    | Pick<
+        QueryKey<Options<GetTransactionsData>>[0],
+        "body" | "headers" | "path" | "query"
+      >
+  >(
+    // @ts-ignore
+    {
+      queryFn: async ({ pageParam, queryKey, signal }) => {
+        // @ts-ignore
+        const page: Pick<
+          QueryKey<Options<GetTransactionsData>>[0],
+          "body" | "headers" | "path" | "query"
+        > =
+          typeof pageParam === "object"
+            ? pageParam
+            : {
+                query: {
+                  offset: pageParam,
+                },
+              };
+        const params = createInfiniteParams(queryKey, page);
+        const { data } = await getTransactions({
+          ...options,
+          ...params,
+          signal,
+          throwOnError: true,
+        });
+        return data;
+      },
+      queryKey: getTransactionsInfiniteQueryKey(options),
+    }
+  );
+};
+
+export const getAccountsQueryKey = (options: Options<GetAccountsData>) =>
+  createQueryKey("getAccounts", options);
+
+/**
+ * Get Accounts
+ */
+export const getAccountsOptions = (options: Options<GetAccountsData>) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await getAccounts({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: getAccountsQueryKey(options),
+  });
+};
+
+export const getAccountStatisticsQueryKey = (
+  options: Options<GetAccountStatisticsData>
+) => createQueryKey("getAccountStatistics", options);
+
+/**
+ * Get Account Statistics
+ */
+export const getAccountStatisticsOptions = (
+  options: Options<GetAccountStatisticsData>
+) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await getAccountStatistics({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: getAccountStatisticsQueryKey(options),
   });
 };
 

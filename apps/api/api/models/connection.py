@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from nanoid import generate
 from sqlmodel import Field, Relationship, SQLModel
 
-from api.schemas.connection import ConnectionType
+from api.models.enums.connection import ConnectionType
 
 from .base import BaseModel
 

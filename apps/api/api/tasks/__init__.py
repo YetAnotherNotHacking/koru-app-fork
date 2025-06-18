@@ -1,3 +1,3 @@
-from .test import test_task
+from .gocardless import import_requisition
 
-__all__ = ["test_task"]
+__all__ = ["import_requisition"]

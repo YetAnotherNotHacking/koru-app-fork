@@ -1,16 +1,20 @@
 from typing import Annotated
 
 import requests
-from fastapi import Cookie, Header, HTTPException, status
+from fastapi import Cookie, Depends, Header, HTTPException, status
+from sqlmodel import Session, select
 
 from api.core.config import settings
 from api.core.redis import is_token_blacklisted
-from api.core.security import TokenPayload, decode_jwt
+from api.core.security import decode_jwt
+from api.db.database import get_db
+from api.models.user import User
 
 
-async def decode_token(
+async def get_user(
     access_token: Annotated[str, Cookie()],
-) -> TokenPayload:
+    db: Annotated[Session, Depends(get_db)],
+) -> User:
     payload = decode_jwt(access_token)
 
     if payload is None:
@@ -34,7 +38,15 @@ async def decode_token(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    return payload
+    user = db.exec(select(User).where(User.id == payload.sub)).one_or_none()
+
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found",
+        )
+
+    return user
 
 
 def verify_hcaptcha(hcaptcha_token: Annotated[str, Header()]) -> bool:

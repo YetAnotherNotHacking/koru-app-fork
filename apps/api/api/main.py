@@ -1,16 +1,11 @@
-from typing import Annotated
-
-from fastapi import Depends, FastAPI, status
+from fastapi import FastAPI, status
 from fastapi.routing import APIRoute
 
 from api.core.config import settings
-from api.core.security import TokenPayload
 from api.schemas.base import ErrorResponse, MessageResponse
-from api.tasks.test import test_task
 
-from .dependencies import decode_token
 from .middleware.cloudflare_ip import CloudflareMiddleware
-from .routers import auth, waitlist
+from .routers import account, auth, import_router, transaction, waitlist
 
 
 def custom_generate_unique_id(route: APIRoute) -> str:
@@ -24,39 +19,21 @@ def custom_generate_unique_id(route: APIRoute) -> str:
 app = FastAPI(
     generate_unique_id_function=custom_generate_unique_id,
     root_path="/api",
+    responses={
+        status.HTTP_400_BAD_REQUEST: {"model": ErrorResponse},
+        status.HTTP_401_UNAUTHORIZED: {"model": ErrorResponse},
+        status.HTTP_403_FORBIDDEN: {"model": ErrorResponse},
+        status.HTTP_404_NOT_FOUND: {"model": ErrorResponse},
+    },
 )
 
 app.add_middleware(CloudflareMiddleware)
 
 app.include_router(auth.router)
 app.include_router(waitlist.router)
-
-
-@app.get("/")
-async def root() -> MessageResponse:
-    # This endpoint is less relevant when running via Uvicorn directly on main:app
-    return MessageResponse(message="Hello from FastAPI Backend (root of app object)!")
-
-
-@app.get("/hello")
-async def hello_world() -> MessageResponse:
-    return MessageResponse(message="API says: Hello World, from Python!")
-
-
-@app.get(
-    "/ping",
-    responses={
-        status.HTTP_401_UNAUTHORIZED: {
-            "description": "Authentication failed.",
-            "model": ErrorResponse,
-        }
-    },
-)
-async def ping(
-    _: Annotated[TokenPayload, Depends(decode_token)],
-) -> MessageResponse:
-    res = test_task.delay()
-    return MessageResponse(message=f"API says: Pong! {res.get(timeout=10)}")
+app.include_router(import_router.router)
+app.include_router(transaction.router)
+app.include_router(account.router)
 
 
 @app.get("/hcaptcha/sitekey")

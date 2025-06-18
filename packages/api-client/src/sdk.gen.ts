@@ -26,15 +26,24 @@ import type {
   JoinWaitlistError,
   ConfirmWaitlistData,
   ConfirmWaitlistError,
-  RootData,
-  RootResponse,
-  HelloWorldData,
-  HelloWorldResponse,
-  PingData,
-  PingResponse,
-  PingError,
+  ImportGocardlessData,
+  ImportGocardlessResponse,
+  ImportGocardlessError,
+  GetTaskStatusData,
+  GetTaskStatusResponse,
+  GetTaskStatusError,
+  GetTransactionsData,
+  GetTransactionsResponse,
+  GetTransactionsError,
+  GetAccountsData,
+  GetAccountsResponse,
+  GetAccountsError,
+  GetAccountStatisticsData,
+  GetAccountStatisticsResponse,
+  GetAccountStatisticsError,
   GetHcaptchaSitekeyData,
   GetHcaptchaSitekeyResponse,
+  GetHcaptchaSitekeyError,
 } from "./types.gen";
 import { client as _heyApiClient } from "./client.gen";
 
@@ -177,49 +186,81 @@ export const confirmWaitlist = <ThrowOnError extends boolean = false>(
 };
 
 /**
- * Root
+ * Import Gocardless
  */
-export const root = <ThrowOnError extends boolean = false>(
-  options?: Options<RootData, ThrowOnError>
+export const importGocardless = <ThrowOnError extends boolean = false>(
+  options: Options<ImportGocardlessData, ThrowOnError>
 ) => {
-  return (options?.client ?? _heyApiClient).get<
-    RootResponse,
-    unknown,
+  return (options.client ?? _heyApiClient).post<
+    ImportGocardlessResponse,
+    ImportGocardlessError,
     ThrowOnError
   >({
-    url: "/",
+    url: "/import/gocardless/{connection_id}",
     ...options,
   });
 };
 
 /**
- * Hello World
+ * Get Task Status
  */
-export const helloWorld = <ThrowOnError extends boolean = false>(
-  options?: Options<HelloWorldData, ThrowOnError>
-) => {
-  return (options?.client ?? _heyApiClient).get<
-    HelloWorldResponse,
-    unknown,
-    ThrowOnError
-  >({
-    url: "/hello",
-    ...options,
-  });
-};
-
-/**
- * Ping
- */
-export const ping = <ThrowOnError extends boolean = false>(
-  options: Options<PingData, ThrowOnError>
+export const getTaskStatus = <ThrowOnError extends boolean = false>(
+  options: Options<GetTaskStatusData, ThrowOnError>
 ) => {
   return (options.client ?? _heyApiClient).get<
-    PingResponse,
-    PingError,
+    GetTaskStatusResponse,
+    GetTaskStatusError,
     ThrowOnError
   >({
-    url: "/ping",
+    url: "/import/task/{task_id}",
+    ...options,
+  });
+};
+
+/**
+ * Get Transactions
+ */
+export const getTransactions = <ThrowOnError extends boolean = false>(
+  options: Options<GetTransactionsData, ThrowOnError>
+) => {
+  return (options.client ?? _heyApiClient).get<
+    GetTransactionsResponse,
+    GetTransactionsError,
+    ThrowOnError
+  >({
+    url: "/transaction",
+    ...options,
+  });
+};
+
+/**
+ * Get Accounts
+ */
+export const getAccounts = <ThrowOnError extends boolean = false>(
+  options: Options<GetAccountsData, ThrowOnError>
+) => {
+  return (options.client ?? _heyApiClient).get<
+    GetAccountsResponse,
+    GetAccountsError,
+    ThrowOnError
+  >({
+    url: "/account",
+    ...options,
+  });
+};
+
+/**
+ * Get Account Statistics
+ */
+export const getAccountStatistics = <ThrowOnError extends boolean = false>(
+  options: Options<GetAccountStatisticsData, ThrowOnError>
+) => {
+  return (options.client ?? _heyApiClient).get<
+    GetAccountStatisticsResponse,
+    GetAccountStatisticsError,
+    ThrowOnError
+  >({
+    url: "/account/statistics",
     ...options,
   });
 };
@@ -232,7 +273,7 @@ export const getHcaptchaSitekey = <ThrowOnError extends boolean = false>(
 ) => {
   return (options?.client ?? _heyApiClient).get<
     GetHcaptchaSitekeyResponse,
-    unknown,
+    GetHcaptchaSitekeyError,
     ThrowOnError
   >({
     url: "/hcaptcha/sitekey",

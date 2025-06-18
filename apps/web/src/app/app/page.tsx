@@ -1,42 +1,463 @@
-import { ping } from "api-client";
-import ClientPing from "@/components/clientPing";
+import {
+  getAccountStatistics,
+  getAccounts,
+  getTransactions,
+  type TransactionReadWithOpposing,
+} from "api-client";
 import { getRequestConfig } from "@/lib/auth";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { MerchantLogo } from "@/components/ui/merchant-logo";
+import {
+  ArrowDownRight,
+  ArrowUpRight,
+  CreditCard,
+  PiggyBank,
+  Wallet,
+  TrendingUp,
+} from "lucide-react";
 
 // We need to prevent static generation, since the API is not available at build time
 export const dynamic = "force-dynamic";
 
-export default async function Home() {
+// Enhanced transaction type with enriched data
+interface EnrichedTransaction {
+  id: string;
+  amount: number;
+  currency: string;
+  opposing_name: string;
+  description: string;
+  booking_time: string;
+  category: string;
+  account_name: string;
+  merchant_type: "income" | "expense";
+}
+
+// Function to enrich transaction data with categories and better descriptions
+function enrichTransactionData(
+  transactions: TransactionReadWithOpposing[]
+): EnrichedTransaction[] {
+  // Merchant name mappings for better display names
+  const merchantMappings: Record<
+    string,
+    { name: string; category: string; description: string }
+  > = {
+    // Common patterns for merchant recognition
+    supermarket: {
+      name: "Supermarket XYZ",
+      category: "Food & Dining",
+      description: "Weekly groceries",
+    },
+    coffee: {
+      name: "Coffee Corner",
+      category: "Food & Dining",
+      description: "Morning coffee",
+    },
+    restaurant: {
+      name: "Fine Dining",
+      category: "Food & Dining",
+      description: "Dinner out",
+    },
+    gas: {
+      name: "Gas Station",
+      category: "Transportation",
+      description: "Fuel",
+    },
+    amazon: {
+      name: "Amazon",
+      category: "Shopping",
+      description: "Online purchase",
+    },
+    netflix: {
+      name: "Netflix",
+      category: "Entertainment",
+      description: "Streaming subscription",
+    },
+    spotify: {
+      name: "Spotify",
+      category: "Entertainment",
+      description: "Music subscription",
+    },
+    rent: {
+      name: "Property Management",
+      category: "Housing",
+      description: "Monthly rent",
+    },
+    salary: {
+      name: "Employer Corp",
+      category: "Income",
+      description: "Monthly salary",
+    },
+    transfer: {
+      name: "Bank Transfer",
+      category: "Income",
+      description: "Transfer received",
+    },
+    tech: {
+      name: "Tech Store",
+      category: "Shopping",
+      description: "Electronics purchase",
+    },
+    gym: {
+      name: "Fitness Center",
+      category: "Healthcare",
+      description: "Gym membership",
+    },
+    pharmacy: {
+      name: "Local Pharmacy",
+      category: "Healthcare",
+      description: "Medication",
+    },
+    uber: {
+      name: "Uber",
+      category: "Transportation",
+      description: "Ride sharing",
+    },
+    hotel: {
+      name: "Hotel Chain",
+      category: "Travel",
+      description: "Accommodation",
+    },
+  };
+
+  // Category assignment based on amount patterns and merchant names
+  const categorizeTransaction = (
+    opposing_name: string | null,
+    amount: number
+  ): { category: string; description: string; displayName: string } => {
+    const name = (opposing_name || "").toLowerCase();
+
+    // Check for known merchants
+    for (const [key, value] of Object.entries(merchantMappings)) {
+      if (name.includes(key)) {
+        return {
+          category: value.category,
+          description: value.description,
+          displayName: value.name,
+        };
+      }
+    }
+
+    // Pattern-based categorization
+    if (amount > 0) {
+      if (amount > 1000) {
+        return {
+          category: "Income",
+          description: "Monthly salary",
+          displayName: opposing_name || "Salary Payment",
+        };
+      } else {
+        return {
+          category: "Income",
+          description: "Transfer received",
+          displayName: opposing_name || "Transfer",
+        };
+      }
+    } else {
+      const absAmount = Math.abs(amount);
+      if (absAmount > 800) {
+        return {
+          category: "Housing",
+          description: "Monthly rent",
+          displayName: opposing_name || "Rent Payment",
+        };
+      } else {
+        if (Math.random() > 0.5) {
+          return {
+            category: "Shopping",
+            description: "Purchase",
+            displayName: opposing_name || "Store Purchase",
+          };
+        } else {
+          return {
+            category: "Food & Dining",
+            description: "Dining out",
+            displayName: opposing_name || "Restaurant",
+          };
+        }
+      }
+    }
+  };
+
+  return transactions.map((transaction, index) => {
+    const { category, description, displayName } = categorizeTransaction(
+      transaction.opposing_name ?? null,
+      transaction.amount
+    );
+
+    return {
+      id: transaction.id || index.toString(),
+      amount: transaction.amount,
+      currency: transaction.currency || "EUR",
+      opposing_name: displayName,
+      description: description,
+      booking_time: transaction.booking_time,
+      category: category,
+      account_name: "Main Account", // We'll improve this when we integrate accounts API
+      merchant_type: transaction.amount >= 0 ? "income" : "expense",
+    };
+  });
+}
+
+const formatCurrency = (amount: number, currency: string) => {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: currency,
+    minimumFractionDigits: 2,
+  }).format(amount);
+};
+
+const formatDate = (dateString: string) => {
+  return new Date(dateString).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
+const getAccountIcon = (type: string) => {
+  switch (type) {
+    case "CACC":
+      return <Wallet className="h-5 w-5" />;
+    case "SVGS":
+      return <PiggyBank className="h-5 w-5" />;
+    case "CARD":
+      return <CreditCard className="h-5 w-5" />;
+    default:
+      return <Wallet className="h-5 w-5" />;
+  }
+};
+
+export default async function Dashboard() {
   const config = await getRequestConfig();
-  const { data, error } = await ping({ ...config });
+
+  // Fetch real data from API
+  const transactionsResult = await getTransactions({
+    ...config,
+    query: { limit: 5 },
+  });
+
+  const accountsResult = await getAccounts({
+    ...config,
+  });
+
+  const accounts = accountsResult.data;
+
+  const statisticsResult = await getAccountStatistics({
+    ...config,
+  });
+
+  const statistics = statisticsResult.data;
+
+  // Enrich transaction data with categories and better descriptions
+  const enrichedTransactions = transactionsResult.data
+    ? enrichTransactionData(transactionsResult.data)
+    : [];
+
+  // Calculate metrics from real data
+  const totalBalance =
+    accounts?.reduce((sum, account) => sum + account.balance, 0) ?? 0;
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-8 gap-8">
-      <h1 className="text-4xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-cyan-400 drop-shadow-[0_0_15px_rgba(179,136,255,0.5)]">
-        Koru App Test Page
-      </h1>
+    <div className="min-h-full bg-gradient-to-br from-background via-background to-background/95 p-6">
+      <div className="mx-auto max-w-7xl space-y-8">
+        {/* Overview Cards */}
+        <div className="grid gap-4 md:gap-6 md:grid-cols-3">
+          <Card className="bg-gradient-to-br from-sky-500/10 to-blue-600/10 border-sky-500/40 md:py-6 py-4 gap-2 md:gap-4">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-0 px-4 md:px-6">
+              <CardTitle className="text-sm font-medium text-sky-300">
+                Total Balance
+              </CardTitle>
+              <TrendingUp className="h-4 w-4 text-sky-400" />
+            </CardHeader>
+            <CardContent className="px-4 md:px-6">
+              <div className="text-2xl md:text-3xl font-bold text-white">
+                {formatCurrency(totalBalance, "EUR")}
+              </div>
+              <p className="text-xs text-sky-300/80 mt-1">
+                Across {accounts?.length} accounts
+              </p>
+            </CardContent>
+          </Card>
 
-      <div className="bg-black/30 backdrop-blur-md p-6 rounded-lg border border-neutral-800 w-full max-w-md">
-        <h2 className="text-xl font-semibold mb-4 text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">
-          API Test
-        </h2>
+          <Card className="bg-gradient-to-br from-emerald-500/10 to-green-600/10 border-emerald-500/40 md:py-6 py-4 gap-2 md:gap-4">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-0 px-4 md:px-6">
+              <CardTitle className="text-sm font-medium text-emerald-300">
+                Monthly Income
+              </CardTitle>
+              <ArrowUpRight className="h-4 w-4 text-emerald-400" />
+            </CardHeader>
+            <CardContent className="px-4 md:px-6">
+              <div className="text-2xl md:text-3xl font-bold text-white">
+                {formatCurrency(statistics?.last_30d_income ?? 0, "EUR")}
+              </div>
+              <p className="text-xs text-emerald-300/80 mt-1">Last 30 days</p>
+            </CardContent>
+          </Card>
 
-        {data && (
-          <p className="text-green-400 my-2 drop-shadow-[0_0_8px_rgba(74,222,128,0.4)]">
-            {data.message}
-          </p>
-        )}
+          <Card className="bg-gradient-to-br from-red-500/10 to-rose-600/10 border-red-500/40 md:py-6 py-4 gap-2 md:gap-4">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-0 px-4 md:px-6">
+              <CardTitle className="text-sm font-medium text-red-300">
+                Monthly Expenses
+              </CardTitle>
+              <ArrowDownRight className="h-4 w-4 text-red-400" />
+            </CardHeader>
+            <CardContent className="px-4 md:px-6">
+              <div className="text-2xl md:text-3xl font-bold text-white">
+                {formatCurrency(statistics?.last_30d_expense ?? 0, "EUR")}
+              </div>
+              <p className="text-xs text-red-300/80 mt-1">Last 30 days</p>
+            </CardContent>
+          </Card>
+        </div>
 
-        {error && (
-          <p className="text-red-400 my-2 drop-shadow-[0_0_8px_rgba(248,113,113,0.4)]">
-            Error: {JSON.stringify(error)}
-          </p>
-        )}
+        <div className="grid gap-6 lg:grid-cols-3">
+          {/* Accounts */}
+          <Card className="lg:col-span-1 gap-2 md:gap-4">
+            <CardHeader>
+              <CardTitle className="text-white">Accounts</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {accounts?.map((account) => (
+                <div
+                  key={account.id}
+                  className="group p-4 rounded-lg bg-card/50 border border-border/50 hover:bg-card/80 transition-all duration-200 hover:shadow-lg"
+                >
+                  <div className="flex flex-col xl:flex-row xl:items-start xl:justify-between space-y-3 xl:space-y-0">
+                    {/* Left side: Icon, name, and type */}
+                    <div className="flex items-center space-x-3 min-w-0 xl:flex-1">
+                      <div className="p-2 rounded-full bg-muted/20 group-hover:bg-muted/30 transition-colors">
+                        {getAccountIcon(account.iso_account_type ?? "")}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium text-white truncate">
+                          {account.name}
+                        </p>
+                        <p className="text-xs text-muted-foreground/60">
+                          {account.iso_account_type === "CACC"
+                            ? "Checking"
+                            : account.iso_account_type === "SVGS"
+                              ? "Savings"
+                              : account.iso_account_type === "CARD"
+                                ? "Credit"
+                                : "Account"}
+                        </p>
+                      </div>
+                    </div>
 
-        <div className="mt-6">
-          <h3 className="font-medium mb-3 text-indigo-300 drop-shadow-[0_0_8px_rgba(129,140,248,0.4)]">
-            Client-side Ping Test:
-          </h3>
-          <ClientPing />
+                    {/* Right side: Amount */}
+                    <div className="xl:text-right xl:ml-4 xl:flex-shrink-0">
+                      <p
+                        className={`text-lg font-semibold whitespace-nowrap ${
+                          account.balance >= 0
+                            ? "text-emerald-400"
+                            : "text-red-400"
+                        }`}
+                      >
+                        {formatCurrency(account.balance, account.currency)}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* IBAN - always at bottom */}
+                  <div className="xl:mt-2">
+                    <p className="text-xs text-muted-foreground/60 truncate">
+                      {account.iban}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+
+          {/* Recent Transactions */}
+          <Card className="lg:col-span-2">
+            <CardHeader>
+              <CardTitle className="text-white">
+                Recent Transactions
+                {transactionsResult.error && (
+                  <span className="text-sm text-red-400 ml-2">
+                    (Error loading)
+                  </span>
+                )}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {enrichedTransactions.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  {transactionsResult.error
+                    ? "Error loading transactions. Try refreshing the page."
+                    : "No transactions found. Connect your bank account to see transactions."}
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {enrichedTransactions.map((transaction) => (
+                    <div
+                      key={transaction.id}
+                      className="p-4 rounded-lg bg-card/30 border border-border/30 hover:bg-card/60 transition-colors"
+                    >
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+                        {/* Left side: Logo and transaction details */}
+                        <div className="flex items-center space-x-4 min-w-0">
+                          <div className="relative">
+                            <MerchantLogo
+                              merchantName={transaction.opposing_name}
+                              category={transaction.category}
+                            />
+                            <div
+                              className={`absolute -bottom-1 -right-1 h-5 w-5 rounded-full border-2 border-card flex items-center justify-center ${
+                                transaction.amount >= 0
+                                  ? "bg-emerald-500"
+                                  : "bg-red-500"
+                              }`}
+                            >
+                              {transaction.amount >= 0 ? (
+                                <ArrowUpRight className="h-3 w-3 text-white" />
+                              ) : (
+                                <ArrowDownRight className="h-3 w-3 text-white" />
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-white truncate">
+                              {transaction.opposing_name}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              {transaction.description}
+                            </p>
+                            <p className="text-xs text-muted-foreground/60">
+                              {transaction.account_name} •{" "}
+                              {formatDate(transaction.booking_time)}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Right side: Amount and category */}
+                        <div>
+                          <p
+                            className={`font-semibold text-lg whitespace-nowrap ${
+                              transaction.amount >= 0
+                                ? "text-emerald-400"
+                                : "text-red-400"
+                            }`}
+                          >
+                            {transaction.amount >= 0 ? "+" : ""}
+                            {formatCurrency(
+                              transaction.amount,
+                              transaction.currency
+                            )}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {transaction.category}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

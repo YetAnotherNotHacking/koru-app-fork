@@ -35,6 +35,10 @@ class Settings(BaseSettings):
     HCAPTCHA_SITEKEY: str
     HCAPTCHA_SECRET: str
 
+    # GoCardless configuration
+    GOCARDLESS_SECRET_ID: str
+    GOCARDLESS_SECRET_KEY: str
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

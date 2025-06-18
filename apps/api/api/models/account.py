@@ -1,9 +1,10 @@
 from typing import TYPE_CHECKING
 
 from nanoid import generate
-from sqlmodel import Field, Relationship, SQLModel
+from sqlalchemy import Index
+from sqlmodel import Field, Relationship, SQLModel, text
 
-from api.schemas.account import AccountType, ISOAccountType, UsageType
+from api.models.enums.account import AccountType, ISOAccountType, UsageType
 
 from .base import BaseModel
 
@@ -14,10 +15,11 @@ if TYPE_CHECKING:
 
 class AccountBase(SQLModel):
     connection_id: str = Field(foreign_key="connection.id")
-    name: str = Field(default=None, unique=True)
+    name: str
     notes: str | None = None
     currency: str
     account_type: AccountType
+    balance_offset: float
 
     # Account identifiers (only relevant for bank accounts)
     iban: str | None
@@ -30,6 +32,17 @@ class AccountBase(SQLModel):
     owner_name: str | None = None
     usage_type: UsageType | None = None
     iso_account_type: ISOAccountType | None = None
+
+    __table_args__ = (
+        Index(
+            "ix_account_unique_identifiers",
+            text("coalesce(iban, '')"),
+            text("coalesce(bban, '')"),
+            text("coalesce(bic, '')"),
+            text("coalesce(scan_code, '')"),
+            unique=True,
+        ),
+    )
 
 
 class Account(AccountBase, BaseModel, table=True):

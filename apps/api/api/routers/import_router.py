@@ -76,7 +76,7 @@ def get_task_status(
     completed_count = cast(int, task.completed_count())  # type: ignore[attr-defined]
     total_count = cast(int, len(task.results))  # type: ignore[attr-defined]
     ready = cast(bool, task.ready())  # type: ignore[attr-defined]
-    successful = task.successful()  # type: ignore[attr-defined]
+    successful = cast(bool, task.successful())  # type: ignore[attr-defined]
     status = (
         TaskStatus.SUCCESS
         if successful

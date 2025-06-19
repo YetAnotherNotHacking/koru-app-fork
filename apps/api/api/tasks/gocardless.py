@@ -21,22 +21,14 @@ from api.models.account import Account, AccountType, ISOAccountType
 from api.models.connection import Connection
 from api.models.transaction import ProcessingStatus, Transaction
 
-account_index_elements = [
-    text("coalesce(iban, '')"),
-    text("coalesce(bban, '')"),
-    text("coalesce(bic, '')"),
-    text("coalesce(scan_code, '')"),
-]
+account_index_elements = ["internal_id"]
 account_columns = Account.model_fields.keys()
 account_exclude_columns = {
     "id",
     "created_at",
     "updated_at",  # We handle this manually with text("now()")
     "connection_id",
-    "iban",
-    "bban",
-    "bic",
-    "scan_code",
+    "internal_id",
     # User managed columns
     "notes",
     "balance_offset",

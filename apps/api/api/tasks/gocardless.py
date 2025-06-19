@@ -66,7 +66,7 @@ def import_account(account_id: str, connection_id: str) -> None:
 
         db_account = Account(
             connection_id=connection_id,
-            name=details.displayName or details.name,
+            name=details.displayName or details.name or "Imported Account",
             currency=details.currency,
             account_type=AccountType.BANK_GOCARDLESS,
             balance_offset=0.0,

@@ -2,7 +2,7 @@ import {
   getAccountStatistics,
   getAccounts,
   getTransactions,
-  type TransactionReadWithOpposing,
+  type TransactionReadRelations,
 } from "api-client";
 import { getRequestConfig } from "@/lib/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,17 +24,19 @@ interface EnrichedTransaction {
   id: string;
   amount: number;
   currency: string;
+  native_amount: number;
+  native_currency: string;
   opposing_name: string;
   description: string;
   booking_time: string;
   category: string;
   account_name: string;
-  merchant_type: "income" | "expense";
+  type: "income" | "expense";
 }
 
 // Function to enrich transaction data with categories and better descriptions
 function enrichTransactionData(
-  transactions: TransactionReadWithOpposing[]
+  transactions: TransactionReadRelations[]
 ): EnrichedTransaction[] {
   // Merchant name mappings for better display names
   const merchantMappings: Record<
@@ -187,13 +189,15 @@ function enrichTransactionData(
     return {
       id: transaction.id || index.toString(),
       amount: transaction.amount,
-      currency: transaction.currency || "EUR",
+      currency: transaction.currency,
+      native_amount: transaction.native_amount,
+      native_currency: transaction.account.currency,
       opposing_name: displayName,
       description: description,
       booking_time: transaction.booking_time,
       category: category,
-      account_name: "Main Account", // We'll improve this when we integrate accounts API
-      merchant_type: transaction.amount >= 0 ? "income" : "expense",
+      account_name: transaction.account.name,
+      type: transaction.amount >= 0 ? "income" : "expense",
     };
   });
 }
@@ -312,15 +316,15 @@ export default async function Dashboard() {
 
         <div className="grid gap-6 lg:grid-cols-3">
           {/* Accounts */}
-          <Card className="lg:col-span-1 gap-2 md:gap-4">
+          <Card className="lg:col-span-1 gap-2 md:gap-4 min-w-0">
             <CardHeader>
               <CardTitle className="text-white">Accounts</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-3 min-w-0">
               {accounts?.map((account) => (
                 <div
                   key={account.id}
-                  className="group p-4 rounded-lg bg-card/50 border border-border/50 hover:bg-card/80 transition-all duration-200 hover:shadow-lg"
+                  className="group p-4 rounded-lg bg-card/50 border border-border/50 hover:bg-card/80 transition-all duration-200 hover:shadow-lg min-w-0"
                 >
                   <div className="flex flex-col xl:flex-row xl:items-start xl:justify-between space-y-3 xl:space-y-0">
                     {/* Left side: Icon, name, and type */}
@@ -359,7 +363,7 @@ export default async function Dashboard() {
                   </div>
 
                   {/* IBAN - always at bottom */}
-                  <div className="xl:mt-2">
+                  <div className="xl:mt-2 min-w-0">
                     <p className="text-xs text-muted-foreground/60 truncate">
                       {account.iban}
                     </p>
@@ -370,7 +374,7 @@ export default async function Dashboard() {
           </Card>
 
           {/* Recent Transactions */}
-          <Card className="lg:col-span-2">
+          <Card className="lg:col-span-2 min-w-0">
             <CardHeader>
               <CardTitle className="text-white">
                 Recent Transactions
@@ -381,7 +385,7 @@ export default async function Dashboard() {
                 )}
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="min-w-0">
               {enrichedTransactions.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   {transactionsResult.error
@@ -393,11 +397,11 @@ export default async function Dashboard() {
                   {enrichedTransactions.map((transaction) => (
                     <div
                       key={transaction.id}
-                      className="p-4 rounded-lg bg-card/30 border border-border/30 hover:bg-card/60 transition-colors"
+                      className="p-4 rounded-lg bg-card/30 border border-border/30 hover:bg-card/60 transition-colors min-w-0"
                     >
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
                         {/* Left side: Logo and transaction details */}
-                        <div className="flex items-center space-x-4 min-w-0">
+                        <div className="flex items-center space-x-4 min-w-0 flex-1">
                           <div className="relative">
                             <MerchantLogo
                               merchantName={transaction.opposing_name}
@@ -405,12 +409,12 @@ export default async function Dashboard() {
                             />
                             <div
                               className={`absolute -bottom-1 -right-1 h-5 w-5 rounded-full border-2 border-card flex items-center justify-center ${
-                                transaction.amount >= 0
+                                transaction.type === "income"
                                   ? "bg-emerald-500"
                                   : "bg-red-500"
                               }`}
                             >
-                              {transaction.amount >= 0 ? (
+                              {transaction.type === "income" ? (
                                 <ArrowUpRight className="h-3 w-3 text-white" />
                               ) : (
                                 <ArrowDownRight className="h-3 w-3 text-white" />
@@ -426,29 +430,36 @@ export default async function Dashboard() {
                             </p>
                             <p className="text-xs text-muted-foreground/60">
                               {transaction.account_name} •{" "}
+                              {transaction.category} •{" "}
                               {formatDate(transaction.booking_time)}
                             </p>
                           </div>
                         </div>
 
-                        {/* Right side: Amount and category */}
-                        <div>
+                        {/* Right side: Amount and original currency if different */}
+                        <div className="text-right">
                           <p
                             className={`font-semibold text-lg whitespace-nowrap ${
-                              transaction.amount >= 0
+                              transaction.type === "income"
                                 ? "text-emerald-400"
                                 : "text-red-400"
                             }`}
                           >
-                            {transaction.amount >= 0 ? "+" : ""}
+                            {transaction.type === "income" ? "+" : ""}
                             {formatCurrency(
-                              transaction.amount,
-                              transaction.currency
+                              transaction.native_amount,
+                              transaction.native_currency
                             )}
                           </p>
-                          <p className="text-xs text-muted-foreground text-right">
-                            {transaction.category}
-                          </p>
+                          {transaction.currency !==
+                            transaction.native_currency && (
+                            <p className="text-xs text-muted-foreground/60 whitespace-nowrap">
+                              {formatCurrency(
+                                transaction.amount,
+                                transaction.currency
+                              )}
+                            </p>
+                          )}
                         </div>
                       </div>
                     </div>

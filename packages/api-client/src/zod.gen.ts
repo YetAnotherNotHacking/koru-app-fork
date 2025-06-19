@@ -85,6 +85,16 @@ export const zBodyPasswordLogin = z.object({
   client_secret: z.union([z.string(), z.null()]).optional(),
 });
 
+export const zConnectionType = z.enum(["MANUAL", "GOCARDLESS"]);
+
+export const zConnectionRead = z.object({
+  user_id: z.string(),
+  connection_type: zConnectionType,
+  internal_id: z.union([z.string(), z.null()]).optional(),
+  institution_id: z.union([z.string(), z.null()]).optional(),
+  id: z.string(),
+});
+
 export const zCounterparty = z.object({
   created_at: z.string().datetime().optional(),
   updated_at: z.string().datetime().optional(),
@@ -94,6 +104,15 @@ export const zCounterparty = z.object({
   iban: z.union([z.string(), z.null()]).optional(),
   bban: z.union([z.string(), z.null()]).optional(),
   id: z.string().optional(),
+});
+
+export const zCreateGocardlessConnection = z.object({
+  institution_id: z.string(),
+});
+
+export const zCreateRequisitionResponse = z.object({
+  id: z.string(),
+  link: z.string(),
 });
 
 export const zErrorResponse = z.object({
@@ -175,5 +194,9 @@ export const zGetTransactionsResponse = z.array(zTransactionReadWithOpposing);
 export const zGetAccountsResponse = z.array(zAccountReadWithBalance);
 
 export const zGetAccountStatisticsResponse = zAccountStatistics;
+
+export const zGetConnectionsResponse = z.array(zConnectionRead);
+
+export const zCreateGocardlessConnectionResponse = zCreateRequisitionResponse;
 
 export const zGetHcaptchaSitekeyResponse = zMessageResponse;

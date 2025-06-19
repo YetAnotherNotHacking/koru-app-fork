@@ -58,3 +58,15 @@ def pop_temp_user(jti: str) -> User | None:
 def is_email_pending(email: str) -> bool:
     key = f"{settings.REDIS_PREFIX}registration:email:{email}"
     return redis_client.exists(key) == 1
+
+
+def store_gocardless_requisition(
+    requisition_id: str, user_id: str, expires_in: int
+) -> None:
+    key = f"{settings.REDIS_PREFIX}gocardless:requisition:{requisition_id}"
+    redis_client.set(key, user_id, ex=expires_in)
+
+
+def get_gocardless_requisition(requisition_id: str) -> str | None:
+    key = f"{settings.REDIS_PREFIX}gocardless:requisition:{requisition_id}"
+    return redis_client.get(key)

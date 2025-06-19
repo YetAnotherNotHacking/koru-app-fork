@@ -447,7 +447,7 @@ export default async function Dashboard() {
                               transaction.currency
                             )}
                           </p>
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-xs text-muted-foreground text-right">
                             {transaction.category}
                           </p>
                         </div>

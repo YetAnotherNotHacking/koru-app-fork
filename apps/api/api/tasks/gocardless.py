@@ -12,7 +12,7 @@ from api.core.exceptions import (
 )
 from api.core.gocardless import (
     get_account_details,
-    get_accounts,
+    get_requisition,
     get_transactions,
 )
 from api.db.database import engine
@@ -178,7 +178,7 @@ def import_requisition(connection_id: str) -> str:
         if not connection.internal_id:
             raise ConnectionMissingDataError(connection_id, "internal ID")
 
-        account_ids = get_accounts(connection.internal_id)
+        account_ids = get_requisition(connection.internal_id).accounts
 
         account_tasks = group(
             import_account.s(account_id, connection_id) for account_id in account_ids

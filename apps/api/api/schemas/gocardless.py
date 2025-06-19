@@ -34,7 +34,13 @@ class CreateRequisitionResponse(BaseModel):
 
 
 class GetRequisitionResponse(BaseModel):
+    created: str
+    status: str
+    institution_id: str
+    agreement: str
+    reference: str
     accounts: list[str]
+    link: str
 
 
 class AccountDetails(BaseModel):

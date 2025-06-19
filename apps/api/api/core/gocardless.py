@@ -141,7 +141,7 @@ def create_requisition(
     return CreateRequisitionResponse.model_validate_json(response.text)
 
 
-def get_accounts(requisition_id: str) -> list[str]:
+def get_requisition(requisition_id: str) -> GetRequisitionResponse:
     token = get_token()
     response = requests.get(
         f"{GOCARDLESS_URL}/requisitions/{requisition_id}/",
@@ -155,7 +155,7 @@ def get_accounts(requisition_id: str) -> list[str]:
             status_code=response.status_code,
         )
 
-    return GetRequisitionResponse.model_validate_json(response.text).accounts
+    return GetRequisitionResponse.model_validate_json(response.text)
 
 
 def get_account_details(account_id: str) -> AccountDetails:

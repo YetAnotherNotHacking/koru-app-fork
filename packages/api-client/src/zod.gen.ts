@@ -162,7 +162,7 @@ export const zTransactionReadWithOpposing = z.object({
   gocardless_id: z.union([z.string(), z.null()]).optional(),
   internal_id: z.union([z.string(), z.null()]).optional(),
   booking_time: z.string().datetime(),
-  value_time: z.string().datetime(),
+  value_time: z.union([z.string().datetime(), z.null()]).optional(),
   id: z.string(),
   opposing_counterparty: z.union([zCounterparty, z.null()]),
   opposing_account: z.union([zAccount, z.null()]),

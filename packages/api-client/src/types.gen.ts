@@ -151,7 +151,7 @@ export type TransactionReadWithOpposing = {
   gocardless_id?: string | null;
   internal_id?: string | null;
   booking_time: string;
-  value_time: string;
+  value_time?: string | null;
   id: string;
   opposing_counterparty: Counterparty | null;
   opposing_account: Account | null;

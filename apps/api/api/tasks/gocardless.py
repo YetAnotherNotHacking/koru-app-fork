@@ -131,13 +131,12 @@ def import_account(account_id: str, connection_id: str, institution_id: str) -> 
                     transaction.transactionId, "booking date"
                 )
 
-            if not value_time_str:
-                raise TransactionMissingDataError(
-                    transaction.transactionId, "value date"
-                )
-
-            value_time = datetime.fromisoformat(value_time_str)
             booking_time = datetime.fromisoformat(booking_time_str)
+
+            if value_time_str:
+                value_time = datetime.fromisoformat(value_time_str)
+            else:
+                value_time = None
 
             db_transaction = Transaction(
                 account_id=account_mapping[account_id],

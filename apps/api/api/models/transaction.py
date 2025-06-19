@@ -36,7 +36,7 @@ class TransactionBase(SQLModel):
 
     # Transaction metadata
     booking_time: datetime
-    value_time: datetime
+    value_time: datetime | None = None
 
     __table_args__ = (
         Index(

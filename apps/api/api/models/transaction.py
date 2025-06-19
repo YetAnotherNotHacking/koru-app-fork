@@ -72,6 +72,7 @@ class TransactionRead(TransactionBase):
     id: str
 
 
-class TransactionReadWithOpposing(TransactionRead):
+class TransactionReadRelations(TransactionRead):
+    account: "Account"
     opposing_counterparty: Optional["Counterparty"]
     opposing_account: Optional["Account"]

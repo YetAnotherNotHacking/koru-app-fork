@@ -1,9 +1,9 @@
 from .account import Account
 from .connection import Connection
 from .counterparty import Counterparty
-from .transaction import Transaction, TransactionReadWithOpposing
+from .transaction import Transaction, TransactionReadRelations
 from .user import User
 
-TransactionReadWithOpposing.model_rebuild()
+TransactionReadRelations.model_rebuild()
 
 __all__ = ["Account", "Connection", "Counterparty", "Transaction", "User"]

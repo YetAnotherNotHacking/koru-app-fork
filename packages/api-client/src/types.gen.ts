@@ -137,7 +137,7 @@ export type TaskStatusResponse = {
   total_count: number;
 };
 
-export type TransactionReadWithOpposing = {
+export type TransactionReadRelations = {
   account_id: string;
   amount: number;
   currency: string;
@@ -153,6 +153,7 @@ export type TransactionReadWithOpposing = {
   booking_time: string;
   value_time?: string | null;
   id: string;
+  account: Account;
   opposing_counterparty: Counterparty | null;
   opposing_account: Account | null;
 };
@@ -600,7 +601,7 @@ export type GetTransactionsResponses = {
   /**
    * Successful Response
    */
-  200: Array<TransactionReadWithOpposing>;
+  200: Array<TransactionReadRelations>;
 };
 
 export type GetTransactionsResponse =

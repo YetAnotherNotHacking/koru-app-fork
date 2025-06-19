@@ -148,7 +148,7 @@ export const zTaskStatusResponse = z.object({
   total_count: z.number().int(),
 });
 
-export const zTransactionReadWithOpposing = z.object({
+export const zTransactionReadRelations = z.object({
   account_id: z.string(),
   amount: z.number(),
   currency: z.string(),
@@ -164,6 +164,7 @@ export const zTransactionReadWithOpposing = z.object({
   booking_time: z.string().datetime(),
   value_time: z.union([z.string().datetime(), z.null()]).optional(),
   id: z.string(),
+  account: zAccount,
   opposing_counterparty: z.union([zCounterparty, z.null()]),
   opposing_account: z.union([zAccount, z.null()]),
 });
@@ -189,7 +190,7 @@ export const zImportGocardlessResponse = zImportRequisitionResponse;
 
 export const zGetTaskStatusResponse = zTaskStatusResponse;
 
-export const zGetTransactionsResponse = z.array(zTransactionReadWithOpposing);
+export const zGetTransactionsResponse = z.array(zTransactionReadRelations);
 
 export const zGetAccountsResponse = z.array(zAccountReadWithBalance);
 

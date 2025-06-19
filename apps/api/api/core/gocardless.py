@@ -118,6 +118,36 @@ def get_institutions(country: str | None = None) -> list[Institution]:
     return institutions
 
 
+def get_institution(institution_id: str) -> Institution:
+    value = redis_client.get(
+        f"{settings.REDIS_PREFIX}gocardless:institutions:id:{institution_id}"
+    )
+
+    if value:
+        return Institution.model_validate_json(value)
+
+    token = get_token()
+    response = requests.get(
+        f"{GOCARDLESS_URL}/institutions/{institution_id}/",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+
+    if not response.ok:
+        raise GoCardlessAPIError(
+            "fetch institution",
+            response.text,
+            status_code=response.status_code,
+        )
+
+    institution = Institution.model_validate_json(response.text)
+    redis_client.set(
+        f"{settings.REDIS_PREFIX}gocardless:institutions:id:{institution_id}",
+        Institution.model_dump_json(institution),
+        60 * 60 * 24,
+    )
+    return institution
+
+
 def create_requisition(
     institution_id: str, redirect_url: str
 ) -> CreateRequisitionResponse:

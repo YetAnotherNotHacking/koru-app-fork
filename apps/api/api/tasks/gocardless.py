@@ -12,6 +12,7 @@ from api.core.exceptions import (
 )
 from api.core.gocardless import (
     get_account_details,
+    get_institution,
     get_requisition,
     get_transactions,
 )
@@ -30,6 +31,7 @@ account_exclude_columns = {
     "connection_id",
     "internal_id",
     # User managed columns
+    "name",
     "notes",
     "balance_offset",
 }
@@ -59,14 +61,18 @@ transaction_update_columns = [
 
 
 @app.task
-def import_account(account_id: str, connection_id: str) -> None:
+def import_account(account_id: str, connection_id: str, institution_id: str) -> None:
     with Session(engine) as session:
         details = get_account_details(account_id)
         transactions = get_transactions(account_id)
 
+        institution = get_institution(institution_id)
+
+        fallback_name = f"{institution.name} {details.currency}"
+
         db_account = Account(
             connection_id=connection_id,
-            name=details.displayName or details.name or "Imported Account",
+            name=details.displayName or details.name or fallback_name,
             currency=details.currency,
             account_type=AccountType.BANK_GOCARDLESS,
             balance_offset=0.0,
@@ -181,7 +187,8 @@ def import_requisition(connection_id: str) -> str:
         account_ids = get_requisition(connection.internal_id).accounts
 
         account_tasks = group(
-            import_account.s(account_id, connection_id) for account_id in account_ids
+            import_account.s(account_id, connection_id, connection.institution_id)
+            for account_id in account_ids
         )
 
         result = account_tasks.apply_async()

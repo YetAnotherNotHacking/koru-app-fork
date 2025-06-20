@@ -70,6 +70,18 @@ class AccountReference(BaseModel):
     bban: str | None = None
 
 
+class CurrencyExchangeInstructedAmount(BaseModel):
+    amount: float
+    currency: str
+
+
+class CurrencyExchange(BaseModel):
+    instructedAmount: CurrencyExchangeInstructedAmount
+    sourceCurrency: str
+    exchangeRate: float
+    targetCurrency: str
+
+
 class Transaction(BaseModel):
     bookingDate: str | None = None
     bookingDateTime: str | None = None
@@ -82,6 +94,7 @@ class Transaction(BaseModel):
     debitorAccount: AccountReference | None = None
     transactionId: str | None = None
     internalTransactionId: str | None = None
+    currencyExchange: CurrencyExchange | None = None
 
 
 class TransactionsContainer(BaseModel):

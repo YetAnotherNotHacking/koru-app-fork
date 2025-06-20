@@ -138,11 +138,23 @@ def import_account(account_id: str, connection_id: str, institution_id: str) -> 
             else:
                 value_time = None
 
+            native_amount = transaction.transactionAmount.amount
+
+            if transaction.currencyExchange:
+                amount = transaction.currencyExchange.instructedAmount.amount
+                currency = transaction.currencyExchange.instructedAmount.currency
+
+                if native_amount < 0:
+                    amount = -amount
+            else:
+                amount = transaction.transactionAmount.amount
+                currency = transaction.transactionAmount.currency
+
             db_transaction = Transaction(
                 account_id=account_mapping[account_id],
-                amount=transaction.transactionAmount.amount,
-                currency=transaction.transactionAmount.currency,
-                native_amount=transaction.transactionAmount.amount,
+                amount=amount,
+                currency=currency,
+                native_amount=native_amount,
                 processing_status=ProcessingStatus.UNPROCESSED,
                 opposing_name=opposing_name,
                 opposing_iban=opposing_iban,

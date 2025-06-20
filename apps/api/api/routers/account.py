@@ -30,7 +30,8 @@ def get_accounts(
         select(  # type: ignore[var-annotated]
             Account,
             (
-                func.coalesce(func.sum(Transaction.amount), 0) + Account.balance_offset
+                func.coalesce(func.sum(Transaction.native_amount), 0)
+                + Account.balance_offset
             ).label("balance"),
         )
         .join(Connection)

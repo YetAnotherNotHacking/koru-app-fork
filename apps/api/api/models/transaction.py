@@ -14,11 +14,13 @@ if TYPE_CHECKING:
 
 
 class TransactionBase(SQLModel):
-    account_id: str = Field(foreign_key="account.id")
+    account_id: str = Field(foreign_key="account.id", index=True)
     amount: float
     currency: str
     native_amount: float
-    processing_status: ProcessingStatus = Field(default=ProcessingStatus.UNPROCESSED)
+    processing_status: ProcessingStatus = Field(
+        default=ProcessingStatus.UNPROCESSED, index=True
+    )
 
     # Counterparty
     opposing_name: str | None = None
@@ -35,7 +37,7 @@ class TransactionBase(SQLModel):
     internal_id: str | None = None
 
     # Transaction metadata
-    booking_time: datetime
+    booking_time: datetime = Field(index=True)
     value_time: datetime | None = None
 
     __table_args__ = (
@@ -44,6 +46,11 @@ class TransactionBase(SQLModel):
             text("coalesce(gocardless_id, '')"),
             text("coalesce(internal_id, '')"),
             unique=True,
+        ),
+        Index(
+            "ix_transaction_account_processing_status",
+            "account_id",
+            "processing_status",
         ),
     )
 

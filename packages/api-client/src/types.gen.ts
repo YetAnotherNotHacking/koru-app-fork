@@ -9,8 +9,8 @@ export type Account = {
   currency: string;
   account_type: AccountType;
   balance_offset: number;
-  iban: string | null;
-  bban: string | null;
+  iban?: string | null;
+  bban?: string | null;
   bic?: string | null;
   scan_code?: string | null;
   internal_id?: string | null;
@@ -27,8 +27,8 @@ export type AccountReadWithBalance = {
   currency: string;
   account_type: AccountType;
   balance_offset: number;
-  iban: string | null;
-  bban: string | null;
+  iban?: string | null;
+  bban?: string | null;
   bic?: string | null;
   scan_code?: string | null;
   internal_id?: string | null;

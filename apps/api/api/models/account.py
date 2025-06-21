@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 
 class AccountBase(SQLModel):
-    connection_id: str = Field(foreign_key="connection.id")
+    connection_id: str = Field(foreign_key="connection.id", index=True)
     name: str
     notes: str | None = None
     currency: str
@@ -21,8 +21,8 @@ class AccountBase(SQLModel):
     balance_offset: float
 
     # Account identifiers (only relevant for bank accounts)
-    iban: str | None
-    bban: str | None
+    iban: str | None = Field(default=None, index=True)
+    bban: str | None = Field(default=None, index=True)
     bic: str | None = None
     scan_code: str | None = None
     internal_id: str | None = Field(unique=True, default=None)

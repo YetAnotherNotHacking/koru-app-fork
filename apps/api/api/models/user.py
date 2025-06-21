@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 class UserBase(SQLModel):
     first_name: str
     last_name: str
-    email: str
+    email: str = Field(index=True)
 
 
 class User(UserBase, BaseModel, table=True):

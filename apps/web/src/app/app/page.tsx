@@ -1,9 +1,4 @@
-import {
-  getAccountStatistics,
-  getAccounts,
-  getTransactions,
-  type TransactionReadRelations,
-} from "api-client";
+import { getAccountStatistics, getAccounts, getTransactions } from "api-client";
 import { getRequestConfig } from "@/lib/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MerchantLogo } from "@/components/ui/merchant-logo";
@@ -18,189 +13,6 @@ import {
 
 // We need to prevent static generation, since the API is not available at build time
 export const dynamic = "force-dynamic";
-
-// Enhanced transaction type with enriched data
-interface EnrichedTransaction {
-  id: string;
-  amount: number;
-  currency: string;
-  native_amount: number;
-  native_currency: string;
-  opposing_name: string;
-  description: string;
-  booking_time: string;
-  category: string;
-  account_name: string;
-  type: "income" | "expense";
-}
-
-// Function to enrich transaction data with categories and better descriptions
-function enrichTransactionData(
-  transactions: TransactionReadRelations[]
-): EnrichedTransaction[] {
-  // Merchant name mappings for better display names
-  const merchantMappings: Record<
-    string,
-    { name: string; category: string; description: string }
-  > = {
-    // Common patterns for merchant recognition
-    supermarket: {
-      name: "Supermarket XYZ",
-      category: "Food & Dining",
-      description: "Weekly groceries",
-    },
-    coffee: {
-      name: "Coffee Corner",
-      category: "Food & Dining",
-      description: "Morning coffee",
-    },
-    restaurant: {
-      name: "Fine Dining",
-      category: "Food & Dining",
-      description: "Dinner out",
-    },
-    gas: {
-      name: "Gas Station",
-      category: "Transportation",
-      description: "Fuel",
-    },
-    amazon: {
-      name: "Amazon",
-      category: "Shopping",
-      description: "Online purchase",
-    },
-    netflix: {
-      name: "Netflix",
-      category: "Entertainment",
-      description: "Streaming subscription",
-    },
-    spotify: {
-      name: "Spotify",
-      category: "Entertainment",
-      description: "Music subscription",
-    },
-    rent: {
-      name: "Property Management",
-      category: "Housing",
-      description: "Monthly rent",
-    },
-    salary: {
-      name: "Employer Corp",
-      category: "Income",
-      description: "Monthly salary",
-    },
-    transfer: {
-      name: "Bank Transfer",
-      category: "Income",
-      description: "Transfer received",
-    },
-    tech: {
-      name: "Tech Store",
-      category: "Shopping",
-      description: "Electronics purchase",
-    },
-    gym: {
-      name: "Fitness Center",
-      category: "Healthcare",
-      description: "Gym membership",
-    },
-    pharmacy: {
-      name: "Local Pharmacy",
-      category: "Healthcare",
-      description: "Medication",
-    },
-    uber: {
-      name: "Uber",
-      category: "Transportation",
-      description: "Ride sharing",
-    },
-    hotel: {
-      name: "Hotel Chain",
-      category: "Travel",
-      description: "Accommodation",
-    },
-  };
-
-  // Category assignment based on amount patterns and merchant names
-  const categorizeTransaction = (
-    opposing_name: string | null,
-    amount: number
-  ): { category: string; description: string; displayName: string } => {
-    const name = (opposing_name || "").toLowerCase();
-
-    // Check for known merchants
-    for (const [key, value] of Object.entries(merchantMappings)) {
-      if (name.includes(key)) {
-        return {
-          category: value.category,
-          description: value.description,
-          displayName: value.name,
-        };
-      }
-    }
-
-    // Pattern-based categorization
-    if (amount > 0) {
-      if (amount > 1000) {
-        return {
-          category: "Income",
-          description: "Monthly salary",
-          displayName: opposing_name || "Salary Payment",
-        };
-      } else {
-        return {
-          category: "Income",
-          description: "Transfer received",
-          displayName: opposing_name || "Transfer",
-        };
-      }
-    } else {
-      const absAmount = Math.abs(amount);
-      if (absAmount > 800) {
-        return {
-          category: "Housing",
-          description: "Monthly rent",
-          displayName: opposing_name || "Rent Payment",
-        };
-      } else {
-        if (Math.random() > 0.5) {
-          return {
-            category: "Shopping",
-            description: "Purchase",
-            displayName: opposing_name || "Store Purchase",
-          };
-        } else {
-          return {
-            category: "Food & Dining",
-            description: "Dining out",
-            displayName: opposing_name || "Restaurant",
-          };
-        }
-      }
-    }
-  };
-
-  return transactions.map((transaction, index) => {
-    const { category, description, displayName } = categorizeTransaction(
-      transaction.opposing_name ?? null,
-      transaction.amount
-    );
-
-    return {
-      id: transaction.id || index.toString(),
-      amount: transaction.amount,
-      currency: transaction.currency,
-      native_amount: transaction.native_amount,
-      native_currency: transaction.account.currency,
-      opposing_name: displayName,
-      description: description,
-      booking_time: transaction.booking_time,
-      category: category,
-      account_name: transaction.account.name,
-      type: transaction.amount >= 0 ? "income" : "expense",
-    };
-  });
-}
 
 const formatCurrency = (amount: number, currency: string) => {
   return new Intl.NumberFormat("en-US", {
@@ -240,6 +52,8 @@ export default async function Dashboard() {
     query: { limit: 5 },
   });
 
+  const transactions = transactionsResult.data;
+
   const accountsResult = await getAccounts({
     ...config,
   });
@@ -251,11 +65,6 @@ export default async function Dashboard() {
   });
 
   const statistics = statisticsResult.data;
-
-  // Enrich transaction data with categories and better descriptions
-  const enrichedTransactions = transactionsResult.data
-    ? enrichTransactionData(transactionsResult.data)
-    : [];
 
   // Calculate metrics from real data
   const totalBalance =
@@ -386,7 +195,7 @@ export default async function Dashboard() {
               </CardTitle>
             </CardHeader>
             <CardContent className="min-w-0">
-              {enrichedTransactions.length === 0 ? (
+              {transactions?.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   {transactionsResult.error
                     ? "Error loading transactions. Try refreshing the page."
@@ -394,7 +203,7 @@ export default async function Dashboard() {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {enrichedTransactions.map((transaction) => (
+                  {transactions?.map((transaction) => (
                     <div
                       key={transaction.id}
                       className="p-4 rounded-lg bg-card/30 border border-border/30 hover:bg-card/60 transition-colors min-w-0"
@@ -404,17 +213,25 @@ export default async function Dashboard() {
                         <div className="flex items-center space-x-4 min-w-0 flex-1">
                           <div className="relative">
                             <MerchantLogo
-                              merchantName={transaction.opposing_name}
-                              category={transaction.category}
+                              merchantName={
+                                transaction.opposing_merchant?.name ||
+                                transaction.opposing_counterparty?.name ||
+                                transaction.opposing_name ||
+                                ""
+                              }
+                              logoUrl={
+                                transaction.opposing_merchant?.logo_url ??
+                                undefined
+                              }
                             />
                             <div
                               className={`absolute -bottom-1 -right-1 h-5 w-5 rounded-full border-2 border-card flex items-center justify-center ${
-                                transaction.type === "income"
+                                transaction.amount > 0
                                   ? "bg-emerald-500"
                                   : "bg-red-500"
                               }`}
                             >
-                              {transaction.type === "income" ? (
+                              {transaction.amount > 0 ? (
                                 <ArrowUpRight className="h-3 w-3 text-white" />
                               ) : (
                                 <ArrowDownRight className="h-3 w-3 text-white" />
@@ -423,15 +240,16 @@ export default async function Dashboard() {
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="font-medium text-white truncate">
-                              {transaction.opposing_name}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                              {transaction.description}
+                              {transaction.opposing_account?.name ||
+                                transaction.opposing_merchant?.name ||
+                                transaction.opposing_counterparty?.name ||
+                                transaction.opposing_name}
                             </p>
                             <p className="text-xs text-muted-foreground/60">
-                              {transaction.account_name} •{" "}
-                              {transaction.category} •{" "}
-                              {formatDate(transaction.booking_time)}
+                              {transaction.account.name} •{" "}
+                              {transaction.opposing_merchant?.category ||
+                                "Uncategorized"}{" "}
+                              • {formatDate(transaction.booking_time)}
                             </p>
                           </div>
                         </div>
@@ -440,19 +258,19 @@ export default async function Dashboard() {
                         <div className="text-right">
                           <p
                             className={`font-semibold text-lg whitespace-nowrap ${
-                              transaction.type === "income"
+                              transaction.amount > 0
                                 ? "text-emerald-400"
                                 : "text-red-400"
                             }`}
                           >
-                            {transaction.type === "income" ? "+" : ""}
+                            {transaction.amount > 0 ? "+" : ""}
                             {formatCurrency(
                               transaction.native_amount,
-                              transaction.native_currency
+                              transaction.account.currency
                             )}
                           </p>
                           {transaction.currency !==
-                            transaction.native_currency && (
+                            transaction.account.currency && (
                             <p className="text-xs text-muted-foreground/60 whitespace-nowrap">
                               {formatCurrency(
                                 transaction.amount,

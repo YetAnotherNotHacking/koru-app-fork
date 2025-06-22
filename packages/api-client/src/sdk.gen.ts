@@ -41,6 +41,14 @@ import type {
   GetAccountStatisticsData,
   GetAccountStatisticsResponse,
   GetAccountStatisticsError,
+  GetConnectionsData,
+  GetConnectionsResponse,
+  GetConnectionsError,
+  CreateGocardlessConnectionData,
+  CreateGocardlessConnectionResponse,
+  CreateGocardlessConnectionError,
+  GocardlessCallbackData,
+  GocardlessCallbackError,
   GetHcaptchaSitekeyData,
   GetHcaptchaSitekeyResponse,
   GetHcaptchaSitekeyError,
@@ -261,6 +269,60 @@ export const getAccountStatistics = <ThrowOnError extends boolean = false>(
     ThrowOnError
   >({
     url: "/account/statistics",
+    ...options,
+  });
+};
+
+/**
+ * Get Connections
+ */
+export const getConnections = <ThrowOnError extends boolean = false>(
+  options: Options<GetConnectionsData, ThrowOnError>
+) => {
+  return (options.client ?? _heyApiClient).get<
+    GetConnectionsResponse,
+    GetConnectionsError,
+    ThrowOnError
+  >({
+    url: "/connection",
+    ...options,
+  });
+};
+
+/**
+ * Create Gocardless Connection
+ */
+export const createGocardlessConnection = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<CreateGocardlessConnectionData, ThrowOnError>
+) => {
+  return (options.client ?? _heyApiClient).post<
+    CreateGocardlessConnectionResponse,
+    CreateGocardlessConnectionError,
+    ThrowOnError
+  >({
+    url: "/connection/gocardless",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options?.headers,
+    },
+  });
+};
+
+/**
+ * Gocardless Callback
+ */
+export const gocardlessCallback = <ThrowOnError extends boolean = false>(
+  options: Options<GocardlessCallbackData, ThrowOnError>
+) => {
+  return (options.client ?? _heyApiClient).get<
+    unknown,
+    GocardlessCallbackError,
+    ThrowOnError
+  >({
+    url: "/connection/gocardless/callback",
     ...options,
   });
 };

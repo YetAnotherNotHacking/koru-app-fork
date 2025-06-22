@@ -11,11 +11,11 @@ if TYPE_CHECKING:
 
 
 class CounterpartyBase(SQLModel):
-    creator_id: str = Field(foreign_key="user.id")
+    creator_id: str = Field(foreign_key="user.id", index=True)
     name: str
     notes: str | None = None
-    iban: str | None = None
-    bban: str | None = None
+    iban: str | None = Field(default=None, index=True)
+    bban: str | None = Field(default=None, index=True)
 
 
 class Counterparty(CounterpartyBase, BaseModel, table=True):

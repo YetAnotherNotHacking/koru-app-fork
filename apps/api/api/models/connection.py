@@ -13,9 +13,9 @@ if TYPE_CHECKING:
 
 
 class ConnectionBase(SQLModel):
-    user_id: str = Field(foreign_key="user.id")
+    user_id: str = Field(foreign_key="user.id", index=True)
     connection_type: ConnectionType
-    internal_id: str | None = None
+    internal_id: str | None = Field(default=None, index=True)
     institution_id: str | None = None
 
 

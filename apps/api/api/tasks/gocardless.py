@@ -12,7 +12,8 @@ from api.core.exceptions import (
 )
 from api.core.gocardless import (
     get_account_details,
-    get_accounts,
+    get_institution,
+    get_requisition,
     get_transactions,
 )
 from api.db.database import engine
@@ -21,23 +22,16 @@ from api.models.account import Account, AccountType, ISOAccountType
 from api.models.connection import Connection
 from api.models.transaction import ProcessingStatus, Transaction
 
-account_index_elements = [
-    text("coalesce(iban, '')"),
-    text("coalesce(bban, '')"),
-    text("coalesce(bic, '')"),
-    text("coalesce(scan_code, '')"),
-]
+account_index_elements = ["internal_id"]
 account_columns = Account.model_fields.keys()
 account_exclude_columns = {
     "id",
     "created_at",
     "updated_at",  # We handle this manually with text("now()")
     "connection_id",
-    "iban",
-    "bban",
-    "bic",
-    "scan_code",
+    "internal_id",
     # User managed columns
+    "name",
     "notes",
     "balance_offset",
 }
@@ -67,14 +61,18 @@ transaction_update_columns = [
 
 
 @app.task
-def import_account(account_id: str, connection_id: str) -> None:
+def import_account(account_id: str, connection_id: str, institution_id: str) -> None:
     with Session(engine) as session:
         details = get_account_details(account_id)
         transactions = get_transactions(account_id)
 
+        institution = get_institution(institution_id)
+
+        fallback_name = f"{institution.name} {details.currency}"
+
         db_account = Account(
             connection_id=connection_id,
-            name=details.displayName or details.name,
+            name=details.displayName or details.name or fallback_name,
             currency=details.currency,
             account_type=AccountType.BANK_GOCARDLESS,
             balance_offset=0.0,
@@ -133,19 +131,30 @@ def import_account(account_id: str, connection_id: str) -> None:
                     transaction.transactionId, "booking date"
                 )
 
-            if not value_time_str:
-                raise TransactionMissingDataError(
-                    transaction.transactionId, "value date"
-                )
-
-            value_time = datetime.fromisoformat(value_time_str)
             booking_time = datetime.fromisoformat(booking_time_str)
+
+            if value_time_str:
+                value_time = datetime.fromisoformat(value_time_str)
+            else:
+                value_time = None
+
+            native_amount = transaction.transactionAmount.amount
+
+            if transaction.currencyExchange:
+                amount = transaction.currencyExchange.instructedAmount.amount
+                currency = transaction.currencyExchange.instructedAmount.currency
+
+                if native_amount < 0:
+                    amount = -amount
+            else:
+                amount = transaction.transactionAmount.amount
+                currency = transaction.transactionAmount.currency
 
             db_transaction = Transaction(
                 account_id=account_mapping[account_id],
-                amount=transaction.transactionAmount.amount,
-                currency=transaction.transactionAmount.currency,
-                native_amount=transaction.transactionAmount.amount,
+                amount=amount,
+                currency=currency,
+                native_amount=native_amount,
                 processing_status=ProcessingStatus.UNPROCESSED,
                 opposing_name=opposing_name,
                 opposing_iban=opposing_iban,
@@ -186,10 +195,11 @@ def import_requisition(connection_id: str) -> str:
         if not connection.internal_id:
             raise ConnectionMissingDataError(connection_id, "internal ID")
 
-        account_ids = get_accounts(connection.internal_id)
+        account_ids = get_requisition(connection.internal_id).accounts
 
         account_tasks = group(
-            import_account.s(account_id, connection_id) for account_id in account_ids
+            import_account.s(account_id, connection_id, connection.institution_id)
+            for account_id in account_ids
         )
 
         result = account_tasks.apply_async()

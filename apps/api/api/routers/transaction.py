@@ -6,7 +6,7 @@ from sqlmodel import Session, col, select
 from api.db.database import get_db
 from api.dependencies import get_user
 from api.models.connection import Connection
-from api.models.transaction import Transaction, TransactionReadWithOpposing
+from api.models.transaction import Transaction, TransactionReadRelations
 from api.models.user import User
 
 router = APIRouter(prefix="/transaction", tags=["Transaction"])
@@ -18,7 +18,7 @@ def get_transactions(
     db: Annotated[Session, Depends(get_db)],
     offset: int = 0,
     limit: int = 100,
-) -> list[TransactionReadWithOpposing]:
+) -> list[TransactionReadRelations]:
     transactions = db.exec(
         select(Transaction)
         # mypy complains about the arg type, but it's correct
@@ -31,4 +31,4 @@ def get_transactions(
     ).all()
 
     # FastAPI would handle the conversion, but mypy doesn't know that
-    return [TransactionReadWithOpposing.model_validate(t) for t in transactions]
+    return [TransactionReadRelations.model_validate(t) for t in transactions]

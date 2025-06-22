@@ -14,6 +14,9 @@ import {
   getTransactions,
   getAccounts,
   getAccountStatistics,
+  getConnections,
+  createGocardlessConnection,
+  gocardlessCallback,
   getHcaptchaSitekey,
 } from "../sdk.gen";
 import {
@@ -49,6 +52,11 @@ import type {
   GetTransactionsResponse,
   GetAccountsData,
   GetAccountStatisticsData,
+  GetConnectionsData,
+  CreateGocardlessConnectionData,
+  CreateGocardlessConnectionError,
+  CreateGocardlessConnectionResponse,
+  GocardlessCallbackData,
   GetHcaptchaSitekeyData,
 } from "../types.gen";
 import { client as _heyApiClient } from "../client.gen";
@@ -591,6 +599,102 @@ export const getAccountStatisticsOptions = (
       return data;
     },
     queryKey: getAccountStatisticsQueryKey(options),
+  });
+};
+
+export const getConnectionsQueryKey = (options: Options<GetConnectionsData>) =>
+  createQueryKey("getConnections", options);
+
+/**
+ * Get Connections
+ */
+export const getConnectionsOptions = (options: Options<GetConnectionsData>) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await getConnections({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: getConnectionsQueryKey(options),
+  });
+};
+
+export const createGocardlessConnectionQueryKey = (
+  options: Options<CreateGocardlessConnectionData>
+) => createQueryKey("createGocardlessConnection", options);
+
+/**
+ * Create Gocardless Connection
+ */
+export const createGocardlessConnectionOptions = (
+  options: Options<CreateGocardlessConnectionData>
+) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await createGocardlessConnection({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: createGocardlessConnectionQueryKey(options),
+  });
+};
+
+/**
+ * Create Gocardless Connection
+ */
+export const createGocardlessConnectionMutation = (
+  options?: Partial<Options<CreateGocardlessConnectionData>>
+): UseMutationOptions<
+  CreateGocardlessConnectionResponse,
+  CreateGocardlessConnectionError,
+  Options<CreateGocardlessConnectionData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    CreateGocardlessConnectionResponse,
+    CreateGocardlessConnectionError,
+    Options<CreateGocardlessConnectionData>
+  > = {
+    mutationFn: async (localOptions) => {
+      const { data } = await createGocardlessConnection({
+        ...options,
+        ...localOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+export const gocardlessCallbackQueryKey = (
+  options: Options<GocardlessCallbackData>
+) => createQueryKey("gocardlessCallback", options);
+
+/**
+ * Gocardless Callback
+ */
+export const gocardlessCallbackOptions = (
+  options: Options<GocardlessCallbackData>
+) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await gocardlessCallback({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: gocardlessCallbackQueryKey(options),
   });
 };
 

@@ -4,7 +4,7 @@ import { z } from "zod";
 
 export const zAccountType = z.enum(["CASH", "BANK_GOCARDLESS", "BANK_MANUAL"]);
 
-export const zUsageType = z.enum(["PERSONAL", "BUSINESS"]);
+export const zUsageType = z.enum(["PRIV", "ORGA"]);
 
 export const zIsoAccountType = z.enum([
   "CACC",
@@ -41,8 +41,8 @@ export const zAccount = z.object({
   currency: z.string(),
   account_type: zAccountType,
   balance_offset: z.number(),
-  iban: z.union([z.string(), z.null()]),
-  bban: z.union([z.string(), z.null()]),
+  iban: z.union([z.string(), z.null()]).optional(),
+  bban: z.union([z.string(), z.null()]).optional(),
   bic: z.union([z.string(), z.null()]).optional(),
   scan_code: z.union([z.string(), z.null()]).optional(),
   internal_id: z.union([z.string(), z.null()]).optional(),
@@ -59,8 +59,8 @@ export const zAccountReadWithBalance = z.object({
   currency: z.string(),
   account_type: zAccountType,
   balance_offset: z.number(),
-  iban: z.union([z.string(), z.null()]),
-  bban: z.union([z.string(), z.null()]),
+  iban: z.union([z.string(), z.null()]).optional(),
+  bban: z.union([z.string(), z.null()]).optional(),
   bic: z.union([z.string(), z.null()]).optional(),
   scan_code: z.union([z.string(), z.null()]).optional(),
   internal_id: z.union([z.string(), z.null()]).optional(),
@@ -85,6 +85,16 @@ export const zBodyPasswordLogin = z.object({
   client_secret: z.union([z.string(), z.null()]).optional(),
 });
 
+export const zConnectionType = z.enum(["MANUAL", "GOCARDLESS"]);
+
+export const zConnectionRead = z.object({
+  user_id: z.string(),
+  connection_type: zConnectionType,
+  internal_id: z.union([z.string(), z.null()]).optional(),
+  institution_id: z.union([z.string(), z.null()]).optional(),
+  id: z.string(),
+});
+
 export const zCounterparty = z.object({
   created_at: z.string().datetime().optional(),
   updated_at: z.string().datetime().optional(),
@@ -94,6 +104,15 @@ export const zCounterparty = z.object({
   iban: z.union([z.string(), z.null()]).optional(),
   bban: z.union([z.string(), z.null()]).optional(),
   id: z.string().optional(),
+});
+
+export const zCreateGocardlessConnection = z.object({
+  institution_id: z.string(),
+});
+
+export const zCreateRequisitionResponse = z.object({
+  id: z.string(),
+  link: z.string(),
 });
 
 export const zErrorResponse = z.object({
@@ -114,6 +133,17 @@ export const zImportRequisitionResponse = z.object({
   task_id: z.string(),
 });
 
+export const zMerchant = z.object({
+  created_at: z.string().datetime().optional(),
+  updated_at: z.string().datetime().optional(),
+  name: z.string(),
+  category: z.string(),
+  match_prefix: z.string(),
+  logo_url: z.union([z.string(), z.null()]).optional(),
+  url: z.union([z.string(), z.null()]).optional(),
+  id: z.string().optional(),
+});
+
 export const zMessageResponse = z.object({
   message: z.string(),
 });
@@ -129,7 +159,7 @@ export const zTaskStatusResponse = z.object({
   total_count: z.number().int(),
 });
 
-export const zTransactionReadWithOpposing = z.object({
+export const zTransactionReadRelations = z.object({
   account_id: z.string(),
   amount: z.number(),
   currency: z.string(),
@@ -138,13 +168,16 @@ export const zTransactionReadWithOpposing = z.object({
   opposing_name: z.union([z.string(), z.null()]).optional(),
   opposing_iban: z.union([z.string(), z.null()]).optional(),
   opposing_bban: z.union([z.string(), z.null()]).optional(),
+  opposing_merchant_id: z.union([z.string(), z.null()]).optional(),
   opposing_counterparty_id: z.union([z.string(), z.null()]).optional(),
   opposing_account_id: z.union([z.string(), z.null()]).optional(),
   gocardless_id: z.union([z.string(), z.null()]).optional(),
   internal_id: z.union([z.string(), z.null()]).optional(),
   booking_time: z.string().datetime(),
-  value_time: z.string().datetime(),
+  value_time: z.union([z.string().datetime(), z.null()]).optional(),
   id: z.string(),
+  account: zAccount,
+  opposing_merchant: z.union([zMerchant, z.null()]),
   opposing_counterparty: z.union([zCounterparty, z.null()]),
   opposing_account: z.union([zAccount, z.null()]),
 });
@@ -170,10 +203,14 @@ export const zImportGocardlessResponse = zImportRequisitionResponse;
 
 export const zGetTaskStatusResponse = zTaskStatusResponse;
 
-export const zGetTransactionsResponse = z.array(zTransactionReadWithOpposing);
+export const zGetTransactionsResponse = z.array(zTransactionReadRelations);
 
 export const zGetAccountsResponse = z.array(zAccountReadWithBalance);
 
 export const zGetAccountStatisticsResponse = zAccountStatistics;
+
+export const zGetConnectionsResponse = z.array(zConnectionRead);
+
+export const zCreateGocardlessConnectionResponse = zCreateRequisitionResponse;
 
 export const zGetHcaptchaSitekeyResponse = zMessageResponse;

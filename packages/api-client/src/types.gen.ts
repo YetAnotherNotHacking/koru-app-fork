@@ -9,8 +9,8 @@ export type Account = {
   currency: string;
   account_type: AccountType;
   balance_offset: number;
-  iban: string | null;
-  bban: string | null;
+  iban?: string | null;
+  bban?: string | null;
   bic?: string | null;
   scan_code?: string | null;
   internal_id?: string | null;
@@ -27,8 +27,8 @@ export type AccountReadWithBalance = {
   currency: string;
   account_type: AccountType;
   balance_offset: number;
-  iban: string | null;
-  bban: string | null;
+  iban?: string | null;
+  bban?: string | null;
   bic?: string | null;
   scan_code?: string | null;
   internal_id?: string | null;
@@ -55,6 +55,16 @@ export type BodyPasswordLogin = {
   client_secret?: string | null;
 };
 
+export type ConnectionRead = {
+  user_id: string;
+  connection_type: ConnectionType;
+  internal_id?: string | null;
+  institution_id?: string | null;
+  id: string;
+};
+
+export type ConnectionType = "MANUAL" | "GOCARDLESS";
+
 export type Counterparty = {
   created_at?: string;
   updated_at?: string;
@@ -64,6 +74,15 @@ export type Counterparty = {
   iban?: string | null;
   bban?: string | null;
   id?: string;
+};
+
+export type CreateGocardlessConnection = {
+  institution_id: string;
+};
+
+export type CreateRequisitionResponse = {
+  id: string;
+  link: string;
 };
 
 export type ErrorResponse = {
@@ -103,6 +122,17 @@ export type ImportRequisitionResponse = {
   task_id: string;
 };
 
+export type Merchant = {
+  created_at?: string;
+  updated_at?: string;
+  name: string;
+  category: string;
+  match_prefix: string;
+  logo_url?: string | null;
+  url?: string | null;
+  id?: string;
+};
+
 export type MessageResponse = {
   message: string;
 };
@@ -118,7 +148,7 @@ export type TaskStatusResponse = {
   total_count: number;
 };
 
-export type TransactionReadWithOpposing = {
+export type TransactionReadRelations = {
   account_id: string;
   amount: number;
   currency: string;
@@ -127,18 +157,21 @@ export type TransactionReadWithOpposing = {
   opposing_name?: string | null;
   opposing_iban?: string | null;
   opposing_bban?: string | null;
+  opposing_merchant_id?: string | null;
   opposing_counterparty_id?: string | null;
   opposing_account_id?: string | null;
   gocardless_id?: string | null;
   internal_id?: string | null;
   booking_time: string;
-  value_time: string;
+  value_time?: string | null;
   id: string;
+  account: Account;
+  opposing_merchant: Merchant | null;
   opposing_counterparty: Counterparty | null;
   opposing_account: Account | null;
 };
 
-export type UsageType = "PERSONAL" | "BUSINESS";
+export type UsageType = "PRIV" | "ORGA";
 
 export type UserCreate = {
   first_name: string;
@@ -581,7 +614,7 @@ export type GetTransactionsResponses = {
   /**
    * Successful Response
    */
-  200: Array<TransactionReadWithOpposing>;
+  200: Array<TransactionReadRelations>;
 };
 
 export type GetTransactionsResponse =
@@ -671,6 +704,134 @@ export type GetAccountStatisticsResponses = {
 
 export type GetAccountStatisticsResponse =
   GetAccountStatisticsResponses[keyof GetAccountStatisticsResponses];
+
+export type GetConnectionsData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/connection";
+};
+
+export type GetConnectionsErrors = {
+  /**
+   * Bad Request
+   */
+  400: ErrorResponse;
+  /**
+   * Unauthorized
+   */
+  401: ErrorResponse;
+  /**
+   * Forbidden
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetConnectionsError =
+  GetConnectionsErrors[keyof GetConnectionsErrors];
+
+export type GetConnectionsResponses = {
+  /**
+   * Successful Response
+   */
+  200: Array<ConnectionRead>;
+};
+
+export type GetConnectionsResponse =
+  GetConnectionsResponses[keyof GetConnectionsResponses];
+
+export type CreateGocardlessConnectionData = {
+  body: CreateGocardlessConnection;
+  path?: never;
+  query?: never;
+  url: "/connection/gocardless";
+};
+
+export type CreateGocardlessConnectionErrors = {
+  /**
+   * Bad Request
+   */
+  400: ErrorResponse;
+  /**
+   * Unauthorized
+   */
+  401: ErrorResponse;
+  /**
+   * Forbidden
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type CreateGocardlessConnectionError =
+  CreateGocardlessConnectionErrors[keyof CreateGocardlessConnectionErrors];
+
+export type CreateGocardlessConnectionResponses = {
+  /**
+   * Successful Response
+   */
+  200: CreateRequisitionResponse;
+};
+
+export type CreateGocardlessConnectionResponse =
+  CreateGocardlessConnectionResponses[keyof CreateGocardlessConnectionResponses];
+
+export type GocardlessCallbackData = {
+  body?: never;
+  path?: never;
+  query: {
+    ref: string;
+  };
+  url: "/connection/gocardless/callback";
+};
+
+export type GocardlessCallbackErrors = {
+  /**
+   * Bad Request
+   */
+  400: ErrorResponse;
+  /**
+   * Unauthorized
+   */
+  401: ErrorResponse;
+  /**
+   * Forbidden
+   */
+  403: ErrorResponse;
+  /**
+   * Not Found
+   */
+  404: ErrorResponse;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GocardlessCallbackError =
+  GocardlessCallbackErrors[keyof GocardlessCallbackErrors];
+
+export type GocardlessCallbackResponses = {
+  /**
+   * Successful Response
+   */
+  200: unknown;
+};
 
 export type GetHcaptchaSitekeyData = {
   body?: never;

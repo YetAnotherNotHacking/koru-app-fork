@@ -11,6 +11,7 @@ from .base import BaseModel
 if TYPE_CHECKING:
     from .account import Account
     from .counterparty import Counterparty
+    from .merchant import Merchant
 
 
 class TransactionBase(SQLModel):
@@ -27,6 +28,7 @@ class TransactionBase(SQLModel):
     opposing_iban: str | None = None
     opposing_bban: str | None = None
 
+    opposing_merchant_id: str | None = Field(default=None, foreign_key="merchant.id")
     opposing_counterparty_id: str | None = Field(
         default=None, foreign_key="counterparty.id"
     )
@@ -62,8 +64,11 @@ class Transaction(TransactionBase, BaseModel, table=True):
         back_populates="transactions",
         sa_relationship_kwargs={"foreign_keys": "[Transaction.account_id]"},
     )
-    opposing_counterparty: Optional["Counterparty"] = Relationship(
+    opposing_merchant: Optional["Merchant"] = Relationship(
         back_populates="transactions"
+    )
+    opposing_counterparty: Optional["Counterparty"] = Relationship(
+        back_populates="transactions",
     )
     opposing_account: Optional["Account"] = Relationship(
         back_populates="opposing_transactions",
@@ -81,5 +86,6 @@ class TransactionRead(TransactionBase):
 
 class TransactionReadRelations(TransactionRead):
     account: "Account"
+    opposing_merchant: Optional["Merchant"]
     opposing_counterparty: Optional["Counterparty"]
     opposing_account: Optional["Account"]

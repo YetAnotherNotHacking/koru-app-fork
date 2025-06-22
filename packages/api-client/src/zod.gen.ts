@@ -133,6 +133,17 @@ export const zImportRequisitionResponse = z.object({
   task_id: z.string(),
 });
 
+export const zMerchant = z.object({
+  created_at: z.string().datetime().optional(),
+  updated_at: z.string().datetime().optional(),
+  name: z.string(),
+  category: z.string(),
+  match_prefix: z.string(),
+  logo_url: z.union([z.string(), z.null()]).optional(),
+  url: z.union([z.string(), z.null()]).optional(),
+  id: z.string().optional(),
+});
+
 export const zMessageResponse = z.object({
   message: z.string(),
 });
@@ -157,6 +168,7 @@ export const zTransactionReadRelations = z.object({
   opposing_name: z.union([z.string(), z.null()]).optional(),
   opposing_iban: z.union([z.string(), z.null()]).optional(),
   opposing_bban: z.union([z.string(), z.null()]).optional(),
+  opposing_merchant_id: z.union([z.string(), z.null()]).optional(),
   opposing_counterparty_id: z.union([z.string(), z.null()]).optional(),
   opposing_account_id: z.union([z.string(), z.null()]).optional(),
   gocardless_id: z.union([z.string(), z.null()]).optional(),
@@ -165,6 +177,7 @@ export const zTransactionReadRelations = z.object({
   value_time: z.union([z.string().datetime(), z.null()]).optional(),
   id: z.string(),
   account: zAccount,
+  opposing_merchant: z.union([zMerchant, z.null()]),
   opposing_counterparty: z.union([zCounterparty, z.null()]),
   opposing_account: z.union([zAccount, z.null()]),
 });

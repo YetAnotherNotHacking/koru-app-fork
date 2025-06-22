@@ -122,6 +122,17 @@ export type ImportRequisitionResponse = {
   task_id: string;
 };
 
+export type Merchant = {
+  created_at?: string;
+  updated_at?: string;
+  name: string;
+  category: string;
+  match_prefix: string;
+  logo_url?: string | null;
+  url?: string | null;
+  id?: string;
+};
+
 export type MessageResponse = {
   message: string;
 };
@@ -146,6 +157,7 @@ export type TransactionReadRelations = {
   opposing_name?: string | null;
   opposing_iban?: string | null;
   opposing_bban?: string | null;
+  opposing_merchant_id?: string | null;
   opposing_counterparty_id?: string | null;
   opposing_account_id?: string | null;
   gocardless_id?: string | null;
@@ -154,6 +166,7 @@ export type TransactionReadRelations = {
   value_time?: string | null;
   id: string;
   account: Account;
+  opposing_merchant: Merchant | null;
   opposing_counterparty: Counterparty | null;
   opposing_account: Account | null;
 };

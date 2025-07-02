@@ -1,14 +1,12 @@
-from fastapi import FastAPI, status
+from fastapi import FastAPI
 from fastapi.routing import APIRoute
 
-from api.core.config import settings
-from api.schemas.base import ErrorResponse, MessageResponse
-
-from .middleware.cloudflare_ip import CloudflareMiddleware
-from .routers import account, auth, connection, import_router, transaction, waitlist
+# Import our routers
+from .routers import items, users
 
 
 def custom_generate_unique_id(route: APIRoute) -> str:
+    """Generate unique IDs for OpenAPI documentation"""
     if route.operation_id:
         return route.operation_id
 
@@ -16,27 +14,32 @@ def custom_generate_unique_id(route: APIRoute) -> str:
     return name_parts[0] + "".join(part.capitalize() for part in name_parts[1:])
 
 
+# Create the FastAPI app
 app = FastAPI(
+    title="SpaceTalk API",
+    description="Backend for the SpaceTalk application",
+    version="0.1.0",
     generate_unique_id_function=custom_generate_unique_id,
-    root_path="/api",
-    responses={
-        status.HTTP_400_BAD_REQUEST: {"model": ErrorResponse},
-        status.HTTP_401_UNAUTHORIZED: {"model": ErrorResponse},
-        status.HTTP_403_FORBIDDEN: {"model": ErrorResponse},
-        status.HTTP_404_NOT_FOUND: {"model": ErrorResponse},
-    },
+    root_path="/api",  # This means all routes will be prefixed with /api
 )
 
-app.add_middleware(CloudflareMiddleware)
-
-app.include_router(auth.router)
-app.include_router(waitlist.router)
-app.include_router(import_router.router)
-app.include_router(transaction.router)
-app.include_router(account.router)
-app.include_router(connection.router)
+# Include routers
+app.include_router(users.router)
+app.include_router(items.router)
 
 
-@app.get("/hcaptcha/sitekey")
-async def get_hcaptcha_sitekey() -> MessageResponse:
-    return MessageResponse(message=settings.HCAPTCHA_SITEKEY)
+# Basic health check endpoint
+@app.get("/")
+async def root():
+    """Root endpoint - returns basic API info"""
+    return {
+        "message": "Welcome to SpaceTalk API!",
+        "version": "1.0.0",
+        "status": "running",
+    }
+
+
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for monitoring"""
+    return {"status": "healthy"}

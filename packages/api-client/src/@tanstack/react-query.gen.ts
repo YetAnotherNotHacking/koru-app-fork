@@ -2,62 +2,40 @@
 
 import {
   type Options,
-  passwordLogin,
-  register,
-  confirmEmail,
-  refreshToken,
-  logout,
-  joinWaitlist,
-  confirmWaitlist,
-  importGocardless,
-  getTaskStatus,
-  getTransactions,
-  getAccounts,
-  getAccountStatistics,
-  getConnections,
-  createGocardlessConnection,
-  gocardlessCallback,
-  getHcaptchaSitekey,
+  getAllUsers,
+  createUser,
+  deleteUser,
+  getUser,
+  updateUser,
+  getItems,
+  createItem,
+  getItem,
+  getCategories,
+  searchItems,
+  root,
+  healthCheck,
 } from "../sdk.gen";
-import {
-  queryOptions,
-  type UseMutationOptions,
-  infiniteQueryOptions,
-  type InfiniteData,
-} from "@tanstack/react-query";
+import { queryOptions, type UseMutationOptions } from "@tanstack/react-query";
 import type {
-  PasswordLoginData,
-  PasswordLoginError,
-  PasswordLoginResponse,
-  RegisterData,
-  RegisterError,
-  RegisterResponse,
-  ConfirmEmailData,
-  RefreshTokenData,
-  RefreshTokenError,
-  RefreshTokenResponse,
-  LogoutData,
-  LogoutError,
-  LogoutResponse,
-  JoinWaitlistData,
-  JoinWaitlistError,
-  JoinWaitlistResponse,
-  ConfirmWaitlistData,
-  ImportGocardlessData,
-  ImportGocardlessError,
-  ImportGocardlessResponse,
-  GetTaskStatusData,
-  GetTransactionsData,
-  GetTransactionsError,
-  GetTransactionsResponse,
-  GetAccountsData,
-  GetAccountStatisticsData,
-  GetConnectionsData,
-  CreateGocardlessConnectionData,
-  CreateGocardlessConnectionError,
-  CreateGocardlessConnectionResponse,
-  GocardlessCallbackData,
-  GetHcaptchaSitekeyData,
+  GetAllUsersData,
+  CreateUserData,
+  CreateUserError,
+  CreateUserResponse,
+  DeleteUserData,
+  DeleteUserError,
+  GetUserData,
+  UpdateUserData,
+  UpdateUserError,
+  UpdateUserResponse,
+  GetItemsData,
+  CreateItemData,
+  CreateItemError,
+  CreateItemResponse,
+  GetItemData,
+  GetCategoriesData,
+  SearchItemsData,
+  RootData,
+  HealthCheckData,
 } from "../types.gen";
 import { client as _heyApiClient } from "../client.gen";
 
@@ -95,16 +73,17 @@ const createQueryKey = <TOptions extends Options>(
   return [params];
 };
 
-export const passwordLoginQueryKey = (options: Options<PasswordLoginData>) =>
-  createQueryKey("passwordLogin", options);
+export const getAllUsersQueryKey = (options?: Options<GetAllUsersData>) =>
+  createQueryKey("getAllUsers", options);
 
 /**
- * Password Login
+ * Get All Users
+ * Get all users
  */
-export const passwordLoginOptions = (options: Options<PasswordLoginData>) => {
+export const getAllUsersOptions = (options?: Options<GetAllUsersData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await passwordLogin({
+      const { data } = await getAllUsers({
         ...options,
         ...queryKey[0],
         signal,
@@ -112,27 +91,50 @@ export const passwordLoginOptions = (options: Options<PasswordLoginData>) => {
       });
       return data;
     },
-    queryKey: passwordLoginQueryKey(options),
+    queryKey: getAllUsersQueryKey(options),
+  });
+};
+
+export const createUserQueryKey = (options: Options<CreateUserData>) =>
+  createQueryKey("createUser", options);
+
+/**
+ * Create User
+ * Create a new user
+ */
+export const createUserOptions = (options: Options<CreateUserData>) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await createUser({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      });
+      return data;
+    },
+    queryKey: createUserQueryKey(options),
   });
 };
 
 /**
- * Password Login
+ * Create User
+ * Create a new user
  */
-export const passwordLoginMutation = (
-  options?: Partial<Options<PasswordLoginData>>
+export const createUserMutation = (
+  options?: Partial<Options<CreateUserData>>
 ): UseMutationOptions<
-  PasswordLoginResponse,
-  PasswordLoginError,
-  Options<PasswordLoginData>
+  CreateUserResponse,
+  CreateUserError,
+  Options<CreateUserData>
 > => {
   const mutationOptions: UseMutationOptions<
-    PasswordLoginResponse,
-    PasswordLoginError,
-    Options<PasswordLoginData>
+    CreateUserResponse,
+    CreateUserError,
+    Options<CreateUserData>
   > = {
     mutationFn: async (localOptions) => {
-      const { data } = await passwordLogin({
+      const { data } = await createUser({
         ...options,
         ...localOptions,
         throwOnError: true,
@@ -143,16 +145,41 @@ export const passwordLoginMutation = (
   return mutationOptions;
 };
 
-export const registerQueryKey = (options: Options<RegisterData>) =>
-  createQueryKey("register", options);
+/**
+ * Delete User
+ * Delete a user
+ */
+export const deleteUserMutation = (
+  options?: Partial<Options<DeleteUserData>>
+): UseMutationOptions<unknown, DeleteUserError, Options<DeleteUserData>> => {
+  const mutationOptions: UseMutationOptions<
+    unknown,
+    DeleteUserError,
+    Options<DeleteUserData>
+  > = {
+    mutationFn: async (localOptions) => {
+      const { data } = await deleteUser({
+        ...options,
+        ...localOptions,
+        throwOnError: true,
+      });
+      return data;
+    },
+  };
+  return mutationOptions;
+};
+
+export const getUserQueryKey = (options: Options<GetUserData>) =>
+  createQueryKey("getUser", options);
 
 /**
- * Register
+ * Get User
+ * Get a specific user by ID
  */
-export const registerOptions = (options: Options<RegisterData>) => {
+export const getUserOptions = (options: Options<GetUserData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await register({
+      const { data } = await getUser({
         ...options,
         ...queryKey[0],
         signal,
@@ -160,27 +187,28 @@ export const registerOptions = (options: Options<RegisterData>) => {
       });
       return data;
     },
-    queryKey: registerQueryKey(options),
+    queryKey: getUserQueryKey(options),
   });
 };
 
 /**
- * Register
+ * Update User
+ * Update an existing user
  */
-export const registerMutation = (
-  options?: Partial<Options<RegisterData>>
+export const updateUserMutation = (
+  options?: Partial<Options<UpdateUserData>>
 ): UseMutationOptions<
-  RegisterResponse,
-  RegisterError,
-  Options<RegisterData>
+  UpdateUserResponse,
+  UpdateUserError,
+  Options<UpdateUserData>
 > => {
   const mutationOptions: UseMutationOptions<
-    RegisterResponse,
-    RegisterError,
-    Options<RegisterData>
+    UpdateUserResponse,
+    UpdateUserError,
+    Options<UpdateUserData>
   > = {
     mutationFn: async (localOptions) => {
-      const { data } = await register({
+      const { data } = await updateUser({
         ...options,
         ...localOptions,
         throwOnError: true,
@@ -191,16 +219,17 @@ export const registerMutation = (
   return mutationOptions;
 };
 
-export const confirmEmailQueryKey = (options: Options<ConfirmEmailData>) =>
-  createQueryKey("confirmEmail", options);
+export const getItemsQueryKey = (options?: Options<GetItemsData>) =>
+  createQueryKey("getItems", options);
 
 /**
- * Confirm Email
+ * Get Items
+ * Get all items with optional filtering
  */
-export const confirmEmailOptions = (options: Options<ConfirmEmailData>) => {
+export const getItemsOptions = (options?: Options<GetItemsData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await confirmEmail({
+      const { data } = await getItems({
         ...options,
         ...queryKey[0],
         signal,
@@ -208,20 +237,21 @@ export const confirmEmailOptions = (options: Options<ConfirmEmailData>) => {
       });
       return data;
     },
-    queryKey: confirmEmailQueryKey(options),
+    queryKey: getItemsQueryKey(options),
   });
 };
 
-export const refreshTokenQueryKey = (options: Options<RefreshTokenData>) =>
-  createQueryKey("refreshToken", options);
+export const createItemQueryKey = (options: Options<CreateItemData>) =>
+  createQueryKey("createItem", options);
 
 /**
- * Refresh Token
+ * Create Item
+ * Create a new item
  */
-export const refreshTokenOptions = (options: Options<RefreshTokenData>) => {
+export const createItemOptions = (options: Options<CreateItemData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await refreshToken({
+      const { data } = await createItem({
         ...options,
         ...queryKey[0],
         signal,
@@ -229,27 +259,28 @@ export const refreshTokenOptions = (options: Options<RefreshTokenData>) => {
       });
       return data;
     },
-    queryKey: refreshTokenQueryKey(options),
+    queryKey: createItemQueryKey(options),
   });
 };
 
 /**
- * Refresh Token
+ * Create Item
+ * Create a new item
  */
-export const refreshTokenMutation = (
-  options?: Partial<Options<RefreshTokenData>>
+export const createItemMutation = (
+  options?: Partial<Options<CreateItemData>>
 ): UseMutationOptions<
-  RefreshTokenResponse,
-  RefreshTokenError,
-  Options<RefreshTokenData>
+  CreateItemResponse,
+  CreateItemError,
+  Options<CreateItemData>
 > => {
   const mutationOptions: UseMutationOptions<
-    RefreshTokenResponse,
-    RefreshTokenError,
-    Options<RefreshTokenData>
+    CreateItemResponse,
+    CreateItemError,
+    Options<CreateItemData>
   > = {
     mutationFn: async (localOptions) => {
-      const { data } = await refreshToken({
+      const { data } = await createItem({
         ...options,
         ...localOptions,
         throwOnError: true,
@@ -260,16 +291,17 @@ export const refreshTokenMutation = (
   return mutationOptions;
 };
 
-export const logoutQueryKey = (options?: Options<LogoutData>) =>
-  createQueryKey("logout", options);
+export const getItemQueryKey = (options: Options<GetItemData>) =>
+  createQueryKey("getItem", options);
 
 /**
- * Logout
+ * Get Item
+ * Get a specific item by ID
  */
-export const logoutOptions = (options?: Options<LogoutData>) => {
+export const getItemOptions = (options: Options<GetItemData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await logout({
+      const { data } = await getItem({
         ...options,
         ...queryKey[0],
         signal,
@@ -277,43 +309,21 @@ export const logoutOptions = (options?: Options<LogoutData>) => {
       });
       return data;
     },
-    queryKey: logoutQueryKey(options),
+    queryKey: getItemQueryKey(options),
   });
 };
 
-/**
- * Logout
- */
-export const logoutMutation = (
-  options?: Partial<Options<LogoutData>>
-): UseMutationOptions<LogoutResponse, LogoutError, Options<LogoutData>> => {
-  const mutationOptions: UseMutationOptions<
-    LogoutResponse,
-    LogoutError,
-    Options<LogoutData>
-  > = {
-    mutationFn: async (localOptions) => {
-      const { data } = await logout({
-        ...options,
-        ...localOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
-};
-
-export const joinWaitlistQueryKey = (options: Options<JoinWaitlistData>) =>
-  createQueryKey("joinWaitlist", options);
+export const getCategoriesQueryKey = (options?: Options<GetCategoriesData>) =>
+  createQueryKey("getCategories", options);
 
 /**
- * Join Waitlist
+ * Get Categories
+ * Get all unique categories
  */
-export const joinWaitlistOptions = (options: Options<JoinWaitlistData>) => {
+export const getCategoriesOptions = (options?: Options<GetCategoriesData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await joinWaitlist({
+      const { data } = await getCategories({
         ...options,
         ...queryKey[0],
         signal,
@@ -321,50 +331,21 @@ export const joinWaitlistOptions = (options: Options<JoinWaitlistData>) => {
       });
       return data;
     },
-    queryKey: joinWaitlistQueryKey(options),
+    queryKey: getCategoriesQueryKey(options),
   });
 };
 
-/**
- * Join Waitlist
- */
-export const joinWaitlistMutation = (
-  options?: Partial<Options<JoinWaitlistData>>
-): UseMutationOptions<
-  JoinWaitlistResponse,
-  JoinWaitlistError,
-  Options<JoinWaitlistData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    JoinWaitlistResponse,
-    JoinWaitlistError,
-    Options<JoinWaitlistData>
-  > = {
-    mutationFn: async (localOptions) => {
-      const { data } = await joinWaitlist({
-        ...options,
-        ...localOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
-};
-
-export const confirmWaitlistQueryKey = (
-  options: Options<ConfirmWaitlistData>
-) => createQueryKey("confirmWaitlist", options);
+export const searchItemsQueryKey = (options: Options<SearchItemsData>) =>
+  createQueryKey("searchItems", options);
 
 /**
- * Confirm Waitlist
+ * Search Items
+ * Search items by name or description
  */
-export const confirmWaitlistOptions = (
-  options: Options<ConfirmWaitlistData>
-) => {
+export const searchItemsOptions = (options: Options<SearchItemsData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await confirmWaitlist({
+      const { data } = await searchItems({
         ...options,
         ...queryKey[0],
         signal,
@@ -372,23 +353,21 @@ export const confirmWaitlistOptions = (
       });
       return data;
     },
-    queryKey: confirmWaitlistQueryKey(options),
+    queryKey: searchItemsQueryKey(options),
   });
 };
 
-export const importGocardlessQueryKey = (
-  options: Options<ImportGocardlessData>
-) => createQueryKey("importGocardless", options);
+export const rootQueryKey = (options?: Options<RootData>) =>
+  createQueryKey("root", options);
 
 /**
- * Import Gocardless
+ * Root
+ * Root endpoint - returns basic API info
  */
-export const importGocardlessOptions = (
-  options: Options<ImportGocardlessData>
-) => {
+export const rootOptions = (options?: Options<RootData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await importGocardless({
+      const { data } = await root({
         ...options,
         ...queryKey[0],
         signal,
@@ -396,47 +375,21 @@ export const importGocardlessOptions = (
       });
       return data;
     },
-    queryKey: importGocardlessQueryKey(options),
+    queryKey: rootQueryKey(options),
   });
 };
 
-/**
- * Import Gocardless
- */
-export const importGocardlessMutation = (
-  options?: Partial<Options<ImportGocardlessData>>
-): UseMutationOptions<
-  ImportGocardlessResponse,
-  ImportGocardlessError,
-  Options<ImportGocardlessData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    ImportGocardlessResponse,
-    ImportGocardlessError,
-    Options<ImportGocardlessData>
-  > = {
-    mutationFn: async (localOptions) => {
-      const { data } = await importGocardless({
-        ...options,
-        ...localOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
-};
-
-export const getTaskStatusQueryKey = (options: Options<GetTaskStatusData>) =>
-  createQueryKey("getTaskStatus", options);
+export const healthCheckQueryKey = (options?: Options<HealthCheckData>) =>
+  createQueryKey("healthCheck", options);
 
 /**
- * Get Task Status
+ * Health Check
+ * Health check endpoint for monitoring
  */
-export const getTaskStatusOptions = (options: Options<GetTaskStatusData>) => {
+export const healthCheckOptions = (options?: Options<HealthCheckData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await getTaskStatus({
+      const { data } = await healthCheck({
         ...options,
         ...queryKey[0],
         signal,
@@ -444,280 +397,6 @@ export const getTaskStatusOptions = (options: Options<GetTaskStatusData>) => {
       });
       return data;
     },
-    queryKey: getTaskStatusQueryKey(options),
-  });
-};
-
-export const getTransactionsQueryKey = (
-  options: Options<GetTransactionsData>
-) => createQueryKey("getTransactions", options);
-
-/**
- * Get Transactions
- */
-export const getTransactionsOptions = (
-  options: Options<GetTransactionsData>
-) => {
-  return queryOptions({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await getTransactions({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
-    },
-    queryKey: getTransactionsQueryKey(options),
-  });
-};
-
-const createInfiniteParams = <
-  K extends Pick<QueryKey<Options>[0], "body" | "headers" | "path" | "query">,
->(
-  queryKey: QueryKey<Options>,
-  page: K
-) => {
-  const params = queryKey[0];
-  if (page.body) {
-    params.body = {
-      ...(queryKey[0].body as any),
-      ...(page.body as any),
-    };
-  }
-  if (page.headers) {
-    params.headers = {
-      ...queryKey[0].headers,
-      ...page.headers,
-    };
-  }
-  if (page.path) {
-    params.path = {
-      ...(queryKey[0].path as any),
-      ...(page.path as any),
-    };
-  }
-  if (page.query) {
-    params.query = {
-      ...(queryKey[0].query as any),
-      ...(page.query as any),
-    };
-  }
-  return params as unknown as typeof page;
-};
-
-export const getTransactionsInfiniteQueryKey = (
-  options: Options<GetTransactionsData>
-): QueryKey<Options<GetTransactionsData>> =>
-  createQueryKey("getTransactions", options, true);
-
-/**
- * Get Transactions
- */
-export const getTransactionsInfiniteOptions = (
-  options: Options<GetTransactionsData>
-) => {
-  return infiniteQueryOptions<
-    GetTransactionsResponse,
-    GetTransactionsError,
-    InfiniteData<GetTransactionsResponse>,
-    QueryKey<Options<GetTransactionsData>>,
-    | number
-    | Pick<
-        QueryKey<Options<GetTransactionsData>>[0],
-        "body" | "headers" | "path" | "query"
-      >
-  >(
-    // @ts-ignore
-    {
-      queryFn: async ({ pageParam, queryKey, signal }) => {
-        // @ts-ignore
-        const page: Pick<
-          QueryKey<Options<GetTransactionsData>>[0],
-          "body" | "headers" | "path" | "query"
-        > =
-          typeof pageParam === "object"
-            ? pageParam
-            : {
-                query: {
-                  offset: pageParam,
-                },
-              };
-        const params = createInfiniteParams(queryKey, page);
-        const { data } = await getTransactions({
-          ...options,
-          ...params,
-          signal,
-          throwOnError: true,
-        });
-        return data;
-      },
-      queryKey: getTransactionsInfiniteQueryKey(options),
-    }
-  );
-};
-
-export const getAccountsQueryKey = (options: Options<GetAccountsData>) =>
-  createQueryKey("getAccounts", options);
-
-/**
- * Get Accounts
- */
-export const getAccountsOptions = (options: Options<GetAccountsData>) => {
-  return queryOptions({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await getAccounts({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
-    },
-    queryKey: getAccountsQueryKey(options),
-  });
-};
-
-export const getAccountStatisticsQueryKey = (
-  options: Options<GetAccountStatisticsData>
-) => createQueryKey("getAccountStatistics", options);
-
-/**
- * Get Account Statistics
- */
-export const getAccountStatisticsOptions = (
-  options: Options<GetAccountStatisticsData>
-) => {
-  return queryOptions({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await getAccountStatistics({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
-    },
-    queryKey: getAccountStatisticsQueryKey(options),
-  });
-};
-
-export const getConnectionsQueryKey = (options: Options<GetConnectionsData>) =>
-  createQueryKey("getConnections", options);
-
-/**
- * Get Connections
- */
-export const getConnectionsOptions = (options: Options<GetConnectionsData>) => {
-  return queryOptions({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await getConnections({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
-    },
-    queryKey: getConnectionsQueryKey(options),
-  });
-};
-
-export const createGocardlessConnectionQueryKey = (
-  options: Options<CreateGocardlessConnectionData>
-) => createQueryKey("createGocardlessConnection", options);
-
-/**
- * Create Gocardless Connection
- */
-export const createGocardlessConnectionOptions = (
-  options: Options<CreateGocardlessConnectionData>
-) => {
-  return queryOptions({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await createGocardlessConnection({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
-    },
-    queryKey: createGocardlessConnectionQueryKey(options),
-  });
-};
-
-/**
- * Create Gocardless Connection
- */
-export const createGocardlessConnectionMutation = (
-  options?: Partial<Options<CreateGocardlessConnectionData>>
-): UseMutationOptions<
-  CreateGocardlessConnectionResponse,
-  CreateGocardlessConnectionError,
-  Options<CreateGocardlessConnectionData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    CreateGocardlessConnectionResponse,
-    CreateGocardlessConnectionError,
-    Options<CreateGocardlessConnectionData>
-  > = {
-    mutationFn: async (localOptions) => {
-      const { data } = await createGocardlessConnection({
-        ...options,
-        ...localOptions,
-        throwOnError: true,
-      });
-      return data;
-    },
-  };
-  return mutationOptions;
-};
-
-export const gocardlessCallbackQueryKey = (
-  options: Options<GocardlessCallbackData>
-) => createQueryKey("gocardlessCallback", options);
-
-/**
- * Gocardless Callback
- */
-export const gocardlessCallbackOptions = (
-  options: Options<GocardlessCallbackData>
-) => {
-  return queryOptions({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await gocardlessCallback({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
-    },
-    queryKey: gocardlessCallbackQueryKey(options),
-  });
-};
-
-export const getHcaptchaSitekeyQueryKey = (
-  options?: Options<GetHcaptchaSitekeyData>
-) => createQueryKey("getHcaptchaSitekey", options);
-
-/**
- * Get Hcaptcha Sitekey
- */
-export const getHcaptchaSitekeyOptions = (
-  options?: Options<GetHcaptchaSitekeyData>
-) => {
-  return queryOptions({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await getHcaptchaSitekey({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      });
-      return data;
-    },
-    queryKey: getHcaptchaSitekeyQueryKey(options),
+    queryKey: healthCheckQueryKey(options),
   });
 };

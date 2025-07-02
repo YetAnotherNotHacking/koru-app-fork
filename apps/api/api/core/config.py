@@ -5,11 +5,11 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     APP_URL: str = "http://localhost:3000"
-    DATABASE_URL: str
+    DATABASE_URL: str = "sqlite:///./dev.db"
 
     SIGNUP_ENABLED: bool = True
 
-    JWT_SECRET: str
+    JWT_SECRET: str = "dev-secret-key"
     JWT_ALGORITHM: str = "HS256"
 
     ACCESS_TOKEN_EXPIRATION: int = 60 * 15
@@ -32,12 +32,12 @@ class Settings(BaseSettings):
     RABBITMQ_VHOST: str | None = None
 
     # hCaptcha configuration
-    HCAPTCHA_SITEKEY: str
-    HCAPTCHA_SECRET: str
+    HCAPTCHA_SITEKEY: str = "dev-sitekey"
+    HCAPTCHA_SECRET: str = "dev-secret"
 
     # GoCardless configuration
-    GOCARDLESS_SECRET_ID: str
-    GOCARDLESS_SECRET_KEY: str
+    GOCARDLESS_SECRET_ID: str = "dev-id"
+    GOCARDLESS_SECRET_KEY: str = "dev-key"
 
     model_config = SettingsConfigDict(
         env_file=".env",

@@ -1,3 +1,4 @@
+from sqlalchemy import update
 from sqlmodel import Session, and_, col, func, or_, select
 
 from api.core.celery import app
@@ -86,7 +87,15 @@ def _bulk_link_accounts(session: Session, account_id: str) -> int:
         )
 
     if transaction_updates:
-        session.bulk_update_mappings(Transaction, transaction_updates)  # type: ignore[arg-type]
+        for update_data in transaction_updates:
+            session.execute(
+                update(Transaction)
+                .where(Transaction.id == update_data["id"])
+                .values(
+                    opposing_account_id=update_data.get("opposing_account_id"),
+                    processing_status=update_data["processing_status"],
+                )
+            )
 
     return len(transaction_updates)
 
@@ -142,6 +151,14 @@ def _bulk_link_merchants(session: Session, account_id: str) -> int:
         )
 
     if transaction_updates:
-        session.bulk_update_mappings(Transaction, transaction_updates)  # type: ignore[arg-type]d
+        for update_data in transaction_updates:
+            session.execute(
+                update(Transaction)
+                .where(Transaction.id == update_data["id"])
+                .values(
+                    opposing_merchant_id=update_data.get("opposing_merchant_id"),
+                    processing_status=update_data["processing_status"],
+                )
+            )
 
     return len(transaction_updates)
